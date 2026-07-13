@@ -145,11 +145,13 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="display.cpp" />
     <ClCompile Include="glad\src\gl.c" />
     <ClCompile Include="glad\src\wgl.c" />
     <ClCompile Include="win_app.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="display.h" />
     <ClInclude Include="glad\include\glad\gl.h" />
     <ClInclude Include="glad\include\glad\wgl.h" />
     <ClInclude Include="glad\include\KHR\khrplatform.h" />

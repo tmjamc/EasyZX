@@ -8,6 +8,7 @@
     <ClCompile Include="glad\src\wgl.c">
       <Filter>glad\src</Filter>
     </ClCompile>
+    <ClCompile Include="display.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="win_app.h" />
@@ -20,6 +21,7 @@
     <ClInclude Include="glad\include\KHR\khrplatform.h">
       <Filter>glad\include\KHR</Filter>
     </ClInclude>
+    <ClInclude Include="display.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="glad">

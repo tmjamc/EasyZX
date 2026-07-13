@@ -2,11 +2,31 @@
 
 #include <iostream>
 
-#include "win_app.h"
 #include "glad/wgl.h"
+#include "win_app.h"
+#include "display.h"
 
 namespace win_app
 {
+    #define ERROR(msg)\
+    cleanUp();\
+	std::cerr << msg << std::endl;\
+	return false
+
+    HINSTANCE hInst;
+
+    const TCHAR* windowClassname = L"EasyZXClass";
+    const TCHAR* windowTitle = L"EasyZX";
+    const POINT windowLocation = { CW_USEDEFAULT, 0 };
+    const SIZE windowSize = { 1366, 768 };
+
+    HWND hWnd = nullptr;
+    HDC hDC = nullptr;
+    HGLRC tmpCtx = nullptr;
+    HGLRC glCtx = nullptr;
+
+    bool running = false;
+
     static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
         switch (message)
@@ -24,13 +44,9 @@ namespace win_app
             break;
         }
 
-        case WM_PAINT:
-        {
-            glClearColor(0.3f, 0.5f, 0.8f, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT);
-            SwapBuffers(hDC);
-            break;
-        }
+        case WM_SIZE:
+            display::setViewport(LOWORD(lParam), HIWORD(lParam));
+            [[fallthrough]];
 
         default:
             return DefWindowProc(hWnd, message, wParam, lParam);
@@ -139,8 +155,8 @@ namespace win_app
         // Set the desired OpenGL version
         int attributes[] =
         {
-            WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
-            WGL_CONTEXT_MINOR_VERSION_ARB, 6,
+            WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
+            WGL_CONTEXT_MINOR_VERSION_ARB, 3,
             WGL_CONTEXT_FLAGS_ARB,
             WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
             0
@@ -164,6 +180,9 @@ namespace win_app
         {
             ERROR("Glad loader failed");
         }
+
+        // Unbind the OpenGL context for now, it will be re-bound when the rendering thread starts
+        wglMakeCurrent(hDC, nullptr);
 
         return true;
     }
@@ -197,6 +216,10 @@ namespace win_app
 
     void run()
     {
+        running = true;
+
+        display::startThread();
+
         MSG msg;
         while (GetMessage(&msg, nullptr, 0, 0))
         {
@@ -207,6 +230,10 @@ namespace win_app
                 break;
             }
         }
+
+        running = false;
+
+        display::stopThread();
 
         cleanUp();
     }
