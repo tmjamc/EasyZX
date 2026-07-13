@@ -1,66 +1,13 @@
-#include <windows.h>
-#include <stdio.h>
+#pragma comment(lib, "opengl32.lib")
+
 #include <iostream>
-#include <wchar.h>
 
 #include "win_app.h"
+#include "glad/wgl.h"
 
 namespace win_app
 {
-	BOOL run(HINSTANCE hInstance)
-	{
-        hInst = hInstance;
-
-        registerClass();
-        if (initInstance(SW_SHOWNORMAL) == FALSE)
-        {
-            return FALSE;
-        }
-
-        MSG msg;
-        while (GetMessage(&msg, NULL, 0, 0))
-        {
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
-            if (msg.message == WM_QUIT)
-            {
-                break;
-            }
-        }
-
-        return TRUE;
-	}
-
-    ATOM registerClass()
-    {
-        WNDCLASSEXW wcex{};
-        wcex.cbSize = sizeof(WNDCLASSEX);
-        wcex.style = CS_HREDRAW | CS_VREDRAW;
-        wcex.lpfnWndProc = WndProc;
-        wcex.hInstance = hInst;
-        wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
-        wcex.lpszClassName = windowClassname;
-
-        return RegisterClassExW(&wcex);
-    }
-
-    BOOL initInstance(int nCmdShow)
-    {
-        hWnd = CreateWindowW(windowClassname, windowTitle, WS_OVERLAPPEDWINDOW, windowLocation.x, windowLocation.y, windowSize.cx, windowSize.cy, nullptr, nullptr, hInst, nullptr);
-
-        if (!hWnd)
-        {
-            std::cerr << "Failed to create window!" << std::endl;
-            return FALSE;
-        }
-
-        ShowWindow(hWnd, nCmdShow);
-        UpdateWindow(hWnd);
-
-        return TRUE;
-    }
-
-    LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+    static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
         switch (message)
         {
@@ -77,12 +24,191 @@ namespace win_app
             break;
         }
 
+        case WM_PAINT:
+        {
+            glClearColor(0.3f, 0.5f, 0.8f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT);
+            SwapBuffers(hDC);
+            break;
+        }
+
         default:
             return DefWindowProc(hWnd, message, wParam, lParam);
 
         }
 
         return 0;
+    }
+
+    static bool registerClass()
+    {
+        WNDCLASSEXW wcex{};
+        wcex.cbSize = sizeof(WNDCLASSEX);
+        wcex.style = CS_HREDRAW | CS_VREDRAW;
+        wcex.lpfnWndProc = WndProc;
+        wcex.hInstance = hInst;
+        wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
+        wcex.lpszClassName = windowClassname;
+
+        if (RegisterClassExW(&wcex) == FALSE)
+        {
+            std::cerr << "Failed to create window class" << std::endl;
+            return false;
+        }
+
+        return true;
+    }
+
+    static bool initInstance()
+    {
+        hWnd = CreateWindowW(windowClassname, windowTitle, WS_OVERLAPPEDWINDOW, windowLocation.x, windowLocation.y, windowSize.cx, windowSize.cy, nullptr, nullptr, hInst, nullptr);
+
+        if (!hWnd)
+        {
+            std::cerr << "Failed to create window instance" << std::endl;
+            return false;
+        }
+
+        return true;
+    }
+
+    static void cleanUp()
+    {
+        if (hDC != nullptr)
+        {
+            wglMakeCurrent(hDC, nullptr);
+        }
+
+        if (tmpCtx != nullptr)
+        {
+            wglDeleteContext(tmpCtx);
+        }
+
+        if (glCtx != nullptr)
+        {
+            wglDeleteContext(glCtx);
+        }
+
+        if (hDC != nullptr)
+        {
+            ReleaseDC(hWnd, hDC);
+        }
+
+        if (hWnd != nullptr)
+        {
+            DestroyWindow(hWnd);
+        }
+    }
+
+    static bool initOpenGL()
+    {
+        // Get device context
+        hDC = GetDC(hWnd);
+        if (hDC == nullptr)
+        {
+            ERROR("Failed to get window's device context");
+        }
+
+        // Set the pixel format
+        PIXELFORMATDESCRIPTOR pfd{};
+        pfd.nSize = sizeof(pfd);
+        pfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
+        pfd.dwFlags = PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW | PFD_DOUBLEBUFFER;
+        pfd.iPixelType = PFD_TYPE_RGBA;
+        pfd.cColorBits = 32;
+        pfd.iLayerType = PFD_MAIN_PLANE;
+
+        int format = ChoosePixelFormat(hDC, &pfd);
+        if (format == 0 || SetPixelFormat(hDC, format, &pfd) == FALSE)
+        {
+            ERROR("Failed to set pixel format");
+        }
+
+        // Create and enable a temporary OpenGL context to load WGL extensions
+        tmpCtx = wglCreateContext(hDC);
+        if (tmpCtx == nullptr)
+        {
+            ERROR("Failed to create temporary OpenGL context");
+        }
+
+        wglMakeCurrent(hDC, tmpCtx);
+
+        // Load WGL Extensions
+        gladLoaderLoadWGL(hDC);
+
+        // Set the desired OpenGL version
+        int attributes[] =
+        {
+            WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
+            WGL_CONTEXT_MINOR_VERSION_ARB, 6,
+            WGL_CONTEXT_FLAGS_ARB,
+            WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
+            0
+        };
+
+        // Create OpenGL context and delete the temporary one
+        glCtx = wglCreateContextAttribsARB(hDC, nullptr, attributes);
+        if (glCtx == nullptr)
+        {
+            ERROR("Failed to create OpenGL context");
+        }
+
+        wglMakeCurrent(hDC, nullptr);
+        wglDeleteContext(tmpCtx);
+
+        // Set OpenGL context
+        wglMakeCurrent(hDC, glCtx);
+
+        // Glad loader
+        if (!gladLoaderLoadGL())
+        {
+            ERROR("Glad loader failed");
+        }
+
+        return true;
+    }
+
+    bool init(HINSTANCE hInstance)
+    {
+        hInst = hInstance;
+
+        if (!registerClass())
+        {
+            return false;
+        }
+
+        if (!initInstance())
+        {
+            return false;
+        }
+
+        if (!initOpenGL())
+        {
+            return false;
+        }
+
+        ShowWindow(hWnd, SW_SHOWNORMAL);
+
+        if (UpdateWindow(hWnd) == FALSE)
+        {
+            return false;
+        }
+    }
+
+    void run()
+    {
+        MSG msg;
+        while (GetMessage(&msg, nullptr, 0, 0))
+        {
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+            if (msg.message == WM_QUIT)
+            {
+                break;
+            }
+        }
+
+        cleanUp();
     }
 }
 
@@ -103,21 +229,21 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
         {
             return -1;
         }
-        setvbuf(stdin, NULL, _IONBF, 0);
+        setvbuf(stdin, nullptr, _IONBF, 0);
 
         // Redirect stdout to console output
         if (freopen_s(&dummyFile, "CONOUT$", "w", stdout) != 0)
         {
             return -1;
         }
-        setvbuf(stdout, NULL, _IONBF, 0);
+        setvbuf(stdout, nullptr, _IONBF, 0);
 
         // Redirect stderr to console output
         if (freopen_s(&dummyFile, "CONOUT$", "w", stderr) != 0)
         {
             return -1;
         }
-        setvbuf(stderr, NULL, _IONBF, 0);
+        setvbuf(stderr, nullptr, _IONBF, 0);
 
         // Synchronize C++ standard streams with C streams
         std::ios::sync_with_stdio(true);
@@ -133,6 +259,14 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
         std::cout << "EasyZX log console" << std::endl;
     }
 
+    // Initialize application
+    if (!win_app::init(hInstance))
+    {
+        return -1;
+    }
+
     // Run application
-    return win_app::run(hInstance);
+    win_app::run();
+
+    return 0;
 }

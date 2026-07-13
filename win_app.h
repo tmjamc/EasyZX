@@ -1,9 +1,17 @@
 #pragma once
 
+#define WIN32_LEAN_AND_MEAN
+
 #include <windows.h>
+
 
 namespace win_app
 {
+	#define ERROR(msg)\
+    cleanUp();\
+	std::cerr << msg << std::endl;\
+	return false
+
 	static HINSTANCE hInst;
 
 	static const TCHAR* windowClassname = L"EasyZXClass";
@@ -11,10 +19,11 @@ namespace win_app
 	static const POINT windowLocation = { CW_USEDEFAULT, 0 };
 	static const SIZE windowSize = { 1366, 768 };
 
-	HWND hWnd;
+	static HWND hWnd = nullptr;
+	static HDC hDC = nullptr;
+	HGLRC tmpCtx = nullptr;
+	HGLRC glCtx = nullptr;
 
-	BOOL run(HINSTANCE hInstance);
-	ATOM registerClass();
-	BOOL initInstance(int nCmdShow);
-	LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+	bool init(HINSTANCE hInstance);
+	void run();
 }
