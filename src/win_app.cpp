@@ -1,5 +1,7 @@
 #include <iostream>
+#include <tchar.h>
 
+#include "glad/gl.h"
 #include "glad/wgl.h"
 #include "win_app.h"
 #include "display.h"
@@ -13,8 +15,8 @@ namespace win_app
 
     HINSTANCE hInst;
 
-    const WCHAR* windowClassname = L"EasyZXClass";
-    const WCHAR* windowTitle = L"EasyZX";
+    const char* windowClassname = "EasyZXClass";
+    const char* windowTitle = "EasyZX";
     const POINT windowLocation = { CW_USEDEFAULT, 0 };
     const SIZE windowSize = { 1366, 768 };
 
@@ -56,15 +58,15 @@ namespace win_app
 
     static bool registerClass()
     {
-        WNDCLASSEXW wcex{};
-        wcex.cbSize = sizeof(WNDCLASSEX);
+        WNDCLASSEXA wcex{};
+        wcex.cbSize = sizeof(WNDCLASSEXA);
         wcex.style = CS_HREDRAW | CS_VREDRAW;
         wcex.lpfnWndProc = WndProc;
         wcex.hInstance = hInst;
         wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
         wcex.lpszClassName = windowClassname;
 
-        if (RegisterClassExW(&wcex) == FALSE)
+        if (RegisterClassExA(&wcex) == FALSE)
         {
             std::cerr << "Failed to create window class" << std::endl;
             return false;
@@ -75,7 +77,7 @@ namespace win_app
 
     static bool initInstance()
     {
-        hWnd = CreateWindowW(windowClassname, windowTitle, WS_OVERLAPPEDWINDOW, windowLocation.x, windowLocation.y, windowSize.cx, windowSize.cy, nullptr, nullptr, hInst, nullptr);
+        hWnd = CreateWindowA(windowClassname, windowTitle, WS_OVERLAPPEDWINDOW, windowLocation.x, windowLocation.y, windowSize.cx, windowSize.cy, nullptr, nullptr, hInst, nullptr);
 
         if (!hWnd)
         {
@@ -210,6 +212,8 @@ namespace win_app
         {
             return false;
         }
+
+        return true;
     }
 
     void run()
@@ -239,50 +243,65 @@ namespace win_app
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
 {
-    // Check for parameters
-    if (wcscmp(lpCmdLine, L"--console") == 0)
+    // Parse for parameters
+    int argc;
+    LPWSTR *argv = CommandLineToArgvW(GetCommandLineW(), &argc);
+
+    if (argv == nullptr)
     {
-        if (!AllocConsole())
-        {
-            return -1;
-        }
-
-        FILE* dummyFile;
-
-        // Redirect stdin to console input
-        if (freopen_s(&dummyFile, "CONIN$", "r", stdin) != 0)
-        {
-            return -1;
-        }
-        setvbuf(stdin, nullptr, _IONBF, 0);
-
-        // Redirect stdout to console output
-        if (freopen_s(&dummyFile, "CONOUT$", "w", stdout) != 0)
-        {
-            return -1;
-        }
-        setvbuf(stdout, nullptr, _IONBF, 0);
-
-        // Redirect stderr to console output
-        if (freopen_s(&dummyFile, "CONOUT$", "w", stderr) != 0)
-        {
-            return -1;
-        }
-        setvbuf(stderr, nullptr, _IONBF, 0);
-
-        // Synchronize C++ standard streams with C streams
-        std::ios::sync_with_stdio(true);
-
-        // Clear error states for C++ streams (required after re-opening)
-        std::cout.clear();
-        std::cerr.clear();
-        std::wcout.clear();
-        std::wcerr.clear();
-        std::cin.clear();
-        std::wcin.clear();
-
-        std::cout << "EasyZX log console" << std::endl;
+        return -1;
     }
+
+    // Check for parameters
+    for (int i = 0; i < argc; ++i)
+    {
+        if (wcscmp(argv[i], L"--console") == 0)
+        {
+            if (!AllocConsole())
+            {
+                return -1;
+            }
+
+            FILE* dummyFile;
+
+            // Redirect stdin to console input
+            if (freopen_s(&dummyFile, "CONIN$", "r", stdin) != 0)
+            {
+                return -1;
+            }
+            setvbuf(stdin, nullptr, _IONBF, 0);
+
+            // Redirect stdout to console output
+            if (freopen_s(&dummyFile, "CONOUT$", "w", stdout) != 0)
+            {
+                return -1;
+            }
+            setvbuf(stdout, nullptr, _IONBF, 0);
+
+            // Redirect stderr to console output
+            if (freopen_s(&dummyFile, "CONOUT$", "w", stderr) != 0)
+            {
+                return -1;
+            }
+            setvbuf(stderr, nullptr, _IONBF, 0);
+
+            // Synchronize C++ standard streams with C streams
+            std::ios::sync_with_stdio(true);
+
+            // Clear error states for C++ streams (required after re-opening)
+            std::cout.clear();
+            std::cerr.clear();
+            std::wcout.clear();
+            std::wcerr.clear();
+            std::cin.clear();
+            std::wcin.clear();
+
+            std::cout << "EasyZX log console" << std::endl;
+        }
+    }
+
+    // Free the memory allocated by CommandLineToArgvW
+    LocalFree(argv);
 
     // Initialize application
     if (!win_app::init(hInstance))
