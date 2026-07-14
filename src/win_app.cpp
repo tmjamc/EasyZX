@@ -1,5 +1,3 @@
-#pragma comment(lib, "opengl32.lib")
-
 #include <iostream>
 
 #include "glad/wgl.h"
@@ -8,15 +6,15 @@
 
 namespace win_app
 {
-    #define ERROR(msg)\
+    #define ERROR_RESULT(msg)\
     cleanUp();\
 	std::cerr << msg << std::endl;\
 	return false
 
     HINSTANCE hInst;
 
-    const TCHAR* windowClassname = L"EasyZXClass";
-    const TCHAR* windowTitle = L"EasyZX";
+    const WCHAR* windowClassname = L"EasyZXClass";
+    const WCHAR* windowTitle = L"EasyZX";
     const POINT windowLocation = { CW_USEDEFAULT, 0 };
     const SIZE windowSize = { 1366, 768 };
 
@@ -122,7 +120,7 @@ namespace win_app
         hDC = GetDC(hWnd);
         if (hDC == nullptr)
         {
-            ERROR("Failed to get window's device context");
+            ERROR_RESULT("Failed to get window's device context");
         }
 
         // Set the pixel format
@@ -137,14 +135,14 @@ namespace win_app
         int format = ChoosePixelFormat(hDC, &pfd);
         if (format == 0 || SetPixelFormat(hDC, format, &pfd) == FALSE)
         {
-            ERROR("Failed to set pixel format");
+            ERROR_RESULT("Failed to set pixel format");
         }
 
         // Create and enable a temporary OpenGL context to load WGL extensions
         tmpCtx = wglCreateContext(hDC);
         if (tmpCtx == nullptr)
         {
-            ERROR("Failed to create temporary OpenGL context");
+            ERROR_RESULT("Failed to create temporary OpenGL context");
         }
 
         wglMakeCurrent(hDC, tmpCtx);
@@ -166,7 +164,7 @@ namespace win_app
         glCtx = wglCreateContextAttribsARB(hDC, nullptr, attributes);
         if (glCtx == nullptr)
         {
-            ERROR("Failed to create OpenGL context");
+            ERROR_RESULT("Failed to create OpenGL context");
         }
 
         wglMakeCurrent(hDC, nullptr);
@@ -178,7 +176,7 @@ namespace win_app
         // Glad loader
         if (!gladLoaderLoadGL())
         {
-            ERROR("Glad loader failed");
+            ERROR_RESULT("Glad loader failed");
         }
 
         // Unbind the OpenGL context for now, it will be re-bound when the rendering thread starts

@@ -1,3 +1,6 @@
+#include <cstdint>
+#include <thread>
+
 #include "glad/gl.h"
 #include "display.h"
 #include "win_app.h"
@@ -27,6 +30,7 @@ namespace display
 				viewportChanged = false;
 				glViewport(0, 0, width, height);
 			}
+			
 			Sleep(1);
 
 			glClearColor(0.3f, 0.5f, 0.8f, 1.0f);

@@ -1,7 +1,0 @@
-<Solution>
-  <Configurations>
-    <Platform Name="x64" />
-    <Platform Name="x86" />
-  </Configurations>
-  <Project Path="EasyZX.vcxproj" Id="ecddbe78-1ccd-4f31-accf-66285727fb63" />
-</Solution>
