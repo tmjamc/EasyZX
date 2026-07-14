@@ -15,6 +15,8 @@ add_executable(EasyZX
 WIN32
 	"src/win_app.cpp"
 	"src/display.cpp"
+	"src/spectrum/main.cpp"
+	"src/spectrum/components/memory.cpp"
 	"src/glad/src/gl.c"
 	"src/glad/src/wgl.c"
 )
