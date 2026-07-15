@@ -5,6 +5,7 @@
 #include "glad/wgl.h"
 #include "win_app.h"
 #include "display.h"
+#include "settings.h"
 
 namespace win_app
 {
@@ -190,6 +191,9 @@ namespace win_app
     bool init(HINSTANCE hInstance)
     {
         hInst = hInstance;
+
+        // Load settings
+        settings::load();
 
         if (!registerClass())
         {
