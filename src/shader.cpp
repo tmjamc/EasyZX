@@ -83,4 +83,14 @@ namespace shader
         glDeleteShader(vertex);
         glDeleteShader(fragment);
     }
+
+    void cleanUp()
+    {
+        glDeleteProgram(shaderId);
+    }
+
+    void setVec2(const char* name, float x, float y)
+    {
+        glUniform2f(glGetUniformLocation(shaderId, name), x, y);
+    }
 }

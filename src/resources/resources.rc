@@ -2,3 +2,5 @@
 
 IDR_SHADER_SCREEN_VERT SHADER "shaders/screen.vert"
 IDR_SHADER_SCREEN_FRAG SHADER "shaders/screen.frag"
+IDR_SHADER_CRT_VERT SHADER "shaders/crt.vert"
+IDR_SHADER_CRT_FRAG SHADER "shaders/crt.frag"

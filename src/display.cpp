@@ -101,7 +101,7 @@ namespace display
 	{
 		init();
 
-		shader::compile(IDR_SHADER_SCREEN_VERT, IDR_SHADER_SCREEN_FRAG);
+		shader::compile(IDR_SHADER_CRT_VERT, IDR_SHADER_CRT_FRAG);
 
 		while (win_app::running)
 		{
@@ -187,10 +187,9 @@ namespace display
 
 				// Set shader uniforms
 				glUseProgram(shader::shaderId);
-				// shader->use();
-				// shader->setVec2("TextureSize", DISPLAY_BUFFER_WIDTH, DISPLAY_BUFFER_HEIGHT);
-				// shader->setVec2("InputSize", DISPLAY_BUFFER_WIDTH, DISPLAY_BUFFER_HEIGHT);
-				// shader->setVec2("OutputSize", width, height);
+				shader::setVec2("TextureSize", DISPLAY_BUFFER_WIDTH, DISPLAY_BUFFER_HEIGHT);
+				shader::setVec2("InputSize", DISPLAY_BUFFER_WIDTH, DISPLAY_BUFFER_HEIGHT);
+				shader::setVec2("OutputSize", width, height);
 
 				// Render screen
 				glBindVertexArray(VAO);
@@ -201,6 +200,8 @@ namespace display
 			// Present
 			SwapBuffers(win_app::hDC);
 		}
+
+		shader::cleanUp();
 	}
 
 	void startThread()
