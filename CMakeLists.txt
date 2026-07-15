@@ -26,11 +26,12 @@ WIN32
 
 target_include_directories(EasyZX
 PUBLIC
-	${CMAKE_CURRENT_SOURCE_DIR}/src/mINI
-	${CMAKE_CURRENT_SOURCE_DIR}/src/glad/include
+	${CMAKE_CURRENT_SOURCE_DIR}/src
 	${CMAKE_CURRENT_SOURCE_DIR}/src/spectrum
 	${CMAKE_CURRENT_SOURCE_DIR}/src/spectrum/components
 	${CMAKE_CURRENT_SOURCE_DIR}/src/spectrum/devices
+	${CMAKE_CURRENT_SOURCE_DIR}/src/mINI
+	${CMAKE_CURRENT_SOURCE_DIR}/src/glad/include
 )
 
 target_link_libraries(EasyZX

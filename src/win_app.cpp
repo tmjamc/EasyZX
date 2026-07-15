@@ -6,6 +6,7 @@
 #include "win_app.h"
 #include "display.h"
 #include "settings.h"
+#include "main.h"
 
 namespace win_app
 {
@@ -32,8 +33,23 @@ namespace win_app
         {
 
         case WM_DESTROY:
+        {
+            WINDOWPLACEMENT wp = {};
+            wp.length = sizeof(WINDOWPLACEMENT);
+            if (GetWindowPlacement(hWnd, &wp))
+            {
+                settings::current.windowMainStatus = wp.showCmd;
+                if (settings::current.windowMainStatus == SW_SHOWNORMAL)
+                {
+                    settings::current.windowMainLeft = wp.rcNormalPosition.left;
+                    settings::current.windowMainTop = wp.rcNormalPosition.top;
+                    settings::current.windowMainWidth = wp.rcNormalPosition.right - wp.rcNormalPosition.left;
+                    settings::current.windowMainHeight = wp.rcNormalPosition.bottom - wp.rcNormalPosition.top;
+                }
+            }
             PostQuitMessage(0);
             break;
+        }
 
         case WM_GETMINMAXINFO:
         {
@@ -222,6 +238,7 @@ namespace win_app
         running = true;
 
         display::startThread();
+        main::startThread();
 
         MSG msg;
         while (GetMessage(&msg, nullptr, 0, 0))
@@ -236,6 +253,7 @@ namespace win_app
 
         running = false;
 
+        main::stopThread();
         display::stopThread();
 
         settings::save();

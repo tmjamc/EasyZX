@@ -14,7 +14,7 @@ namespace settings
         int displayGigaScreenMode = 0;
         bool displayDarkTheme = true;
         float displayBackgroundColorR = 0.0f;
-        float displayBackgroundColorG = 1.0f;
+        float displayBackgroundColorG = 0.0f;
         float displayBackgroundColorB = 0.0f;
         bool displayFullScreen = false;
         bool displayShowRefreshRatePopup = true;

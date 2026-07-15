@@ -1,7 +1,5 @@
 #include <cstdint>
 #include <thread>
-#include <mutex>
-#include <condition_variable>
 
 #include "glad/gl.h"
 #include "display.h"
@@ -55,10 +53,7 @@ namespace display
 		// Set OpenGL context
 		wglMakeCurrent(win_app::hDC, win_app::glCtx);
 
-		// Initially clear and present the screen, some time may pass until first frame is drawn
 		glClearColor(settings::current.displayBackgroundColorR, settings::current.displayBackgroundColorG, settings::current.displayBackgroundColorB, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
-		SwapBuffers(win_app::hDC);
 
 		// Declare vertex arrays and buffers
 		glGenVertexArrays(1, &VAO);
@@ -205,7 +200,8 @@ namespace display
 
 	void startThread()
 	{
-		displayBuffer = new uint32_t[GL_DISPLAY_BUFFER_WIDTH * GL_DISPLAY_BUFFER_HEIGHT]{};
+		displayBuffer = new uint32_t[GL_DISPLAY_BUFFER_WIDTH * GL_DISPLAY_BUFFER_HEIGHT];
+		std::fill(displayBuffer, displayBuffer + GL_DISPLAY_BUFFER_WIDTH * GL_DISPLAY_BUFFER_HEIGHT, 0xffffffff);
 
 		renderThread = std::thread(run);
 	}

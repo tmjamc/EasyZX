@@ -21,6 +21,10 @@ namespace main
 
     extern bool emulationThreadRunning;
 
+    void startThread();
+	void stopThread();
+
+
     // int displayWidth = 352;
     // int displayHeight = 288;
 
