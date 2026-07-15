@@ -6,6 +6,8 @@
 #include "win_app.h"
 #include "settings.h"
 #include "main.h"
+#include "shader.h"
+#include "resources/resources.h"
 
 namespace display
 {
@@ -99,6 +101,8 @@ namespace display
 	{
 		init();
 
+		shader::compile(IDR_SHADER_SCREEN_VERT, IDR_SHADER_SCREEN_FRAG);
+
 		while (win_app::running)
 		{
 			// Wait for frame to be ready
@@ -182,6 +186,7 @@ namespace display
 				vertices[5] = vertices[13] = (calcY + calcHeight) * 2.0f / height - 1.0f;
 
 				// Set shader uniforms
+				glUseProgram(shader::shaderId);
 				// shader->use();
 				// shader->setVec2("TextureSize", DISPLAY_BUFFER_WIDTH, DISPLAY_BUFFER_HEIGHT);
 				// shader->setVec2("InputSize", DISPLAY_BUFFER_WIDTH, DISPLAY_BUFFER_HEIGHT);

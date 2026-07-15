@@ -16,6 +16,7 @@ WIN32
 	"src/win_app.cpp"
 	"src/settings.cpp"
 	"src/display.cpp"
+	"src/shader.cpp"
 	"src/spectrum/main.cpp"
 	"src/spectrum/components/memory.cpp"
 	"src/spectrum/components/z80.cpp"
