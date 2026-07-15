@@ -7,6 +7,8 @@
 // user changes configuration.
 namespace settings
 {
+    static constexpr const char* SETTINGS_FILE_NAME = "./EasyZX.ini";
+
     // Global runtime configuration currently used by the emulator.
     Settings current;
     
@@ -48,7 +50,7 @@ namespace settings
     {
         current = {};
         
-        mINI::INIFile file(settingsFileName);
+        mINI::INIFile file(SETTINGS_FILE_NAME);
 
         mINI::INIStructure ini;
 
@@ -59,17 +61,17 @@ namespace settings
         
         // Display settings
         const auto &display = ini["display"];
-        loadInt(current.displayHorizontalBorderSize, display, "horizontalBorderSize");
-        loadInt(current.displayVerticalBorderSize, display, "verticalBorderSize");
-        loadFloat(current.displayPixelRatio, display, "pixelRatio");
-        loadInt(current.displayShaderIndex, display, "shaderIndex");
-        loadInt(current.displayGigaScreenMode, display, "gigaScreenMode");
-        loadBool(current.displayDarkTheme, display, "darkTheme");
-        loadFloat(current.displayBackgroundColorR, display, "backgroundColorR");
-        loadFloat(current.displayBackgroundColorG, display, "backgroundColorG");
-        loadFloat(current.displayBackgroundColorB, display, "backgroundColorB");
-        loadBool(current.displayFullScreen, display, "fullScreen");
-        loadBool(current.displayShowRefreshRatePopup, display, "showRefreshRatePopup");
+        loadInt(current.displayHorizontalBorderSize, display, "horizontal_border_size");
+        loadInt(current.displayVerticalBorderSize, display, "vertical_border_size");
+        loadFloat(current.displayPixelRatio, display, "pixel_ratio");
+        loadInt(current.displayShaderIndex, display, "shader_index");
+        loadInt(current.displayGigaScreenMode, display, "giga_screen_mode");
+        loadBool(current.displayDarkTheme, display, "dark_theme");
+        loadFloat(current.displayBackgroundColorR, display, "background_color_r");
+        loadFloat(current.displayBackgroundColorG, display, "background_color_g");
+        loadFloat(current.displayBackgroundColorB, display, "background_color_b");
+        loadBool(current.displayFullScreen, display, "full_screen");
+        loadBool(current.displayShowRefreshRatePopup, display, "show_refresh_rate_popup");
 
         // Model settings
         const auto &model = ini["model"];
@@ -77,22 +79,22 @@ namespace settings
 
         // Tape settings
         const auto &tape = ini["tape"];
-        loadBool(current.tapeAutoStartStop, tape, "autoStartStop");
-        loadBool(current.tapeThrottleLoading, tape, "throttleLoading");
-        loadBool(current.tapeInstantLoading, tape, "instantLoading");
+        loadBool(current.tapeAutoStartStop, tape, "auto_start_stop");
+        loadBool(current.tapeThrottleLoading, tape, "throttle_loading");
+        loadBool(current.tapeInstantLoading, tape, "instant_loading");
 
         // Audio settings
         const auto &audio = ini["audio"];
-        loadInt(current.audioDeviceId, audio, "deviceId");
-        loadInt(current.audioAyVolume, audio, "ayVolume");
-        loadInt(current.audioBeeperVolume, audio, "beeperVolume");
-        loadInt(current.audioTapeVolume, audio, "tapeVolume");
-        loadInt(current.audioAyDcAdjustBufferLength, audio, "ayDcAdjustBufferLength");
-        loadInt(current.audioBeeperDcAdjustBufferLength, audio, "beeperDcAdjustBufferLength");
-        loadInt(current.audioTapeDcAdjustBufferLength, audio, "tapeDcAdjustBufferLength");
+        loadInt(current.audioDeviceId, audio, "device_id");
+        loadInt(current.audioAyVolume, audio, "ay_volume");
+        loadInt(current.audioBeeperVolume, audio, "beeper_volume");
+        loadInt(current.audioTapeVolume, audio, "tape_volume");
+        loadInt(current.audioAyDcAdjustBufferLength, audio, "ay_dc_adjust_buffer_length");
+        loadInt(current.audioBeeperDcAdjustBufferLength, audio, "beeper_dc_adjust_buffer_length");
+        loadInt(current.audioTapeDcAdjustBufferLength, audio, "tape_dc_adjust_buffer_length");
 
         // Main window settings
-        const auto &windowMain = ini["windowMain"];
+        const auto &windowMain = ini["window_main"];
         loadInt(current.windowMainLeft, windowMain, "left");
         loadInt(current.windowMainTop, windowMain, "top");
         loadInt(current.windowMainWidth, windowMain, "width");
@@ -101,7 +103,7 @@ namespace settings
 
         // Devices settings
         const auto &devices = ini["devices"];
-        loadBool(current.devicesBetaDisk, devices, "betaDisk");
+        loadBool(current.devicesBetaDisk, devices, "beta_disk");
         loadBool(current.devicesAY, devices, "ay");
     }
 
@@ -109,23 +111,23 @@ namespace settings
     // an INI file so settings persist between sessions.
     void save()
     {
-        mINI::INIFile file(settingsFileName);
+        mINI::INIFile file(SETTINGS_FILE_NAME);
 
         mINI::INIStructure ini;
         
         // Display settings
         ini["display"].set(
-            {{"horizontalBorderSize", std::to_string(current.displayHorizontalBorderSize)},
-             {"verticalBorderSize", std::to_string(current.displayVerticalBorderSize)},
-             {"pixelRatio", std::to_string(current.displayPixelRatio)},
-             {"shaderIndex", std::to_string(current.displayShaderIndex)},
-             {"gigaScreenMode", std::to_string(current.displayGigaScreenMode)},
-             {"darkTheme", std::to_string(current.displayDarkTheme)},
-             {"backgroundColorR", std::to_string(current.displayBackgroundColorR)},
-             {"backgroundColorG", std::to_string(current.displayBackgroundColorG)},
-             {"backgroundColorB", std::to_string(current.displayBackgroundColorB)},
-             {"fullScreen", std::to_string(current.displayFullScreen)},
-             {"showRefreshRatePopup", std::to_string(current.displayShowRefreshRatePopup)}});
+            {{"horizontal_border_size", std::to_string(current.displayHorizontalBorderSize)},
+             {"vertical_border_size", std::to_string(current.displayVerticalBorderSize)},
+             {"pixel_ratio", std::to_string(current.displayPixelRatio)},
+             {"shader_index", std::to_string(current.displayShaderIndex)},
+             {"giga_screen_mode", std::to_string(current.displayGigaScreenMode)},
+             {"dark_theme", std::to_string(current.displayDarkTheme)},
+             {"background_color_r", std::to_string(current.displayBackgroundColorR)},
+             {"background_color_g", std::to_string(current.displayBackgroundColorG)},
+             {"background_color_b", std::to_string(current.displayBackgroundColorB)},
+             {"full_screen", std::to_string(current.displayFullScreen)},
+             {"show_refresh_rate_popup", std::to_string(current.displayShowRefreshRatePopup)}});
             
         // Model settings
         ini["model"].set(
@@ -133,22 +135,22 @@ namespace settings
 
         // Tape settings
         ini["tape"].set( 
-            {{"autoStartStop", std::to_string(current.tapeAutoStartStop)},
-             {"throttleLoading", std::to_string(current.tapeThrottleLoading)},
-             {"instantLoading", std::to_string(current.tapeInstantLoading)}});
+            {{"auto_start_stop", std::to_string(current.tapeAutoStartStop)},
+             {"throttle_loading", std::to_string(current.tapeThrottleLoading)},
+             {"instant_loading", std::to_string(current.tapeInstantLoading)}});
 
         // Audio settings
         ini["audio"].set(
-            {{"deviceId", std::to_string(current.audioDeviceId)},
-             {"ayVolume", std::to_string(current.audioAyVolume)},
-             {"beeperVolume", std::to_string(current.audioBeeperVolume)},
-             {"tapeVolume", std::to_string(current.audioTapeVolume)},
-             {"ayDcAdjustBufferLength", std::to_string(current.audioAyDcAdjustBufferLength)},
-             {"beeperDcAdjustBufferLength", std::to_string(current.audioBeeperDcAdjustBufferLength)},
-             {"tapeDcAdjustBufferLength", std::to_string(current.audioTapeDcAdjustBufferLength)}});
+            {{"device_id", std::to_string(current.audioDeviceId)},
+             {"ay_volume", std::to_string(current.audioAyVolume)},
+             {"beeper_volume", std::to_string(current.audioBeeperVolume)},
+             {"tape_volume", std::to_string(current.audioTapeVolume)},
+             {"ay_dc_adjust_buffer_length", std::to_string(current.audioAyDcAdjustBufferLength)},
+             {"beeper_dc_adjust_buffer_length", std::to_string(current.audioBeeperDcAdjustBufferLength)},
+             {"tape_dc_adjust_buffer_length", std::to_string(current.audioTapeDcAdjustBufferLength)}});
 
         // Main window settings
-        ini["windowMain"].set(
+        ini["window_main"].set(
             {{"left", std::to_string(current.windowMainLeft)},
              {"top", std::to_string(current.windowMainTop)},
              {"width", std::to_string(current.windowMainWidth)},
@@ -157,7 +159,7 @@ namespace settings
 
         // Devices settings
         ini["devices"].set(
-            {{"betaDisk", std::to_string(current.devicesBetaDisk)},
+            {{"beta_disk", std::to_string(current.devicesBetaDisk)},
              {"ay", std::to_string(current.devicesAY)}});
 
         file.generate(ini, true);

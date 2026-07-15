@@ -16,10 +16,8 @@ namespace win_app
 
     HINSTANCE hInst;
 
-    const char* windowClassname = "EasyZXClass";
-    const char* windowTitle = "EasyZX";
-    const POINT windowLocation = { CW_USEDEFAULT, 0 };
-    const SIZE windowSize = { 1366, 768 };
+    static constexpr char WINDOW_CLASSNAME[] = "EasyZXClass";
+    static constexpr char WINDOW_TITLE[] = "EasyZX";
 
     HWND hWnd = nullptr;
     HDC hDC = nullptr;
@@ -65,7 +63,7 @@ namespace win_app
         wcex.lpfnWndProc = WndProc;
         wcex.hInstance = hInst;
         wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
-        wcex.lpszClassName = windowClassname;
+        wcex.lpszClassName = WINDOW_CLASSNAME;
 
         if (RegisterClassExA(&wcex) == FALSE)
         {
@@ -78,7 +76,7 @@ namespace win_app
 
     static bool initInstance()
     {
-        hWnd = CreateWindowA(windowClassname, windowTitle, WS_OVERLAPPEDWINDOW, windowLocation.x, windowLocation.y, windowSize.cx, windowSize.cy, nullptr, nullptr, hInst, nullptr);
+        hWnd = CreateWindowA(WINDOW_CLASSNAME, WINDOW_TITLE, WS_OVERLAPPEDWINDOW, settings::current.windowMainLeft, settings::current.windowMainTop, settings::current.windowMainWidth, settings::current.windowMainHeight, nullptr, nullptr, hInst, nullptr);
 
         if (!hWnd)
         {
@@ -192,7 +190,6 @@ namespace win_app
     {
         hInst = hInstance;
 
-        // Load settings
         settings::load();
 
         if (!registerClass())
@@ -210,7 +207,7 @@ namespace win_app
             return false;
         }
 
-        ShowWindow(hWnd, SW_SHOWNORMAL);
+        ShowWindow(hWnd, settings::current.windowMainStatus);
 
         if (UpdateWindow(hWnd) == FALSE)
         {
@@ -240,6 +237,8 @@ namespace win_app
         running = false;
 
         display::stopThread();
+
+        settings::save();
 
         cleanUp();
     }

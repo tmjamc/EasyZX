@@ -11,11 +11,11 @@
 
 namespace display
 {
-	constexpr int GL_DISPLAY_BUFFER_WIDTH = 352;
-	constexpr int GL_DISPLAY_BUFFER_HEIGHT = 288;
-	constexpr float DISPLAY_BUFFER_WIDTH = GL_DISPLAY_BUFFER_WIDTH;
-	constexpr float DISPLAY_BUFFER_HEIGHT = GL_DISPLAY_BUFFER_HEIGHT;
-	constexpr float MAX_BORDER_SIZE = 48.0f;
+	static constexpr int GL_DISPLAY_BUFFER_WIDTH = 352;
+	static constexpr int GL_DISPLAY_BUFFER_HEIGHT = 288;
+	static constexpr float DISPLAY_BUFFER_WIDTH = GL_DISPLAY_BUFFER_WIDTH;
+	static constexpr float DISPLAY_BUFFER_HEIGHT = GL_DISPLAY_BUFFER_HEIGHT;
+	static constexpr float MAX_BORDER_SIZE = 48.0f;
 
 	uint32_t* displayBuffer;
 
@@ -106,16 +106,16 @@ namespace display
 
 		while (win_app::running)
 		{
-			// // Wait for frame to be ready
-			// if (main::emulationThreadRunning)
-			// {
-			// 	std::unique_lock<std::mutex> lock(frameReadyMutex);
-			// 	frameReadyConditionVariable.wait(lock, []
-			// 	{
-			// 		return frameReady;
-			// 	});
-			// 	frameReady = false;
-			// }
+			// Wait for frame to be ready
+			if (main::emulationThreadRunning)
+			{
+				std::unique_lock<std::mutex> lock(frameReadyMutex);
+				frameReadyConditionVariable.wait(lock, []
+				{
+					return frameReady;
+				});
+				frameReady = false;
+			}
 
 			// check if window size has changed
 			if (viewportChanged)

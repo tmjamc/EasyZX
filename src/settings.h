@@ -37,18 +37,16 @@ namespace settings
         int audioTapeDcAdjustBufferLength = 80;
         
         // Main window settings
-        int windowMainLeft = 1119;
-        int windowMainTop = 768;
-        int windowMainWidth = (GetSystemMetrics(SM_CXSCREEN) - windowMainWidth) / 2;
-        int windowMainHeight = (GetSystemMetrics(SM_CYSCREEN) - windowMainHeight) / 2;
+        int windowMainWidth = 988;
+        int windowMainHeight = 768;
+        int windowMainLeft = (GetSystemMetrics(SM_CXSCREEN) - windowMainWidth) / 2;
+        int windowMainTop = (GetSystemMetrics(SM_CYSCREEN) - windowMainHeight) / 2;
         int windowMainStatus = SW_SHOWNORMAL;
 
         // Devices settings
         bool devicesBetaDisk = false;
         bool devicesAY = false;
     };
-
-    static constexpr const char* settingsFileName = "./EasyZX.ini";
 
     extern Settings current;
 
