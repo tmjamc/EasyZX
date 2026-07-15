@@ -14,15 +14,19 @@ project("EasyZX")
 add_executable(EasyZX
 WIN32
 	"src/win_app.cpp"
+	"src/settings.cpp"
 	"src/display.cpp"
 	"src/spectrum/main.cpp"
 	"src/spectrum/components/memory.cpp"
+	"src/spectrum/components/z80.cpp"
 	"src/glad/src/gl.c"
 	"src/glad/src/wgl.c"
+	"src/mINI/ini.h"
 )
 
 target_include_directories(EasyZX
 PUBLIC
+	${CMAKE_CURRENT_SOURCE_DIR}/src/mINI
 	${CMAKE_CURRENT_SOURCE_DIR}/src/glad/include
 	${CMAKE_CURRENT_SOURCE_DIR}/src/spectrum
 	${CMAKE_CURRENT_SOURCE_DIR}/src/spectrum/components
