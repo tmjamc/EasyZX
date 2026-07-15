@@ -19,9 +19,10 @@ WIN32
 	"src/spectrum/main.cpp"
 	"src/spectrum/components/memory.cpp"
 	"src/spectrum/components/z80.cpp"
-	"src/glad/src/gl.c"
-	"src/glad/src/wgl.c"
-	"src/mINI/ini.h"
+	"src/libs/glad/src/gl.c"
+	"src/libs/glad/src/wgl.c"
+	"src/libs/mINI/ini.h"
+	"src/resources/resources.rc"
 )
 
 target_include_directories(EasyZX
@@ -30,8 +31,8 @@ PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}/src/spectrum
 	${CMAKE_CURRENT_SOURCE_DIR}/src/spectrum/components
 	${CMAKE_CURRENT_SOURCE_DIR}/src/spectrum/devices
-	${CMAKE_CURRENT_SOURCE_DIR}/src/mINI
-	${CMAKE_CURRENT_SOURCE_DIR}/src/glad/include
+	${CMAKE_CURRENT_SOURCE_DIR}/src/libs/mINI
+	${CMAKE_CURRENT_SOURCE_DIR}/src/libs/glad/include
 )
 
 target_link_libraries(EasyZX

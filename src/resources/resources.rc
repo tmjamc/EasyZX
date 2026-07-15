@@ -1,0 +1,4 @@
+#include "resources.h"
+
+IDR_SHADER_SCREEN_VERT SHADER "shaders/screen.vert"
+IDR_SHADER_SCREEN_FRAG SHADER "shaders/screen.frag"
