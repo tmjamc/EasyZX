@@ -121,7 +121,7 @@ namespace display
 				// TODO: get shader from settings
 
 				shader::cleanUp();
-				shader::compile(IDR_SHADER_SCREEN_VERT, IDR_SHADER_SCREEN_FRAG);
+				shader::compile(IDR_SHADER_SHARP_VERT, IDR_SHADER_SHARP_FRAG);
 			}
 
 			glClear(GL_COLOR_BUFFER_BIT);
