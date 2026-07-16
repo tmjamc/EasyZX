@@ -12,4 +12,6 @@ namespace win_app
 
 	bool init(HINSTANCE hInstance);
 	void run();
+	void info(const char* msg);
+	void error(const char* msg);
 }

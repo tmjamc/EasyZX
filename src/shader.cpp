@@ -1,12 +1,14 @@
 #include <windows.h>
 #include <iostream>
+#include <format>
 
 #include "shader.h"
 #include "glad/gl.h"
+#include "win_app.h"
 
 namespace shader
 {
-    unsigned int shaderId;
+    unsigned int shaderId = 0;
 
     static const char* getShaderSourceFromResource(const int resourceId)
     {
@@ -39,7 +41,7 @@ namespace shader
             if (!success)
             {
                 glGetShaderInfoLog(shader, 1024, NULL, infoLog);
-                std::cout << "ERROR::SHADER_COMPILATION_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- ";
+                win_app::error(std::format("ERROR::SHADER_COMPILATION_ERROR of type: {}\n{}\n -- --------------------------------------------------- -- ", type, infoLog).c_str());
             }
         }
         else
@@ -48,7 +50,7 @@ namespace shader
             if (!success)
             {
                 glGetProgramInfoLog(shader, 1024, NULL, infoLog);
-                std::cout << "ERROR::PROGRAM_LINKING_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- ";
+                win_app::error(std::format("ERROR::PROGRAM_LINKING_ERROR of type: {}\n{}\n -- --------------------------------------------------- -- ", type, infoLog).c_str());
             }
         }
     }
@@ -86,6 +88,11 @@ namespace shader
 
     void cleanUp()
     {
+        if (shaderId == 0)
+        {
+            return;
+        }
+
         glDeleteProgram(shaderId);
     }
 

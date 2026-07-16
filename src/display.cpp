@@ -19,7 +19,8 @@ namespace display
 
 	uint32_t* displayBuffer;
 
-	bool viewportChanged = false;
+	bool viewportChanged = true;
+	bool shaderChanged = true;
 	int glWidth;
 	int glHeight;
 	float width;
@@ -100,9 +101,7 @@ namespace display
 	static void run()
 	{
 		init();
-
-		shader::compile(IDR_SHADER_CRT_VERT, IDR_SHADER_CRT_FRAG);
-
+		
 		while (win_app::running)
 		{
 			// Wait for frame to be ready
@@ -116,14 +115,21 @@ namespace display
 				frameReady = false;
 			}
 
-			// check if window size has changed
 			if (viewportChanged)
 			{
 				viewportChanged = false;
 				glViewport(0, 0, glWidth, glHeight);
 			}
 			
-			// Clear screen
+			if (shaderChanged)
+			{
+				shaderChanged = false;
+				// TODO: get shader from settings
+
+				shader::cleanUp();
+				shader::compile(IDR_SHADER_CRT_VERT, IDR_SHADER_CRT_FRAG);
+			}
+
 			glClear(GL_COLOR_BUFFER_BIT);
 
 			if (main::emulationThreadRunning)
@@ -204,7 +210,7 @@ namespace display
 		shader::cleanUp();
 	}
 
-	void startThread()
+	void startRenderThread()
 	{
 		displayBuffer = new uint32_t[GL_DISPLAY_BUFFER_WIDTH * GL_DISPLAY_BUFFER_HEIGHT];
 		std::fill(displayBuffer, displayBuffer + GL_DISPLAY_BUFFER_WIDTH * GL_DISPLAY_BUFFER_HEIGHT, 0xffffffff);
@@ -212,7 +218,7 @@ namespace display
 		renderThread = std::thread(run);
 	}
 
-	void stopThread()
+	void stopRenderThread()
 	{
 		// Prevent render thread waiting forever for next frame to be ready
 		frameReady = true;

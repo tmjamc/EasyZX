@@ -78,7 +78,7 @@ namespace memory
             romPage[i] = new uint8_t[0x4000];
 
             // Load ROM from file
-            std::ifstream file(std::format("./roms/%s", model.romFileName[i]), std::ios::in | std::ios::binary);
+            std::ifstream file(std::format("./roms/{}", model.romFileName[i]), std::ios::in | std::ios::binary);
             if (file.is_open())
             {
                 file.read(reinterpret_cast<char*>(romPage[i]), 0x4000);

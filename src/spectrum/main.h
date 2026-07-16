@@ -1,6 +1,7 @@
 #pragma once
 
 #include <thread>
+#include <vector>
 
 namespace main
 {
@@ -14,16 +15,30 @@ namespace main
         int ramPageCount;
         int romPageCount;
         bool pagingEnabled;
-        int* defaultBankPage;
+        std::vector<int> defaultBankPage;
         int activeScreenPage;
-        char** romFileName;
+        std::vector<char*> romFileName;
+    };
+
+    static const Model spectrum48k =
+    {
+        .tacksPerFrame = 69888,
+        .tacksPerLine = 224,
+        .tacksToFirstscreenByte = 14335,
+        .interruptSignalTacks = 32,
+        .bankCount = 4,
+        .ramPageCount = 3,
+        .romPageCount = 1,
+        .pagingEnabled = false,
+        .defaultBankPage = { 0, 1, 2, 3 },
+        .activeScreenPage = 0,
+        .romFileName = { const_cast<char*>("48.rom") }
     };
 
     extern bool emulationThreadRunning;
 
-    void startThread();
-	void stopThread();
-
+    void start();
+    void stop();
 
     // int displayWidth = 352;
     // int displayHeight = 288;

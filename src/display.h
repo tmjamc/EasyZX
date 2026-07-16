@@ -9,7 +9,7 @@ namespace display
 	extern std::mutex frameReadyMutex;
 	extern std::condition_variable frameReadyConditionVariable;
 
-	void startThread();
-	void stopThread();
+	void startRenderThread();
+	void stopRenderThread();
 	void setViewport(int width, int height);
 }

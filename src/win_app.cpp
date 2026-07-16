@@ -10,10 +10,10 @@
 
 namespace win_app
 {
-    #define ERROR_RESULT(msg)\
-    cleanUp();\
-	std::cerr << msg << std::endl;\
-	return false
+    #define ERROR_RESULT(msg) \
+    cleanUp();                \
+    win_app::error(msg);      \
+    return false
 
     HINSTANCE hInst;
 
@@ -26,6 +26,7 @@ namespace win_app
     HGLRC glCtx = nullptr;
 
     bool running = false;
+    bool consoleEnabled = false;
 
     static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
@@ -83,7 +84,7 @@ namespace win_app
 
         if (RegisterClassExA(&wcex) == FALSE)
         {
-            std::cerr << "Failed to create window class" << std::endl;
+            error("Failed to create window class");
             return false;
         }
 
@@ -96,7 +97,7 @@ namespace win_app
 
         if (!hWnd)
         {
-            std::cerr << "Failed to create window instance" << std::endl;
+            error("Failed to create window instance");
             return false;
         }
 
@@ -236,9 +237,7 @@ namespace win_app
     void run()
     {
         running = true;
-
-        display::startThread();
-        main::startThread();
+        main::start();
 
         MSG msg;
         while (GetMessage(&msg, nullptr, 0, 0))
@@ -252,13 +251,30 @@ namespace win_app
         }
 
         running = false;
-
-        main::stopThread();
-        display::stopThread();
+        main::stop();
 
         settings::save();
-
         cleanUp();
+    }
+
+    void info(const char* msg)
+    {
+        if (!consoleEnabled)
+        {
+            return;
+        }
+
+        std::cout << msg << std::endl;
+    }
+
+    void error(const char* msg)
+    {
+        if (!consoleEnabled)
+        {
+            return;
+        }
+
+        std::cerr << msg << std::endl;
     }
 }
 
@@ -317,7 +333,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             std::cin.clear();
             std::wcin.clear();
 
-            std::cout << "EasyZX log console" << std::endl;
+            win_app::consoleEnabled = true;
+            win_app::info("EasyZX log console");
         }
     }
 

@@ -4,6 +4,7 @@
 #include "main.h"
 #include "win_app.h"
 #include "display.h"
+#include "memory.h"
 
 namespace main
 {
@@ -80,18 +81,44 @@ namespace main
         CloseHandle(frameTimer);
     }
 
-    void startThread()
+    static void startEmulationThread()
     {
         emulationThread = std::thread(run);
         emulationThreadRunning = true;
     }
 
-    void stopThread()
+    static void stopEmulationThread()
     {
         emulationThreadRunning = false;
         if (emulationThread.joinable())
 		{
 			emulationThread.join();
 		}
+    }
+
+    static void setModel(Model model)
+    {
+        memory::init(model);
+    }
+
+    static void cleanUp()
+    {
+        memory::cleanUp();
+    }
+
+    void start()
+    {
+        setModel(main::spectrum48k);
+
+        display::startRenderThread();
+        startEmulationThread();
+    }
+
+    void stop()
+    {
+        stopEmulationThread();
+        display::stopRenderThread();
+
+        cleanUp();
     }
 }
