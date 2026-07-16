@@ -17,8 +17,8 @@ namespace win_app
 
     HINSTANCE hInst;
 
-    static constexpr char WINDOW_CLASSNAME[] = "EasyZXClass";
-    static constexpr char WINDOW_TITLE[] = "EasyZX";
+    constexpr static char WINDOW_CLASSNAME[] = "EasyZXClass";
+    constexpr static char WINDOW_TITLE[] = "EasyZX";
 
     HWND hWnd = nullptr;
     HDC hDC = nullptr;

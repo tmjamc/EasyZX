@@ -5,13 +5,14 @@
 #include "win_app.h"
 #include "display.h"
 #include "memory.h"
+#include "ula.h"
 
 namespace main
 {
     bool emulationThreadRunning = false;
 	std::thread emulationThread;
 
-    static constexpr int FRAME_MICROSECONDS = 20 * 1000;
+    constexpr static int FRAME_MICROSECONDS = 20 * 1000;
 
 	HANDLE frameTimer;
 	LARGE_INTEGER frameDueTime{};
@@ -99,16 +100,18 @@ namespace main
     static void setModel(Model model)
     {
         memory::init(model);
+        ula::init(model);
     }
 
     static void cleanUp()
     {
         memory::cleanUp();
+        ula::cleanUp();
     }
 
     void start()
     {
-        setModel(main::spectrum48k);
+        setModel(main::SPECTRUM_48K);
 
         display::startRenderThread();
         startEmulationThread();

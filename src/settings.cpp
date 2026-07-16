@@ -7,7 +7,7 @@
 // user changes configuration.
 namespace settings
 {
-    static constexpr const char* SETTINGS_FILE_NAME = "./EasyZX.ini";
+    constexpr static const char* SETTINGS_FILE_NAME = "./EasyZX.ini";
 
     // Global runtime configuration currently used by the emulator.
     Settings current;

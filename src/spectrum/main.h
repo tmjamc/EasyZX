@@ -5,34 +5,37 @@
 
 namespace main
 {
+    constexpr static int DEFAULT_BANK_PAGES_48K[4] = { 0, 0, 1, 2 };
+    constexpr static const char* DEFAULT_ROM_NAMES_48K[1] = { "48.rom" };
+
     struct Model
     {
-        int tacksPerFrame;
-        int tacksPerLine;
-        int tacksToFirstscreenByte;
-        int interruptSignalTacks;
-        int bankCount;
-        int ramPageCount;
-        int romPageCount;
-        bool pagingEnabled;
-        std::vector<int> defaultBankPage;
-        int activeScreenPage;
-        std::vector<char*> romFileName;
+        const int tacksPerFrame;
+        const int tacksPerLine;
+        const int tacksToFirstscreenByte;
+        const int interruptSignalTacks;
+        const int banksCount;
+        const int ramPagesCount;
+        const int romPagesCount;
+        const bool pagingEnabled;
+        const int* defaultBankPages;
+        const int activeScreenPage;
+        const char* const* romFileNames;
     };
 
-    static const Model spectrum48k =
+    constexpr static Model SPECTRUM_48K =
     {
         .tacksPerFrame = 69888,
         .tacksPerLine = 224,
         .tacksToFirstscreenByte = 14335,
         .interruptSignalTacks = 32,
-        .bankCount = 4,
-        .ramPageCount = 3,
-        .romPageCount = 1,
+        .banksCount = 4,
+        .ramPagesCount = 3,
+        .romPagesCount = 1,
         .pagingEnabled = false,
-        .defaultBankPage = { 0, 1, 2, 3 },
+        .defaultBankPages = DEFAULT_BANK_PAGES_48K,
         .activeScreenPage = 0,
-        .romFileName = { const_cast<char*>("48.rom") }
+        .romFileNames = DEFAULT_ROM_NAMES_48K
     };
 
     extern bool emulationThreadRunning;

@@ -11,11 +11,11 @@
 
 namespace display
 {
-	static constexpr int GL_DISPLAY_BUFFER_WIDTH = 352;
-	static constexpr int GL_DISPLAY_BUFFER_HEIGHT = 288;
-	static constexpr float DISPLAY_BUFFER_WIDTH = GL_DISPLAY_BUFFER_WIDTH;
-	static constexpr float DISPLAY_BUFFER_HEIGHT = GL_DISPLAY_BUFFER_HEIGHT;
-	static constexpr float MAX_BORDER_SIZE = 48.0f;
+	constexpr static int GL_DISPLAY_BUFFER_WIDTH = 352;
+	constexpr static int GL_DISPLAY_BUFFER_HEIGHT = 288;
+	constexpr static float DISPLAY_BUFFER_WIDTH = GL_DISPLAY_BUFFER_WIDTH;
+	constexpr static float DISPLAY_BUFFER_HEIGHT = GL_DISPLAY_BUFFER_HEIGHT;
+	constexpr static float MAX_BORDER_SIZE = 48.0f;
 
 	uint32_t* displayBuffer;
 

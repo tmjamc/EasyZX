@@ -10,12 +10,12 @@ namespace memory
     // As in Sinclair wiki documentation, the term "bank" refers to CPU address space ranges,
     // and the term "page" refers to RAM/ROM memory areas
 
-    uint8_t** bank = nullptr;
-	uint8_t** ramPage = nullptr;
-	uint8_t** romPage = nullptr;
-    int bankCount = 0;
-    int ramPageCount = 0;
-    int romPageCount = 0;
+    uint8_t** banks = nullptr;
+	uint8_t** ramPages = nullptr;
+	uint8_t** romPages = nullptr;
+    int banksCount = 0;
+    int ramPagesCount = 0;
+    int romPagesCount = 0;
     int activeRomPage = 0;
     int activeRamPage = 0;
     int activeScreenPage = 0;
@@ -23,32 +23,32 @@ namespace memory
 
     void cleanUp()
     {
-        if (ramPage != nullptr && ramPageCount > 0)
+        if (ramPages != nullptr && ramPagesCount > 0)
 	    {
-            for (int i = 0; i < ramPageCount; ++i)
+            for (int i = 0; i < ramPagesCount; ++i)
             {
-                delete[0x4000] ramPage[i];
-                ramPage[i] = nullptr;
+                delete[0x4000] ramPages[i];
+                ramPages[i] = nullptr;
             }
-            delete[ramPageCount] ramPage;
-            ramPage = nullptr;
+            delete[ramPagesCount] ramPages;
+            ramPages = nullptr;
         }
 
-	    if (romPage != nullptr && romPageCount > 0)
+	    if (romPages != nullptr && romPagesCount > 0)
 	    {
-            for (int i = 0; i < romPageCount; ++i)
+            for (int i = 0; i < romPagesCount; ++i)
             {
-                delete[0x4000] romPage[i];
-                romPage[i] = nullptr;
+                delete[0x4000] romPages[i];
+                romPages[i] = nullptr;
             }
-            delete[romPageCount] romPage;
-            romPage = nullptr;
+            delete[romPagesCount] romPages;
+            romPages = nullptr;
         }
 
-        if (bank != nullptr && bankCount > 0)
+        if (banks != nullptr && banksCount > 0)
         {
-            delete[bankCount] bank;
-            bank = nullptr;
+            delete[banksCount] banks;
+            banks = nullptr;
         }
     }
 
@@ -57,48 +57,48 @@ namespace memory
         cleanUp();
 
         // Create RAM pages
-        ramPageCount = model.ramPageCount;
-        ramPage = new uint8_t*[ramPageCount];
-        for (int i = 0; i < ramPageCount; ++i)
+        ramPagesCount = model.ramPagesCount;
+        ramPages = new uint8_t*[ramPagesCount];
+        for (int i = 0; i < ramPagesCount; ++i)
         {
-            ramPage[i] = new uint8_t[0x4000];
+            ramPages[i] = new uint8_t[0x4000];
             
         	// Simulate dirty RAM memory
             for (uint16_t addr = 0x0000; addr < 0x4000; ++addr)
             {
-                ramPage[i][addr] = ((rand() % 5) == 0) ? rand() & 0xff : ((i % 8) < 4) ? 0x00 : 0xff;
+                ramPages[i][addr] = ((rand() % 5) == 0) ? rand() & 0xff : ((i % 8) < 4) ? 0x00 : 0xff;
             }
         }
 
         // Create ROM pages
-        romPageCount = model.romPageCount;
-        romPage = new uint8_t*[romPageCount];
-        for (int i = 0; i < romPageCount; ++i)
+        romPagesCount = model.romPagesCount;
+        romPages = new uint8_t*[romPagesCount];
+        for (int i = 0; i < romPagesCount; ++i)
         {
-            romPage[i] = new uint8_t[0x4000];
+            romPages[i] = new uint8_t[0x4000];
 
             // Load ROM from file
-            std::ifstream file(std::format("./roms/{}", model.romFileName[i]), std::ios::in | std::ios::binary);
+            std::ifstream file(std::format("./roms/{}", model.romFileNames[i]), std::ios::in | std::ios::binary);
             if (file.is_open())
             {
-                file.read(reinterpret_cast<char*>(romPage[i]), 0x4000);
+                file.read(reinterpret_cast<char*>(romPages[i]), 0x4000);
                 file.close();
             }
         }
 
         // Create banks
-        bankCount = model.bankCount;
-        bank = new uint8_t*[bankCount];
+        banksCount = model.banksCount;
+        banks = new uint8_t*[banksCount];
 
         // Set default ROM bank
-        activeRomPage = model.defaultBankPage[0];
-        bank[0] = romPage[activeRomPage];
+        activeRomPage = model.defaultBankPages[0];
+        banks[0] = romPages[activeRomPage];
 
         // Set default RAM banks
-        activeRamPage = model.defaultBankPage[bankCount - 1];
-        for (int i = 1; i < bankCount; ++i)
+        activeRamPage = model.defaultBankPages[banksCount - 1];
+        for (int i = 1; i < banksCount; ++i)
         {
-            bank[i] = ramPage[model.defaultBankPage[i]];
+            banks[i] = ramPages[model.defaultBankPages[i]];
         }
 
         pagingEnabled = model.pagingEnabled;
@@ -113,12 +113,12 @@ namespace memory
         }
 
         activeRomPage = (data & 0x10) >> 4;
-        bank[0] = romPage[activeRomPage];
+        banks[0] = romPages[activeRomPage];
 
         activeScreenPage = ((data & 0x08) == 0) ? 5 : 7;
 
         activeRamPage = data & 0x07;
-        bank[3] = ramPage[activeRamPage];
+        banks[3] = ramPages[activeRamPage];
 
         if ((data & 0x20) != 0)
         {
@@ -128,7 +128,7 @@ namespace memory
 
     uint8_t read(uint16_t addr)
     {
-        return bank[(addr & 0xc000) >> 14][addr & 0x3fff];
+        return banks[(addr & 0xc000) >> 14][addr & 0x3fff];
     }
 
     void write(uint16_t addr, uint8_t data)
@@ -138,6 +138,6 @@ namespace memory
             return;
         }
 
-        bank[(addr & 0xc000) >> 14][addr & 0x3fff] = data;
+        banks[(addr & 0xc000) >> 14][addr & 0x3fff] = data;
     }
 }
