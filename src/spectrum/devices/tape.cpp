@@ -44,7 +44,15 @@ namespace tape
         // std::ifstream file("C:\\Users\\jam\\source\\repos\\RawZX\\tapes\\tests\\Interrupt Retriggering Test (2021-12-17)(Woodmass, Mark)[!].tap", std::ios::in | std::ios::binary);
         // std::ifstream file("C:\\Users\\jam\\source\\repos\\RawZX\\tapes\\tests\\minfo.tap", std::ios::in | std::ios::binary);
         // std::ifstream file("C:\\Users\\jam\\source\\repos\\RawZX\\tapes\\tests\\ULA 48 Simple Test (2012-10-06)(azesmbog)[!].tap", std::ios::in | std::ios::binary);
-        std::ifstream file("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\48k\\BorderTrix.tap", std::ios::in | std::ios::binary);
+        // std::ifstream file("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\48k\\BorderTrix.tap", std::ios::in | std::ios::binary);
+        // std::ifstream file("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\48k\\SHOCK.tap", std::ios::in | std::ios::binary);
+        // std::ifstream file("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\128k\\BreakSpace.tap", std::ios::in | std::ios::binary);
+        // std::ifstream file("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\128k\\Tiratok.tap", std::ios::in | std::ios::binary);
+        // std::ifstream file("C:\\Users\\jam\\Documents\\Projects\\TESTS\\IR Contention 128 (2023-07-02)(Woodmass, Mark)[!].tap", std::ios::in | std::ios::binary);
+        // std::ifstream file("C:\\Users\\jam\\Documents\\Projects\\TESTS\\ULA 128 Timing Test (2012-10-06)(azesmbog)[!].tap", std::ios::in | std::ios::binary);
+        // std::ifstream file("C:\\Users\\jam\\Documents\\Projects\\TESTS\\Float128K (2008-04-02)(Woodmass, Mark)[!].tap", std::ios::in | std::ios::binary);
+        // std::ifstream file("C:\\Users\\jam\\Documents\\Projects\\TESTS\\Float48K (2008-03-24)(Woodmass, Mark)[!].tap", std::ios::in | std::ios::binary);
+        std::ifstream file("C:\\Users\\jam\\Documents\\Projects\\TESTS\\floatspy.tap", std::ios::in | std::ios::binary);
         if (!file.is_open())
         {
             return;

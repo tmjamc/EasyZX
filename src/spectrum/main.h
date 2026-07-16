@@ -20,6 +20,7 @@ namespace main
         const int interruptSignalTacks;
         const bool hiresBorder;
         const bool contendedMemory;
+        const bool floatingBus;
         const int banksCount;
         const int ramPagesCount;
         const int romPagesCount;
@@ -34,10 +35,10 @@ namespace main
         .tacksPerFrame = 69888,
         .tacksPerLine = 224,
         .tacksToFirstScreenByte = 14340,
-        .tacksToFirstContendedMemory = 14335,
         .interruptSignalTacks = 32,
         .hiresBorder = false,
         .contendedMemory = true,
+        .floatingBus = true,
         .banksCount = 4,
         .ramPagesCount = 3,
         .romPagesCount = 1,
@@ -51,10 +52,11 @@ namespace main
     {
         .tacksPerFrame = 70908,
         .tacksPerLine = 228,
-        .tacksToFirstScreenByte = 14361,
+        .tacksToFirstScreenByte = 14366,
         .interruptSignalTacks = 36,
         .hiresBorder = false,
         .contendedMemory = true,
+        .floatingBus = true,
         .banksCount = 4,
         .ramPagesCount = 8,
         .romPagesCount = 2,

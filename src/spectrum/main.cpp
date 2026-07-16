@@ -83,7 +83,7 @@ namespace main
     void start()
     {        
         // TODO: take model from settings
-        currentModel = &SPECTRUM_48K;
+        currentModel = &SPECTRUM_128K;
 
         keyStates = new bool[0x100]{};
         tape::init();

@@ -110,7 +110,7 @@ namespace io
             // }
 
             // Floating bus
-            return 0xff; //_zx->ula->getBusData();
+            return ula::readBus();
         }
 
         // ULA

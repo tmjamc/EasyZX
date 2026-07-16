@@ -85,8 +85,8 @@ namespace ula
             std::fill(contendedMemoryTacks, contendedMemoryTacks + contendedMemoryTacksLength, static_cast<uint8_t>(0));
 
             int index = 0;
-            int tack = main::currentModel->tacksToFirstContendedMemory;
-            while (tack < main::currentModel->tacksToFirstContendedMemory + 192 * main::currentModel->tacksPerLine)
+            int tack = main::currentModel->tacksToFirstScreenByte - 5;
+            while (tack < main::currentModel->tacksToFirstScreenByte - 5 + 192 * main::currentModel->tacksPerLine)
             {
                 contendedMemoryTacks[tack++] = CONTENDED_MEMORY_PATTERN[index % 8];
 
@@ -98,27 +98,29 @@ namespace ula
             }
         }
 
-        // // Build floating bus table
-        // _floatingBusArrayLength = cyclesPerFrame;
-        // _floatingBusArray = new int16_t[cyclesPerFrame];
-        // std::fill(_floatingBusArray, _floatingBusArray + cyclesPerFrame, (int16_t)-1);
-        // int index = 0;
-        // int cycle = firstScreenCycle - 1 + contentionOffset;
-        // while (cycle < firstScreenCycle - 1 + contentionOffset + 192 * cyclesPerLine)
-        // {
-        //     const int scrY = (cycle + 24) / cyclesPerLine - 64 + 9 + crtYOffset;
-        //     int pixelAddr = ((scrY & 0xc0) << 5) | ((scrY & 0x07) << 8) | ((scrY & 0x38) << 2);
-        //     int attrAddr = 0x1800 + ((scrY & ~0x07) << 2);
-        //     for (int i = 0; i < 16; ++i)
-        //     {
-        //         _floatingBusArray[cycle++] = pixelAddr++;
-        //         _floatingBusArray[cycle++] = attrAddr++;
-        //         _floatingBusArray[cycle++] = pixelAddr++;
-        //         _floatingBusArray[cycle++] = attrAddr++;
-        //         cycle += 4;
-        //     }
-        //     cycle += (cyclesPerLine - 128);
-        // }
+        // Build floating bus table
+        if (main::currentModel->floatingBus)
+        {
+            floatingBusAddressesLength = main::currentModel->tacksPerFrame;
+            floatingBusAddresses = new int16_t[floatingBusAddressesLength];
+            std::fill(floatingBusAddresses, floatingBusAddresses + floatingBusAddressesLength, static_cast<int16_t>(-1));
+            int tack = main::currentModel->tacksToFirstScreenByte - 2;
+            while (tack < main::currentModel->tacksToFirstScreenByte - 2 + 192 * main::currentModel->tacksPerLine)
+            {
+                const int scrY = (tack + display::GL_MAX_BORDER_SIZE / 2 - main::currentModel->tacksToFirstScreenByte) / main::currentModel->tacksPerLine;
+                int pixelAddr = ((scrY & 0xc0) << 5) | ((scrY & 0x07) << 8) | ((scrY & 0x38) << 2);
+                int attrAddr = 0x1800 + ((scrY & ~0x07) << 2);
+                for (int i = 0; i < 16; ++i)
+                {
+                    floatingBusAddresses[tack++] = pixelAddr++;
+                    floatingBusAddresses[tack++] = attrAddr++;
+                    floatingBusAddresses[tack++] = pixelAddr++;
+                    floatingBusAddresses[tack++] = attrAddr++;
+                    tack += 4;
+                }
+                tack += (main::currentModel->tacksPerLine - 128);
+            }
+        }
     }
 
     void init()
@@ -203,12 +205,15 @@ namespace ula
 
     void contendedTacks(uint16_t addr, int tacks, bool force)
     {
-        if (force || main::currentModel->contendedMemory && ((addr & 0xc000) == 0x4000 || (main::currentModel->pagingEnabled && (addr & 0xc000) == 0xc000 && (memory::activeRamPage & 0x01))))
+        if (main::currentModel->contendedMemory)
         {
-            int cTacks = contendedMemoryTacks[main::tack];
-            while (cTacks-- != 0)
+            if (force || ((addr & 0xc000) == 0x4000 || (main::currentModel->pagingEnabled && (addr & 0xc000) == 0xc000 && (memory::activeRamPage & 0x01))))
             {
-                tack();
+                int cTacks = contendedMemoryTacks[main::tack];
+                while (cTacks-- != 0)
+                {
+                    tack();
+                }
             }
         }
 
@@ -358,5 +363,15 @@ namespace ula
         // _latestPortReadPCAddress = _zx->z80->registers.pc.w;
 
         return data;
+    }
+
+    uint8_t readBus()
+    {
+        if (!main::currentModel->floatingBus || floatingBusAddresses[main::tack] == -1)
+        {
+            return 0xff;
+        }
+
+        return memory::ramPages[memory::activeScreenPage][floatingBusAddresses[main::tack]];
     }
 }

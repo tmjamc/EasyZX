@@ -33,4 +33,5 @@ namespace ula
     void preIOTacks(uint16_t port);
     void postIOTacks(uint16_t port);
     uint8_t readPort(uint16_t port);
+    uint8_t readBus();
 }
