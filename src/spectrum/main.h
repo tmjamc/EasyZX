@@ -11,6 +11,8 @@ namespace main
     constexpr static int DEFAULT_BANK_PAGES_128K[4] = { 0, 5, 2, 0 };
     constexpr static const char* DEFAULT_ROM_NAMES_128K[2] = { "128-0.rom", "128-1.rom" };
 
+    constexpr static const char* DEFAULT_ROM_NAMES_PENTAGON_128K[3] = { "128p-0.rom", "128p-1.rom", "trdos.rom" };
+
     struct Model
     {
         const int tacksPerFrame;
@@ -64,6 +66,24 @@ namespace main
         .defaultBankPages = DEFAULT_BANK_PAGES_128K,
         .activeScreenPage = 5,
         .romFileNames = DEFAULT_ROM_NAMES_128K
+    };
+
+    constexpr static Model PENTAGON_128K =
+    {
+        .tacksPerFrame = 71680,
+        .tacksPerLine = 224,
+        .tacksToFirstScreenByte = 17983,
+        .interruptSignalTacks = 32,
+        .hiresBorder = true,
+        .contendedMemory = false,
+        .floatingBus = false,
+        .banksCount = 4,
+        .ramPagesCount = 8,
+        .romPagesCount = 3,
+        .pagingEnabled = true,
+        .defaultBankPages = DEFAULT_BANK_PAGES_128K,
+        .activeScreenPage = 5,
+        .romFileNames = DEFAULT_ROM_NAMES_PENTAGON_128K
     };
 
     extern bool emulationThreadRunning;
