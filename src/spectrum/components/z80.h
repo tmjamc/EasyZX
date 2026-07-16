@@ -28,9 +28,12 @@ namespace z80
         uint8_t im;
     };
 
+    extern Z80Registers registers;
+
     void reset();
     void init();
     void cleanUp();
     void executeInstruction();
     bool requestInterrupt();
+    void xorByte(uint8_t byte);
 }

@@ -22,6 +22,7 @@ WIN32
 	"src/spectrum/components/z80.cpp"
 	"src/spectrum/components/ula.cpp"
 	"src/spectrum/components/io.cpp"
+	"src/spectrum/devices/tape.cpp"
 	"src/resources/resources.rc"
 	"src/libs/glad/src/gl.c"
 	"src/libs/glad/src/wgl.c"

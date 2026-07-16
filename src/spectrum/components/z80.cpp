@@ -167,4 +167,9 @@ namespace z80
         return true;
     }
 
+    void xorByte(uint8_t byte)
+    {
+        XOR(byte);
+    }
+
 }

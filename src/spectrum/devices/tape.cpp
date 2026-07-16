@@ -1,0 +1,114 @@
+#include <span>
+#include <fstream>
+
+#include "tape.h"
+#include "z80.h"
+#include "memory.h"
+
+namespace tape
+{
+    int tapeDataLength = 0;
+    int tapeDataIndex = 0;
+    uint8_t* tapeData = nullptr;
+
+    static std::span<uint8_t> getRawBlockData()
+    {
+        if (tapeDataLength == 0)
+        {
+            return std::span<uint8_t>();
+        }
+
+        std::span<uint8_t> result(tapeData, tapeDataLength);
+
+        int blockLength = tapeData[tapeDataIndex++];
+        blockLength |= (tapeData[tapeDataIndex++] << 8);
+        result = result.subspan(tapeDataIndex, blockLength);
+        tapeDataIndex += blockLength;
+
+        if (tapeDataIndex >= tapeDataLength)
+        {
+            tapeDataIndex = 0;
+        }
+
+        return result;
+    }
+
+    void init()
+    {
+        std::ifstream file("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\48k\\BorderTrix.tap", std::ios::in | std::ios::binary);
+        if (!file.is_open())
+        {
+            return;
+        }
+
+        file.seekg(0, std::ios::end);
+        std::streampos fileSize = file.tellg();
+        tapeDataLength = static_cast<int>(fileSize);
+        tapeData = new uint8_t[tapeDataLength];
+
+        file.seekg(0, std::ios::beg);
+        file.read(reinterpret_cast<char*>(tapeData), fileSize);
+        file.close();
+    }
+
+    void cleanUp()
+    {
+        if (tapeDataLength > 0)
+        {
+            delete[tapeDataLength] tapeData;
+            tapeData = tapeData;
+            tapeDataLength = 0;
+            tapeDataIndex = 0;
+        }
+    }
+
+    void instantLoad()
+    {
+        std::span<uint8_t> block = getRawBlockData();
+
+        if (block.empty())
+        {
+            return;
+        }
+
+        z80::registers.pc.w = 0x05e2;
+
+        if (z80::registers.af_.b.h == block[0])
+        {
+            z80::registers.af.b.h = block[0];
+            uint16_t count = block.size() - 2;
+            uint16_t index = 1;
+
+            while (z80::registers.de.w && count > 0)
+            {
+                z80::xorByte(block[index]);
+                memory::write(z80::registers.ix.w++, block[index++]);
+                --z80::registers.de.w;
+                --count;
+            }
+
+            if (z80::registers.de.w)
+            {
+                // There are not enough bytes on the tape block
+                z80::registers.af.b.l = 0x50;
+            }
+            else
+            {
+                // Successfully loaded enough bytes from tape block
+                z80::xorByte(block[index]);
+                z80::registers.pc.w -= 2;
+
+                if (count)
+                {
+                    // TODO: There are more bytes on the tape block that some custom loaders need to read
+                    //setBlockPulses();
+                }
+            }
+        }
+        else
+        {
+            z80::registers.af.b.l = 0;
+            z80::registers.af.b.h = z80::registers.af_.b.h ^ block[0];
+        }
+    }
+}

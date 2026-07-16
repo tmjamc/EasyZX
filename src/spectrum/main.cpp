@@ -7,6 +7,8 @@
 #include "memory.h"
 #include "ula.h"
 #include "z80.h"
+#include "settings.h"
+#include "tape.h"
 
 namespace main
 {
@@ -51,6 +53,11 @@ namespace main
 
             if (!interruptRequested)
             {
+                if (settings::current.tapeInstantLoading && z80::registers.pc.w == 0x056c)
+                {
+                    tape::instantLoad();
+                }
+
                 z80::executeInstruction();
             }
         }
@@ -79,6 +86,7 @@ namespace main
         currentModel = &SPECTRUM_48K;
 
         keyStates = new bool[0x100]{};
+        tape::init();
         memory::init();
         ula::init();
         z80::init();
@@ -93,6 +101,7 @@ namespace main
         display::stopRenderThread();
 
         delete[0x100] keyStates;
+        tape::cleanUp();
         memory::cleanUp();
         ula::cleanUp();
         z80::cleanUp();
