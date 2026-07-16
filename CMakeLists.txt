@@ -21,10 +21,11 @@ WIN32
 	"src/spectrum/components/memory.cpp"
 	"src/spectrum/components/z80.cpp"
 	"src/spectrum/components/ula.cpp"
+	"src/spectrum/components/io.cpp"
+	"src/resources/resources.rc"
 	"src/libs/glad/src/gl.c"
 	"src/libs/glad/src/wgl.c"
 	"src/libs/mINI/ini.h"
-	"src/resources/resources.rc"
 )
 
 target_include_directories(EasyZX

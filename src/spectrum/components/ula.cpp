@@ -45,14 +45,17 @@ namespace ula
         const int x = (xTack % tacksPerLine) * 2;
         const int y = xTack / tacksPerLine - tacksToFirstscreenByte / tacksPerLine + display::GL_MAX_BORDER_SIZE;
 
+        // Check if current coordinates are inside the display buffer
         if (x >= 0 && x < display::GL_DISPLAY_BUFFER_WIDTH && y >= 0 && y < display::DISPLAY_BUFFER_HEIGHT)
         {
             uint32_t* scanLine = display::displayBuffer + y * display::GL_DISPLAY_BUFFER_WIDTH;
             const int pixIndex = (main::tack - firstBytePixelTackIndex) % 4;
-    
+
+            // Check if current coordinates are inside the screen
             if (x >= display::GL_MAX_BORDER_SIZE && x < display::GL_DISPLAY_BUFFER_WIDTH - display::GL_MAX_BORDER_SIZE &&
                 y >= display::GL_MAX_BORDER_SIZE && y < display::GL_DISPLAY_BUFFER_HEIGHT - display::GL_MAX_BORDER_SIZE)
             {
+                // Draw whole screen 8 pixels chunk
                 if (pixIndex == 0)
                 {
                     const int scrX = x - display::GL_MAX_BORDER_SIZE;
@@ -62,7 +65,6 @@ namespace ula
                     const uint32_t ink = PALETTE[ATTR_GET_FLASH(byteAttr) ? ATTR_GET_PAPER(byteAttr) : ATTR_GET_INK(byteAttr)];
                     const uint32_t paper = PALETTE[ATTR_GET_FLASH(byteAttr) ? ATTR_GET_INK(byteAttr) : ATTR_GET_PAPER(byteAttr)];
 
-                    // Draw whole byte 8 pixel chunk
                     for (int i = 0; i < 8; ++i)
                     {
                         scanLine[x + i] = bytePixels & (0x80 >> i) ? ink : paper;
@@ -71,11 +73,11 @@ namespace ula
             }
             else
             {
+                // Draw 8 or 2 border pixels chunk depending on the border resolution
                 if (hiresBorder || pixIndex == 0)
                 {
                     const uint32_t border = PALETTE[portData & 0x07];
                     
-                    // Draw 8 or 2 pixel chunk depending on the border resolution
                     const int pixEnd = hiresBorder ? 2 : 8;
                     for (int i = 0; i < pixEnd; ++i)
                     {
@@ -85,5 +87,13 @@ namespace ula
             }
         }
 
+    }
+
+    void contendedTacks(uint16_t addr, int tacks)
+    {
+        while (tacks-- != 0)
+        {
+            tack();
+        }
     }
 }

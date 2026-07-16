@@ -28,4 +28,5 @@ namespace ula
     void init(main::Model model);
     void cleanUp();
     void tack();
+    void contendedTacks(uint16_t addr, int tacks);
 }
