@@ -39,9 +39,11 @@ namespace main
     };
 
     extern bool emulationThreadRunning;
+    extern int tack;
 
     void start();
     void stop();
+    void waitForNextFrame();
 
     // int displayWidth = 352;
     // int displayHeight = 288;

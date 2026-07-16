@@ -11,12 +11,6 @@
 
 namespace display
 {
-	constexpr static int GL_DISPLAY_BUFFER_WIDTH = 352;
-	constexpr static int GL_DISPLAY_BUFFER_HEIGHT = 288;
-	constexpr static float DISPLAY_BUFFER_WIDTH = GL_DISPLAY_BUFFER_WIDTH;
-	constexpr static float DISPLAY_BUFFER_HEIGHT = GL_DISPLAY_BUFFER_HEIGHT;
-	constexpr static float MAX_BORDER_SIZE = 48.0f;
-
 	uint32_t* displayBuffer;
 
 	bool viewportChanged = true;
@@ -127,7 +121,7 @@ namespace display
 				// TODO: get shader from settings
 
 				shader::cleanUp();
-				shader::compile(IDR_SHADER_CRT_VERT, IDR_SHADER_CRT_FRAG);
+				shader::compile(IDR_SHADER_SCREEN_VERT, IDR_SHADER_SCREEN_FRAG);
 			}
 
 			glClear(GL_COLOR_BUFFER_BIT);

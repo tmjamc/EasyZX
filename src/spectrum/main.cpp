@@ -18,7 +18,70 @@ namespace main
 	LARGE_INTEGER frameDueTime{};
 	std::chrono::steady_clock::time_point currentFrameTime;
 
-    static void waitForNextFrame()
+    int tack;
+
+    static void init()
+    {
+        // Create Waitable Timer for better accuracy
+        frameTimer = CreateWaitableTimerEx(nullptr, nullptr, CREATE_WAITABLE_TIMER_HIGH_RESOLUTION, TIMER_ALL_ACCESS);
+    }
+
+    static void cleanUp()
+    {
+        CloseHandle(frameTimer);
+
+        memory::cleanUp();
+        ula::cleanUp();
+    }
+    
+    static void run()
+    {
+        init();
+        
+		while (win_app::running)
+		{
+            ula::tack();
+        }
+
+        cleanUp();
+    }
+
+    static void startEmulationThread()
+    {
+        emulationThread = std::thread(run);
+        emulationThreadRunning = true;
+    }
+
+    static void stopEmulationThread()
+    {
+        emulationThreadRunning = false;
+        if (emulationThread.joinable())
+		{
+			emulationThread.join();
+		}
+    }
+
+    static void setModel(Model model)
+    {
+        memory::init(model);
+        ula::init(model);
+    }
+
+    void start()
+    {
+        setModel(main::SPECTRUM_48K);
+
+        display::startRenderThread();
+        startEmulationThread();
+    }
+
+    void stop()
+    {
+        stopEmulationThread();
+        display::stopRenderThread();
+    }
+
+    void waitForNextFrame()
     {
         // Sync with display thread
         {
@@ -62,66 +125,5 @@ namespace main
         {
             currentFrameTime = std::chrono::steady_clock::now();
         } while (currentFrameTime - start <= std::chrono::microseconds(FRAME_MICROSECONDS));
-    }
-
-    static void init()
-    {
-        // Create Waitable Timer for better accuracy
-        frameTimer = CreateWaitableTimerEx(nullptr, nullptr, CREATE_WAITABLE_TIMER_HIGH_RESOLUTION, TIMER_ALL_ACCESS);
-    }
-
-    static void run()
-    {
-        init();
-
-		while (win_app::running)
-		{
-            waitForNextFrame();
-        }
-
-        CloseHandle(frameTimer);
-    }
-
-    static void startEmulationThread()
-    {
-        emulationThread = std::thread(run);
-        emulationThreadRunning = true;
-    }
-
-    static void stopEmulationThread()
-    {
-        emulationThreadRunning = false;
-        if (emulationThread.joinable())
-		{
-			emulationThread.join();
-		}
-    }
-
-    static void setModel(Model model)
-    {
-        memory::init(model);
-        ula::init(model);
-    }
-
-    static void cleanUp()
-    {
-        memory::cleanUp();
-        ula::cleanUp();
-    }
-
-    void start()
-    {
-        setModel(main::SPECTRUM_48K);
-
-        display::startRenderThread();
-        startEmulationThread();
-    }
-
-    void stop()
-    {
-        stopEmulationThread();
-        display::stopRenderThread();
-
-        cleanUp();
     }
 }

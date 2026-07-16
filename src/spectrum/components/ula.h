@@ -6,4 +6,5 @@ namespace ula
 {
     void init(main::Model model);
     void cleanUp();
+    void tack();
 }

@@ -74,6 +74,8 @@ namespace win_app
 
     static bool registerClass()
     {
+        info("Registering main window class");
+
         WNDCLASSEXA wcex{};
         wcex.cbSize = sizeof(WNDCLASSEXA);
         wcex.style = CS_HREDRAW | CS_VREDRAW;
@@ -93,6 +95,8 @@ namespace win_app
 
     static bool initInstance()
     {
+        info("Creating main window instance");
+
         hWnd = CreateWindowA(WINDOW_CLASSNAME, WINDOW_TITLE, WS_OVERLAPPEDWINDOW, settings::current.windowMainLeft, settings::current.windowMainTop, settings::current.windowMainWidth, settings::current.windowMainHeight, nullptr, nullptr, hInst, nullptr);
 
         if (!hWnd)
@@ -106,6 +110,8 @@ namespace win_app
 
     static void cleanUp()
     {
+        info("Cleaning up application");
+
         if (hDC != nullptr)
         {
             wglMakeCurrent(hDC, nullptr);
@@ -134,6 +140,8 @@ namespace win_app
 
     static bool initOpenGL()
     {
+        info("Initializing OpenGL");
+
         // Get device context
         hDC = GetDC(hWnd);
         if (hDC == nullptr)
@@ -205,9 +213,9 @@ namespace win_app
 
     bool init(HINSTANCE hInstance)
     {
-        hInst = hInstance;
+        info("Initializing application");
 
-        settings::load();
+        hInst = hInstance;
 
         if (!registerClass())
         {
@@ -224,6 +232,7 @@ namespace win_app
             return false;
         }
 
+        info("Showing main window");
         ShowWindow(hWnd, settings::current.windowMainStatus);
 
         if (UpdateWindow(hWnd) == FALSE)
@@ -252,9 +261,6 @@ namespace win_app
 
         running = false;
         main::stop();
-
-        settings::save();
-        cleanUp();
     }
 
     void info(const char* msg)
@@ -341,14 +347,25 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
     // Free the memory allocated by CommandLineToArgvW
     LocalFree(argv);
 
-    // Initialize application
+    settings::load();
+
+    // Initialize main window, OpenGL, etc.
     if (!win_app::init(hInstance))
     {
         return -1;
     }
 
-    // Run application
     win_app::run();
+
+    win_app::cleanUp();
+
+    settings::save();
+
+    // if (win_app::consoleEnabled)
+    // {
+    //     win_app::info("Press <Enter> to close this window...");
+    //     std::cin.get();
+    // }
 
     return 0;
 }
