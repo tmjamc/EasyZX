@@ -15,6 +15,7 @@ namespace main
         const int tacksToFirstscreenByte;
         const int interruptSignalTacks;
         const bool hiresBorder;
+        const bool contendedMemory;
         const int banksCount;
         const int ramPagesCount;
         const int romPagesCount;
@@ -31,6 +32,7 @@ namespace main
         .tacksToFirstscreenByte = 14335,
         .interruptSignalTacks = 32,
         .hiresBorder = false,
+        .contendedMemory = true,
         .banksCount = 4,
         .ramPagesCount = 3,
         .romPagesCount = 1,
@@ -41,15 +43,15 @@ namespace main
     };
 
     extern bool emulationThreadRunning;
+    extern const Model* currentModel;
     extern int tack;
     extern int frame;
+  	extern bool* keyStates;
 
     void start();
     void stop();
+    void reset(const Model* model);
     void waitForNextFrame();
-
-    // int displayWidth = 352;
-    // int displayHeight = 288;
 
     // // Pentagon
     // //int tacksPerLine = 224;
@@ -65,15 +67,5 @@ namespace main
     // //int tacksPerLine = 224;
     // //int tacksPerFrame = 69888;
     // //int TacksToFirstScreenByte = 14335;
-
-    // for (int tack = TacksToFirstScreenByte; tack < TacksToFirstScreenByte + tacksPerLine; ++tack)
-    // {
-    //     int xTack = tack + 48 / 2 - TacksToFirstScreenByte % tacksPerLine;
-    //     int x = (xTack % tacksPerLine) * 2;
-    //     int y = xTack / tacksPerLine - TacksToFirstScreenByte / tacksPerLine + 48;
-    //     //int y = (xTack - TacksToFirstScreenByte) / tacksPerLine + 48;
-
-    //     std::cout << x << ',' << y << ' ';
-    // }
 
 }

@@ -28,5 +28,9 @@ namespace z80
         uint8_t im;
     };
 
+    void reset();
+    void init();
+    void cleanUp();
     void executeInstruction();
+    bool requestInterrupt();
 }

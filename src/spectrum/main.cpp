@@ -6,6 +6,7 @@
 #include "display.h"
 #include "memory.h"
 #include "ula.h"
+#include "z80.h"
 
 namespace main
 {
@@ -18,30 +19,50 @@ namespace main
 	LARGE_INTEGER frameDueTime{};
 	std::chrono::steady_clock::time_point currentFrameTime;
 
+    const Model* currentModel;
+
     int tack = 0;
     int frame = 0;
+	bool* keyStates;
 
     static void init()
     {
         // Create Waitable Timer for better accuracy
         frameTimer = CreateWaitableTimerEx(nullptr, nullptr, CREATE_WAITABLE_TIMER_HIGH_RESOLUTION, TIMER_ALL_ACCESS);
+
+        keyStates = new bool[0x100]{};
+        memory::init();
+        ula::init();
+        z80::init();
     }
 
     static void cleanUp()
     {
         CloseHandle(frameTimer);
 
+        delete[0x100] keyStates;
         memory::cleanUp();
         ula::cleanUp();
+        z80::cleanUp();
     }
-    
+
     static void run()
     {
         init();
         
+        bool interruptRequested = false;
 		while (win_app::running)
 		{
-            ula::tack();
+            interruptRequested = false;
+            if (tack < currentModel->interruptSignalTacks)
+            {
+                interruptRequested = z80::requestInterrupt();
+            }
+
+            if (!interruptRequested)
+            {
+                z80::executeInstruction();
+            }
         }
 
         cleanUp();
@@ -62,15 +83,10 @@ namespace main
 		}
     }
 
-    static void setModel(Model model)
-    {
-        memory::init(model);
-        ula::init(model);
-    }
-
     void start()
     {
-        setModel(main::SPECTRUM_48K);
+        // TODO: take model from settings
+        reset(&SPECTRUM_48K);
 
         display::startRenderThread();
         startEmulationThread();
@@ -80,6 +96,19 @@ namespace main
     {
         stopEmulationThread();
         display::stopRenderThread();
+    }
+
+    void reset(const Model* model)
+    {
+        memory::cleanUp();
+        ula::cleanUp();
+
+        currentModel = model;
+
+        memory::init();
+        ula::init();
+
+        z80::reset();
     }
 
     void waitForNextFrame()

@@ -24,9 +24,13 @@ namespace ula
         0xffffff    // bright white
     };
 
+    extern uint8_t portData;
 
-    void init(main::Model model);
+    void init();
     void cleanUp();
     void tack();
     void contendedTacks(uint16_t addr, int tacks);
+    void preIOTacks(uint16_t port);
+    void postIOTacks(uint16_t port);
+    uint8_t readPort(uint16_t port);
 }

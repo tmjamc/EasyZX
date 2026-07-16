@@ -13,9 +13,6 @@ namespace memory
     uint8_t** banks = nullptr;
 	uint8_t** ramPages = nullptr;
 	uint8_t** romPages = nullptr;
-    int banksCount = 0;
-    int ramPagesCount = 0;
-    int romPagesCount = 0;
     int activeRomPage = 0;
     int activeRamPage = 0;
     int activeScreenPage = 0;
@@ -23,43 +20,41 @@ namespace memory
 
     void cleanUp()
     {
-        if (ramPages != nullptr && ramPagesCount > 0)
+        if (ramPages != nullptr && main::currentModel->ramPagesCount > 0)
 	    {
-            for (int i = 0; i < ramPagesCount; ++i)
+            for (int i = 0; i < main::currentModel->ramPagesCount; ++i)
             {
                 delete[0x4000] ramPages[i];
                 ramPages[i] = nullptr;
             }
-            delete[ramPagesCount] ramPages;
+            delete[main::currentModel->ramPagesCount] ramPages;
             ramPages = nullptr;
         }
 
-	    if (romPages != nullptr && romPagesCount > 0)
+	    if (romPages != nullptr && main::currentModel->romPagesCount > 0)
 	    {
-            for (int i = 0; i < romPagesCount; ++i)
+            for (int i = 0; i < main::currentModel->romPagesCount; ++i)
             {
                 delete[0x4000] romPages[i];
                 romPages[i] = nullptr;
             }
-            delete[romPagesCount] romPages;
+            delete[main::currentModel->romPagesCount] romPages;
             romPages = nullptr;
         }
 
-        if (banks != nullptr && banksCount > 0)
+        if (banks != nullptr && main::currentModel->banksCount > 0)
         {
-            delete[banksCount] banks;
+            delete[main::currentModel->banksCount] banks;
             banks = nullptr;
         }
     }
 
-    void init(main::Model model)
+    void init()
     {
-        cleanUp();
-
         // Create RAM pages
-        ramPagesCount = model.ramPagesCount;
-        ramPages = new uint8_t*[ramPagesCount];
-        for (int i = 0; i < ramPagesCount; ++i)
+        // ramPagesCount = model.ramPagesCount;
+        ramPages = new uint8_t*[main::currentModel->ramPagesCount];
+        for (int i = 0; i < main::currentModel->ramPagesCount; ++i)
         {
             ramPages[i] = new uint8_t[0x4000];
             
@@ -71,14 +66,14 @@ namespace memory
         }
 
         // Create ROM pages
-        romPagesCount = model.romPagesCount;
-        romPages = new uint8_t*[romPagesCount];
-        for (int i = 0; i < romPagesCount; ++i)
+        // romPagesCount = model.romPagesCount;
+        romPages = new uint8_t*[main::currentModel->romPagesCount];
+        for (int i = 0; i < main::currentModel->romPagesCount; ++i)
         {
             romPages[i] = new uint8_t[0x4000];
 
             // Load ROM from file
-            std::ifstream file(std::format("./roms/{}", model.romFileNames[i]), std::ios::in | std::ios::binary);
+            std::ifstream file(std::format("./roms/{}", main::currentModel->romFileNames[i]), std::ios::in | std::ios::binary);
             if (file.is_open())
             {
                 file.read(reinterpret_cast<char*>(romPages[i]), 0x4000);
@@ -87,22 +82,22 @@ namespace memory
         }
 
         // Create banks
-        banksCount = model.banksCount;
-        banks = new uint8_t*[banksCount];
+        // banksCount = model.banksCount;
+        banks = new uint8_t*[main::currentModel->banksCount];
 
         // Set default ROM bank
-        activeRomPage = model.defaultBankPages[0];
+        activeRomPage = main::currentModel->defaultBankPages[0];
         banks[0] = romPages[activeRomPage];
 
         // Set default RAM banks
-        activeRamPage = model.defaultBankPages[banksCount - 1];
-        for (int i = 1; i < banksCount; ++i)
+        activeRamPage = main::currentModel->defaultBankPages[main::currentModel->banksCount - 1];
+        for (int i = 1; i < main::currentModel->banksCount; ++i)
         {
-            banks[i] = ramPages[model.defaultBankPages[i]];
+            banks[i] = ramPages[main::currentModel->defaultBankPages[i]];
         }
 
-        pagingEnabled = model.pagingEnabled;
-        activeScreenPage = model.activeScreenPage;
+        pagingEnabled = main::currentModel->pagingEnabled;
+        activeScreenPage = main::currentModel->activeScreenPage;
     }
 
     void setPaging(uint8_t data)

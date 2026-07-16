@@ -71,28 +71,28 @@ namespace z80
 
 #define INC(r)                                                                          \
     ++r;                                                                                \
-    F = (F & FLAG_C) | (r == 0x80 ? FLAG_V : 0) | (r & 0x0f ? 0 : FLAG_H) | _sz53[(r)]; \
+    F = (F & FLAG_C) | (r == 0x80 ? FLAG_V : 0) | (r & 0x0f ? 0 : FLAG_H) | sz53[(r)]; \
     Q = F
 
 #define DEC(r)                                           \
     F = (F & FLAG_C) | (r & 0x0f ? 0 : FLAG_H) | FLAG_N; \
     --r;                                                 \
-    F |= (r == 0x7f ? FLAG_V : 0) | _sz53[r];            \
+    F |= (r == 0x7f ? FLAG_V : 0) | sz53[r];            \
     Q = F
 
 #define AND(r)              \
     A &= r;                 \
-    F = FLAG_H | _sz53p[A]; \
+    F = FLAG_H | sz53p[A]; \
     Q = F
 
 #define XOR(r)     \
     A ^= r;        \
-    F = _sz53p[A]; \
+    F = sz53p[A]; \
     Q = F
 
 #define OR(r)      \
     A |= r;        \
-    F = _sz53p[A]; \
+    F = sz53p[A]; \
     Q = F
 
 #define RET()       \
@@ -100,12 +100,12 @@ namespace z80
     MP = PC
 
 #define POPW(rl, rh)     \
-    rl = peekByte(SP++); \
-    rh = peekByte(SP++)
+    rl = contendRead(SP++); \
+    rh = contendRead(SP++)
 
 #define PUSHW(rl, rh)   \
-    pokeByte(--SP, rh); \
-    pokeByte(--SP, rl)
+    contendWrite(--SP, rh); \
+    contendWrite(--SP, rl)
 
 #define CALL()                   \
     CONTEND_READ_NO_MREQ(PC, 1); \
@@ -122,7 +122,7 @@ namespace z80
     {                                 \
         MP = port + 1;                \
         r = io::read(port);      \
-        F = (F & FLAG_C) | _sz53p[r]; \
+        F = (F & FLAG_C) | sz53p[r]; \
         Q = F;                        \
     }
 
@@ -130,7 +130,7 @@ namespace z80
     {                                                                                                                                                                        \
         uint16_t temp = A - r;                                                                                                                                               \
         uint8_t lookup = ((A & 0x88) >> 3) | ((r & 0x88) >> 2) | ((temp & 0x88) >> 1);                                                                                       \
-        F = ((temp & 0x100) ? FLAG_C : (temp ? 0 : FLAG_Z)) | FLAG_N | _halfcarrySub[lookup & 0x07] | _overflowSub[lookup >> 4] | (r & (FLAG_3 | FLAG_5)) | (temp & FLAG_S); \
+        F = ((temp & 0x100) ? FLAG_C : (temp ? 0 : FLAG_Z)) | FLAG_N | halfcarrySub[lookup & 0x07] | overflowSub[lookup >> 4] | (r & (FLAG_3 | FLAG_5)) | (temp & FLAG_S); \
         Q = F;                                                                                                                                                               \
     }
 
@@ -139,7 +139,7 @@ namespace z80
         uint16_t temp = A + r;                                                                                   \
         uint8_t lookup = ((A & 0x88) >> 3) | ((r & 0x88) >> 2) | ((temp & 0x88) >> 1);                           \
         A = temp;                                                                                                \
-        F = ((temp & 0x100) ? FLAG_C : 0) | _halfcarryAdd[lookup & 0x07] | _overflowAdd[lookup >> 4] | _sz53[A]; \
+        F = ((temp & 0x100) ? FLAG_C : 0) | halfcarryAdd[lookup & 0x07] | overflowAdd[lookup >> 4] | sz53[A]; \
         Q = F;                                                                                                   \
     }
 
@@ -148,7 +148,7 @@ namespace z80
         uint16_t temp = A + r + (F & FLAG_C);                                                                    \
         uint8_t lookup = ((A & 0x88) >> 3) | ((r & 0x88) >> 2) | ((temp & 0x88) >> 1);                           \
         A = temp;                                                                                                \
-        F = ((temp & 0x100) ? FLAG_C : 0) | _halfcarryAdd[lookup & 0x07] | _overflowAdd[lookup >> 4] | _sz53[A]; \
+        F = ((temp & 0x100) ? FLAG_C : 0) | halfcarryAdd[lookup & 0x07] | overflowAdd[lookup >> 4] | sz53[A]; \
         Q = F;                                                                                                   \
     }
 
@@ -158,7 +158,7 @@ namespace z80
         uint8_t lookup = ((r1 & 0x0800) >> 11) | ((r2 & 0x0800) >> 10) | ((temp & 0x0800) >> 9);                                            \
         MP = r1 + 1;                                                                                                                        \
         r1 = temp;                                                                                                                          \
-        F = (F & (FLAG_V | FLAG_Z | FLAG_S)) | ((temp & 0x10000) ? FLAG_C : 0) | ((temp >> 8) & (FLAG_3 | FLAG_5)) | _halfcarryAdd[lookup]; \
+        F = (F & (FLAG_V | FLAG_Z | FLAG_S)) | ((temp & 0x10000) ? FLAG_C : 0) | ((temp >> 8) & (FLAG_3 | FLAG_5)) | halfcarryAdd[lookup]; \
         Q = F;                                                                                                                              \
     }
 
@@ -168,7 +168,7 @@ namespace z80
         uint8_t lookup = ((HL & 0x8800) >> 11) | ((r & 0x8800) >> 10) | ((temp & 0x8800) >> 9);                                                                \
         MP = HL + 1;                                                                                                                                           \
         HL = temp;                                                                                                                                             \
-        F = ((temp & 0x10000) ? FLAG_C : 0) | _overflowAdd[lookup >> 4] | (H & (FLAG_3 | FLAG_5 | FLAG_S)) | _halfcarryAdd[lookup & 0x07] | (HL ? 0 : FLAG_Z); \
+        F = ((temp & 0x10000) ? FLAG_C : 0) | overflowAdd[lookup >> 4] | (H & (FLAG_3 | FLAG_5 | FLAG_S)) | halfcarryAdd[lookup & 0x07] | (HL ? 0 : FLAG_Z); \
         Q = F;                                                                                                                                                 \
     }
 
@@ -177,7 +177,7 @@ namespace z80
         uint16_t temp = A - r;                                                                                            \
         uint8_t lookup = ((A & 0x88) >> 3) | ((r & 0x88) >> 2) | ((temp & 0x88) >> 1);                                    \
         A = temp;                                                                                                         \
-        F = ((temp & 0x100) ? FLAG_C : 0) | FLAG_N | _halfcarrySub[lookup & 0x07] | _overflowSub[lookup >> 4] | _sz53[A]; \
+        F = ((temp & 0x100) ? FLAG_C : 0) | FLAG_N | halfcarrySub[lookup & 0x07] | overflowSub[lookup >> 4] | sz53[A]; \
         Q = F;                                                                                                            \
     }
 
@@ -186,7 +186,7 @@ namespace z80
         uint16_t temp = A - r - (F & FLAG_C);                                                                             \
         uint8_t lookup = ((A & 0x88) >> 3) | ((r & 0x88) >> 2) | ((temp & 0x88) >> 1);                                    \
         A = temp;                                                                                                         \
-        F = ((temp & 0x100) ? FLAG_C : 0) | FLAG_N | _halfcarrySub[lookup & 0x07] | _overflowSub[lookup >> 4] | _sz53[A]; \
+        F = ((temp & 0x100) ? FLAG_C : 0) | FLAG_N | halfcarrySub[lookup & 0x07] | overflowSub[lookup >> 4] | sz53[A]; \
         Q = F;                                                                                                            \
     }
 
@@ -196,7 +196,7 @@ namespace z80
         uint8_t lookup = ((HL & 0x8800) >> 11) | ((r & 0x8800) >> 10) | ((temp & 0x8800) >> 9);                                                                         \
         MP = HL + 1;                                                                                                                                                    \
         HL = temp;                                                                                                                                                      \
-        F = ((temp & 0x10000) ? FLAG_C : 0) | FLAG_N | _overflowSub[lookup >> 4] | (H & (FLAG_3 | FLAG_5 | FLAG_S)) | _halfcarrySub[lookup & 0x07] | (HL ? 0 : FLAG_Z); \
+        F = ((temp & 0x10000) ? FLAG_C : 0) | FLAG_N | overflowSub[lookup >> 4] | (H & (FLAG_3 | FLAG_5 | FLAG_S)) | halfcarrySub[lookup & 0x07] | (HL ? 0 : FLAG_Z); \
         Q = F;                                                                                                                                                          \
     }
 
@@ -204,7 +204,7 @@ namespace z80
 
 #define JR()                         \
     {                                \
-        int8_t temp = peekByte(PC);  \
+        int8_t temp = contendRead(PC);  \
         CONTEND_READ_NO_MREQ(PC, 1); \
         CONTEND_READ_NO_MREQ(PC, 1); \
         CONTEND_READ_NO_MREQ(PC, 1); \
@@ -218,39 +218,39 @@ namespace z80
 #define LDW_NNRR(rl, rh)             \
     {                                \
         uint16_t temp;               \
-        temp = peekByte(PC++);       \
-        temp |= peekByte(PC++) << 8; \
-        pokeByte(temp++, rl);        \
+        temp = contendRead(PC++);       \
+        temp |= contendRead(PC++) << 8; \
+        contendWrite(temp++, rl);        \
         MP = temp;                   \
-        pokeByte(temp, rh);          \
+        contendWrite(temp, rh);          \
     }
 
 #define LDW_RRNN(rl, rh)             \
     {                                \
         uint16_t temp;               \
-        temp = peekByte(PC++);       \
-        temp |= peekByte(PC++) << 8; \
-        rl = peekByte(temp++);       \
+        temp = contendRead(PC++);       \
+        temp |= contendRead(PC++) << 8; \
+        rl = contendRead(temp++);       \
         MP = temp;                   \
-        rh = peekByte(temp);         \
+        rh = contendRead(temp);         \
     }
 
 #define RLC(r)                    \
     r = (r << 1) | (r >> 7);      \
-    F = (r & FLAG_C) | _sz53p[r]; \
+    F = (r & FLAG_C) | sz53p[r]; \
     Q = F
 
 #define RRC(r)               \
     F = r & FLAG_C;          \
     r = (r >> 1) | (r << 7); \
-    F |= _sz53p[r];          \
+    F |= sz53p[r];          \
     Q = F
 
 #define RL(r)                        \
     {                                \
         uint8_t temp = r;            \
         r = (r << 1) | (F & FLAG_C); \
-        F = (temp >> 7) | _sz53p[r]; \
+        F = (temp >> 7) | sz53p[r]; \
         Q = F;                       \
     }
 
@@ -258,32 +258,32 @@ namespace z80
     {                                    \
         uint8_t temp = r;                \
         r = (r >> 1) | (F << 7);         \
-        F = (temp & FLAG_C) | _sz53p[r]; \
+        F = (temp & FLAG_C) | sz53p[r]; \
         Q = F;                           \
     }
 
 #define SLA(r)      \
     F = r >> 7;     \
     r <<= 1;        \
-    F |= _sz53p[r]; \
+    F |= sz53p[r]; \
     Q = F
 
 #define SRA(r)                 \
     F = r & FLAG_C;            \
     r = (r & 0x80) | (r >> 1); \
-    F |= _sz53p[r];            \
+    F |= sz53p[r];            \
     Q = F
 
 #define SLL(r)           \
     F = r >> 7;          \
     r = (r << 1) | 0x01; \
-    F |= _sz53p[r];      \
+    F |= sz53p[r];      \
     Q = F
 
 #define SRL(r)      \
     F = r & FLAG_C; \
     r >>= 1;        \
-    F |= _sz53p[r]; \
+    F |= sz53p[r]; \
     Q = F
 
 #define BIT(bit, r)                                      \

@@ -33,6 +33,14 @@ namespace win_app
         switch (message)
         {
 
+        case WM_KEYDOWN:
+            main::keyStates[wParam & 0xff] = true;
+            break;
+
+        case WM_KEYUP:
+            main::keyStates[wParam & 0xff] = false;
+            break;
+
         case WM_DESTROY:
         {
             WINDOWPLACEMENT wp = {};
