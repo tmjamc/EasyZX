@@ -18,7 +18,8 @@ namespace main
 	LARGE_INTEGER frameDueTime{};
 	std::chrono::steady_clock::time_point currentFrameTime;
 
-    int tack;
+    int tack = 0;
+    int frame = 0;
 
     static void init()
     {

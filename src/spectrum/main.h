@@ -14,6 +14,7 @@ namespace main
         const int tacksPerLine;
         const int tacksToFirstscreenByte;
         const int interruptSignalTacks;
+        const bool hiresBorder;
         const int banksCount;
         const int ramPagesCount;
         const int romPagesCount;
@@ -29,6 +30,7 @@ namespace main
         .tacksPerLine = 224,
         .tacksToFirstscreenByte = 14335,
         .interruptSignalTacks = 32,
+        .hiresBorder = false,
         .banksCount = 4,
         .ramPagesCount = 3,
         .romPagesCount = 1,
@@ -40,6 +42,7 @@ namespace main
 
     extern bool emulationThreadRunning;
     extern int tack;
+    extern int frame;
 
     void start();
     void stop();
