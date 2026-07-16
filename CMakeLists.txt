@@ -20,6 +20,7 @@ WIN32
 	"src/spectrum/main.cpp"
 	"src/spectrum/components/memory.cpp"
 	"src/spectrum/components/z80.cpp"
+	"src/spectrum/components/ula.cpp"
 	"src/libs/glad/src/gl.c"
 	"src/libs/glad/src/wgl.c"
 	"src/libs/mINI/ini.h"
