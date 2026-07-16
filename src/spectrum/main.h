@@ -15,7 +15,8 @@ namespace main
     {
         const int tacksPerFrame;
         const int tacksPerLine;
-        const int tacksToFirstscreenByte;
+        const int tacksToFirstScreenByte;
+        const int tacksToFirstContendedMemory;
         const int interruptSignalTacks;
         const bool hiresBorder;
         const bool contendedMemory;
@@ -32,7 +33,8 @@ namespace main
     {
         .tacksPerFrame = 69888,
         .tacksPerLine = 224,
-        .tacksToFirstscreenByte = 14335,
+        .tacksToFirstScreenByte = 14340,
+        .tacksToFirstContendedMemory = 14335,
         .interruptSignalTacks = 32,
         .hiresBorder = false,
         .contendedMemory = true,
@@ -49,7 +51,7 @@ namespace main
     {
         .tacksPerFrame = 70908,
         .tacksPerLine = 228,
-        .tacksToFirstscreenByte = 14361,
+        .tacksToFirstScreenByte = 14361,
         .interruptSignalTacks = 36,
         .hiresBorder = false,
         .contendedMemory = true,

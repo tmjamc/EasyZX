@@ -10,17 +10,139 @@ namespace ula
     #define ATTR_GET_PAPER(a) ((a >> 3) & 0x07) | ((a & (1<<6)) >> 3)
     #define KEY_PRESSED(vKey, bit) if (main::keyStates[vKey] /*|| _zx->app->display->keyboard->keyStates[vKey]*/) { data &= ~(0x01 << bit); }
 
+    constexpr static uint8_t CONTENDED_MEMORY_PATTERN[8] = { 6, 5, 4, 3, 2, 1, 0, 0 };
+
     int firstBytePixelTackIndex;
 
     uint8_t portData = 0xff;
 
+    int16_t* floatingBusAddresses = nullptr;
+    int floatingBusAddressesLength = 0;
+    uint8_t* contendedMemoryTacks = nullptr;
+    int contendedMemoryTacksLength = 0;
+
+    static void buildTables()
+    {
+        /*
+        * IMO this is the document with the cleanest explanation for contention and ula timings:
+        * https://github.com/kosarev/zx/blob/master/test/screen_timing/SCREEN_TIMING.md
+        *
+        * The base tick
+        * =============
+        * The first two pixels of the screen area are displayed at CPU tick 64 * 224 + 4 = 14340.
+        *
+        * The 64 is the number of scanlines before the screen area begins (the top border) and 224 is the number of CPU ticks per scanline.
+        *
+        * All ticks are since ~INT becomes active, with the first tick since active ~INT being 0.
+        *
+        * Border timing
+        * =============
+        * The border colour value is latched and the first two pixels of the corresponding 8-pixel border chunk are displayed at every tick that is a multiple of 4.
+        *
+        * Note that Z80 writes ports at T2 of the output cycle. This means to take effect the output cycle shall be started at least one tick ahead of the moment when the new border colour value is supposed to be latched.
+        *
+        * Pixel pattern and colour attribute timing
+        * =========================================
+        * The first two bytes of the screen area at addresses 0x4000 and 0x4001 and the first two bytes of the colour attribute area at addresses 0x5800 and 0x5801 are latched during the first memory contention cycle at ticks 14336-14341.
+        *
+        * Similarly to output cycles, memory write cycles actually write the value at T2, so such cycles too have to come at least one tick ahead of the latching moment.
+        *
+        * The four bytes read are then displayed during ticks 14340-14347 as a chunk of 16 pixels.
+        *
+        * Then at tick 14348 subsequent four bytes are read and another chunk of 16 pixels is displayed on the screen.
+        *
+        * Display, memory contention and ULA reads (floating bus) cycles
+        * ==============================================================
+        *
+        * Tick     Contention         ULA read   Screen area pixels
+        * ======   ================   ========   =================================
+        * 14,336   6 (until 13,342)   -          -
+        * 14,337   5 (until 13,342)   -          -
+        * 14,338   4 (until 13,342)   0x4000     -
+        * 14,339   3 (until 13,342)   0x5800     -
+        * 14,340   2 (until 13,342)   0x4001     0b11000000 from 0x4000 and 0x5800
+        * 14,341   1 (until 13,342)   0x5801     0b00110000 from 0x4000 and 0x5800
+        * 14,342   -                  -          0b00001100 from 0x4000 and 0x5800
+        * 14,343   -                  -          0b00000011 from 0x4000 and 0x5800
+        * 14,344   6 (until 14,350)   -          0b11000000 from 0x4001 and 0x5801
+        * 14,345   5 (until 14,350)   -          0b00110000 from 0x4001 and 0x5801
+        * 14,346   4 (until 14,350)   0x4002     0b00001100 from 0x4001 and 0x5801
+        * 14,347   3 (until 14,350)   0x5802     0b00000011 from 0x4001 and 0x5801
+        * 14,348   2 (until 14,350)   0x4003     0b11000000 from 0x4002 and 0x5802
+        * 14,349   1 (until 14,350)   0x5803     0b00110000 from 0x4002 and 0x5802
+        * 14,350   -                  -          0b00001100 from 0x4002 and 0x5802
+        * 14,351   -                  -          0b00000011 from 0x4002 and 0x5802
+        *
+        */
+
+        cleanUp();
+
+        // Build contention table
+        if (main::currentModel->contendedMemory)
+        {
+            contendedMemoryTacksLength = main::currentModel->tacksPerFrame;
+            contendedMemoryTacks = new uint8_t[contendedMemoryTacksLength];
+            std::fill(contendedMemoryTacks, contendedMemoryTacks + contendedMemoryTacksLength, static_cast<uint8_t>(0));
+
+            int index = 0;
+            int tack = main::currentModel->tacksToFirstContendedMemory;
+            while (tack < main::currentModel->tacksToFirstContendedMemory + 192 * main::currentModel->tacksPerLine)
+            {
+                contendedMemoryTacks[tack++] = CONTENDED_MEMORY_PATTERN[index % 8];
+
+                if (++index == 128)
+                {
+                    index = 0;
+                    tack += (main::currentModel->tacksPerLine - 128);
+                }
+            }
+        }
+
+        // // Build floating bus table
+        // _floatingBusArrayLength = cyclesPerFrame;
+        // _floatingBusArray = new int16_t[cyclesPerFrame];
+        // std::fill(_floatingBusArray, _floatingBusArray + cyclesPerFrame, (int16_t)-1);
+        // int index = 0;
+        // int cycle = firstScreenCycle - 1 + contentionOffset;
+        // while (cycle < firstScreenCycle - 1 + contentionOffset + 192 * cyclesPerLine)
+        // {
+        //     const int scrY = (cycle + 24) / cyclesPerLine - 64 + 9 + crtYOffset;
+        //     int pixelAddr = ((scrY & 0xc0) << 5) | ((scrY & 0x07) << 8) | ((scrY & 0x38) << 2);
+        //     int attrAddr = 0x1800 + ((scrY & ~0x07) << 2);
+        //     for (int i = 0; i < 16; ++i)
+        //     {
+        //         _floatingBusArray[cycle++] = pixelAddr++;
+        //         _floatingBusArray[cycle++] = attrAddr++;
+        //         _floatingBusArray[cycle++] = pixelAddr++;
+        //         _floatingBusArray[cycle++] = attrAddr++;
+        //         cycle += 4;
+        //     }
+        //     cycle += (cyclesPerLine - 128);
+        // }
+    }
+
     void init()
     {
-        firstBytePixelTackIndex = main::currentModel->tacksToFirstscreenByte % 4;
+        firstBytePixelTackIndex = main::currentModel->tacksToFirstScreenByte % 4;
+        buildTables();
     }
 
     void cleanUp()
     {
+        if (contendedMemoryTacksLength > 0)
+        {
+            delete[contendedMemoryTacksLength] contendedMemoryTacks;
+            contendedMemoryTacks = nullptr;
+            contendedMemoryTacksLength = 0;
+        }
+
+        if (floatingBusAddressesLength > 0)
+        {
+            delete[floatingBusAddressesLength] floatingBusAddresses;
+            floatingBusAddresses = nullptr;
+            floatingBusAddressesLength = 0;
+        }
+
     }
 
     void tack()
@@ -32,9 +154,9 @@ namespace ula
             ++main::frame;
         }
 
-        const int xTack = main::tack + display::GL_MAX_BORDER_SIZE / 2 - main::currentModel->tacksToFirstscreenByte % main::currentModel->tacksPerLine;
+        const int xTack = main::tack + display::GL_MAX_BORDER_SIZE / 2 - main::currentModel->tacksToFirstScreenByte % main::currentModel->tacksPerLine;
         const int x = (xTack % main::currentModel->tacksPerLine) * 2;
-        const int y = xTack / main::currentModel->tacksPerLine - main::currentModel->tacksToFirstscreenByte / main::currentModel->tacksPerLine + display::GL_MAX_BORDER_SIZE;
+        const int y = xTack / main::currentModel->tacksPerLine - main::currentModel->tacksToFirstScreenByte / main::currentModel->tacksPerLine + display::GL_MAX_BORDER_SIZE;
 
         // Check if current coordinates are inside the display buffer
         if (x >= 0 && x < display::GL_DISPLAY_BUFFER_WIDTH && y >= 0 && y < display::DISPLAY_BUFFER_HEIGHT)
@@ -77,15 +199,14 @@ namespace ula
                 }
             }
         }
-
     }
 
-    void contendedTacks(uint16_t addr, int tacks)
+    void contendedTacks(uint16_t addr, int tacks, bool force)
     {
-        if (main::currentModel->contendedMemory && ((addr & 0xc000) == 0x4000 || (main::currentModel->pagingEnabled && (addr & 0xc000) == 0xc000 && (memory::activeRamPage & 0x01))))
+        if (force || main::currentModel->contendedMemory && ((addr & 0xc000) == 0x4000 || (main::currentModel->pagingEnabled && (addr & 0xc000) == 0xc000 && (memory::activeRamPage & 0x01))))
         {
-            int tacks = 1; // contendedMemoryTacks[main::tack];
-            while (tacks-- != 0)
+            int cTacks = contendedMemoryTacks[main::tack];
+            while (cTacks-- != 0)
             {
                 tack();
             }
@@ -108,7 +229,6 @@ namespace ula
     void preIOTacks(uint16_t port)
     {
         contendedTacks(port, 1);
-        tack();
     }
     
     void postIOTacks(uint16_t port)
@@ -124,11 +244,9 @@ namespace ula
         {
             if ((port & 0xc000) == 0x4000 || (main::currentModel->pagingEnabled && (port & 0xc000) == 0xc000 && (memory::activeRamPage & 0x01)))
             {
-                contendedTacks(port, 1);
-                tack();
-                contendedTacks(port, 1);
-                tack();
-                contendedTacks(port, 1);
+                contendedTacks(port, 1, true);
+                contendedTacks(port, 1, true);
+                contendedTacks(port, 0, true);
             }
             else
             {
@@ -138,9 +256,7 @@ namespace ula
         }
         else
         {
-            contendedTacks(port, 1);
-            tack();
-            tack();
+            contendedTacks(port, 2, true);
         }
     }
 

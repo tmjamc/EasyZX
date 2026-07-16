@@ -35,6 +35,15 @@ namespace tape
 
     void init()
     {
+        // std::ifstream file("C:\\Users\\jam\\source\\repos\\RawZX\\tapes\\tests\\contention.tap", std::ios::in | std::ios::binary);
+        // std::ifstream file("C:\\Users\\jam\\source\\repos\\RawZX\\tapes\\tests\\iocontention.tap", std::ios::in | std::ios::binary);
+        // std::ifstream file("C:\\Users\\jam\\source\\repos\\RawZX\\tapes\\tests\\IR_Contention.tap", std::ios::in | std::ios::binary);
+        // std::ifstream file("C:\\Users\\jam\\source\\repos\\RawZX\\tapes\\tests\\screen_timing_early.tap", std::ios::in | std::ios::binary);
+        // std::ifstream file("C:\\Users\\jam\\source\\repos\\RawZX\\tapes\\tests\\BBG48.tap", std::ios::in | std::ios::binary);
+        // std::ifstream file("C:\\Users\\jam\\source\\repos\\RawZX\\tapes\\tests\\IM0-2 (2019-11-24)(Woodmass, Mark)[!].tap", std::ios::in | std::ios::binary);
+        // std::ifstream file("C:\\Users\\jam\\source\\repos\\RawZX\\tapes\\tests\\Interrupt Retriggering Test (2021-12-17)(Woodmass, Mark)[!].tap", std::ios::in | std::ios::binary);
+        // std::ifstream file("C:\\Users\\jam\\source\\repos\\RawZX\\tapes\\tests\\minfo.tap", std::ios::in | std::ios::binary);
+        // std::ifstream file("C:\\Users\\jam\\source\\repos\\RawZX\\tapes\\tests\\ULA 48 Simple Test (2012-10-06)(azesmbog)[!].tap", std::ios::in | std::ios::binary);
         std::ifstream file("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\48k\\BorderTrix.tap", std::ios::in | std::ios::binary);
         if (!file.is_open())
         {
@@ -56,7 +65,7 @@ namespace tape
         if (tapeDataLength > 0)
         {
             delete[tapeDataLength] tapeData;
-            tapeData = tapeData;
+            tapeData = nullptr;
             tapeDataLength = 0;
             tapeDataIndex = 0;
         }
