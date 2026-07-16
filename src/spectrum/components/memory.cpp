@@ -4,6 +4,7 @@
 
 #include "memory.h"
 #include "main.h"
+#include "win_app.h"
 
 namespace memory
 {
@@ -25,9 +26,11 @@ namespace memory
             for (int i = 0; i < main::currentModel->ramPagesCount; ++i)
             {
                 delete[0x4000] ramPages[i];
+                win_app::info(std::format("MEMORY -> Deallocated 0x4000 bytes from RAM page {}", i).c_str());
                 ramPages[i] = nullptr;
             }
             delete[main::currentModel->ramPagesCount] ramPages;
+            win_app::info(std::format("MEMORY -> Deallocated {} RAM pages", main::currentModel->ramPagesCount).c_str());
             ramPages = nullptr;
         }
 
@@ -36,15 +39,18 @@ namespace memory
             for (int i = 0; i < main::currentModel->romPagesCount; ++i)
             {
                 delete[0x4000] romPages[i];
+                win_app::info(std::format("MEMORY -> Deallocated 0x4000 bytes from ROM page {}", i).c_str());
                 romPages[i] = nullptr;
             }
             delete[main::currentModel->romPagesCount] romPages;
+            win_app::info(std::format("MEMORY -> Deallocated {} ROM pages", main::currentModel->romPagesCount).c_str());
             romPages = nullptr;
         }
 
         if (banks != nullptr && main::currentModel->banksCount > 0)
         {
             delete[main::currentModel->banksCount] banks;
+            win_app::info(std::format("MEMORY -> Deallocated {} memory banks", main::currentModel->banksCount).c_str());
             banks = nullptr;
         }
     }
@@ -52,11 +58,12 @@ namespace memory
     void init()
     {
         // Create RAM pages
-        // ramPagesCount = model.ramPagesCount;
         ramPages = new uint8_t*[main::currentModel->ramPagesCount];
+        win_app::info(std::format("MEMORY -> Allocated {} RAM pages", main::currentModel->ramPagesCount).c_str());
         for (int i = 0; i < main::currentModel->ramPagesCount; ++i)
         {
             ramPages[i] = new uint8_t[0x4000];
+            win_app::info(std::format("MEMORY -> Allocated 0x4000 bytes for RAM page {}", i).c_str());
             
         	// Simulate dirty RAM memory
             for (uint16_t addr = 0x0000; addr < 0x4000; ++addr)
@@ -66,11 +73,12 @@ namespace memory
         }
 
         // Create ROM pages
-        // romPagesCount = model.romPagesCount;
         romPages = new uint8_t*[main::currentModel->romPagesCount];
+        win_app::info(std::format("MEMORY -> Allocated {} ROM pages", main::currentModel->romPagesCount).c_str());
         for (int i = 0; i < main::currentModel->romPagesCount; ++i)
         {
             romPages[i] = new uint8_t[0x4000];
+            win_app::info(std::format("MEMORY -> Allocated 0x4000 bytes for ROM page {}", i).c_str());
 
             // Load ROM from file
             std::ifstream file(std::format("./roms/{}", main::currentModel->romFileNames[i]), std::ios::in | std::ios::binary);
@@ -78,12 +86,14 @@ namespace memory
             {
                 file.read(reinterpret_cast<char*>(romPages[i]), 0x4000);
                 file.close();
+                win_app::info(std::format("MEMORY -> Loaded file {} into ROM page {}", main::currentModel->romFileNames[i], i).c_str());
             }
         }
 
         // Create banks
         // banksCount = model.banksCount;
         banks = new uint8_t*[main::currentModel->banksCount];
+        win_app::info(std::format("MEMORY -> Allocated {} memory banks", main::currentModel->banksCount).c_str());
 
         // Set default ROM bank
         activeRomPage = main::currentModel->defaultBankPages[0];

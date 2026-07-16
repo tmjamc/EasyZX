@@ -8,6 +8,9 @@ namespace main
     constexpr static int DEFAULT_BANK_PAGES_48K[4] = { 0, 0, 1, 2 };
     constexpr static const char* DEFAULT_ROM_NAMES_48K[1] = { "48.rom" };
 
+    constexpr static int DEFAULT_BANK_PAGES_128K[4] = { 0, 5, 2, 0 };
+    constexpr static const char* DEFAULT_ROM_NAMES_128K[2] = { "128-0.rom", "128-1.rom" };
+
     struct Model
     {
         const int tacksPerFrame;
@@ -40,6 +43,23 @@ namespace main
         .defaultBankPages = DEFAULT_BANK_PAGES_48K,
         .activeScreenPage = 0,
         .romFileNames = DEFAULT_ROM_NAMES_48K
+    };
+
+    constexpr static Model SPECTRUM_128K =
+    {
+        .tacksPerFrame = 70908,
+        .tacksPerLine = 228,
+        .tacksToFirstscreenByte = 14361,
+        .interruptSignalTacks = 36,
+        .hiresBorder = false,
+        .contendedMemory = true,
+        .banksCount = 4,
+        .ramPagesCount = 8,
+        .romPagesCount = 2,
+        .pagingEnabled = true,
+        .defaultBankPages = DEFAULT_BANK_PAGES_128K,
+        .activeScreenPage = 5,
+        .romFileNames = DEFAULT_ROM_NAMES_128K
     };
 
     extern bool emulationThreadRunning;

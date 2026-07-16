@@ -29,21 +29,11 @@ namespace main
     {
         // Create Waitable Timer for better accuracy
         frameTimer = CreateWaitableTimerEx(nullptr, nullptr, CREATE_WAITABLE_TIMER_HIGH_RESOLUTION, TIMER_ALL_ACCESS);
-
-        keyStates = new bool[0x100]{};
-        memory::init();
-        ula::init();
-        z80::init();
     }
 
     static void cleanUp()
     {
         CloseHandle(frameTimer);
-
-        delete[0x100] keyStates;
-        memory::cleanUp();
-        ula::cleanUp();
-        z80::cleanUp();
     }
 
     static void run()
@@ -84,9 +74,14 @@ namespace main
     }
 
     void start()
-    {
+    {        
         // TODO: take model from settings
-        reset(&SPECTRUM_48K);
+        currentModel = &SPECTRUM_48K;
+
+        keyStates = new bool[0x100]{};
+        memory::init();
+        ula::init();
+        z80::init();
 
         display::startRenderThread();
         startEmulationThread();
@@ -96,6 +91,11 @@ namespace main
     {
         stopEmulationThread();
         display::stopRenderThread();
+
+        delete[0x100] keyStates;
+        memory::cleanUp();
+        ula::cleanUp();
+        z80::cleanUp();
     }
 
     void reset(const Model* model)

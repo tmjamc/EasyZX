@@ -7,8 +7,8 @@ namespace settings
     struct Settings
     {
         // Display settings
-        int displayHorizontalBorderSize = 32;
-        int displayVerticalBorderSize = 24;
+        int displayHorizontalBorderSize = 40;
+        int displayVerticalBorderSize = 32;
         float displayPixelRatio = 1.0f;
         int displayShaderIndex = 0;
         int displayGigaScreenMode = 0;
@@ -37,7 +37,7 @@ namespace settings
         int audioTapeDcAdjustBufferLength = 80;
         
         // Main window settings
-        int windowMainWidth = 988;
+        int windowMainWidth = 972;
         int windowMainHeight = 768;
         int windowMainLeft = (GetSystemMetrics(SM_CXSCREEN) - windowMainWidth) / 2;
         int windowMainTop = (GetSystemMetrics(SM_CYSCREEN) - windowMainHeight) / 2;
