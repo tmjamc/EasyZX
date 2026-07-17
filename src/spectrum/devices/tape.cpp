@@ -55,9 +55,10 @@ namespace tape
         // std::ifstream file("C:\\Users\\jam\\Documents\\Projects\\TESTS\\Float48K (2008-03-24)(Woodmass, Mark)[!].tap", std::ios::in | std::ios::binary);
         // std::ifstream file("C:\\Users\\jam\\Documents\\Projects\\TESTS\\floatspy.tap", std::ios::in | std::ios::binary);
         // std::ifstream file("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\7TH_REAL.tap", std::ios::in | std::ios::binary);
-        // std::ifstream file("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\EYE_ACHE.tap", std::ios::in | std::ios::binary);
+        std::ifstream file("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\EYE_ACHE.tap", std::ios::in | std::ios::binary);
         // std::ifstream file("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\EYEACHE2.tap", std::ios::in | std::ios::binary);
-        std::ifstream file("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\128k\\AddMortem.tap", std::ios::in | std::ios::binary);
+        // std::ifstream file("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\128k\\AddMortem.tap", std::ios::in | std::ios::binary);
+        // std::ifstream file("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\modern\\Super Mario.tap", std::ios::in | std::ios::binary);
         if (!file.is_open())
         {
             return;

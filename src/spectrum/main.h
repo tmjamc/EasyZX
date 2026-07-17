@@ -11,7 +11,7 @@ namespace main
     constexpr static int DEFAULT_BANK_PAGES_128K[4] = { 0, 5, 2, 0 };
     constexpr static const char* DEFAULT_ROM_NAMES_128K[2] = { "128-0.rom", "128-1.rom" };
 
-    constexpr static const char* DEFAULT_ROM_NAMES_PENTAGON_128K[3] = { "128p-0.rom", "128p-1.rom", "trdos.rom" };
+    constexpr static const char* DEFAULT_ROM_NAMES_PENTAGON_128K[2] = { "128p-0.rom", "128p-1.rom" };
 
     struct Model
     {
@@ -72,14 +72,14 @@ namespace main
     {
         .tacksPerFrame = 71680,
         .tacksPerLine = 224,
-        .tacksToFirstScreenByte = 17983,
+        .tacksToFirstScreenByte = 17986,
         .interruptSignalTacks = 32,
         .hiresBorder = true,
         .contendedMemory = false,
         .floatingBus = false,
         .banksCount = 4,
         .ramPagesCount = 8,
-        .romPagesCount = 3,
+        .romPagesCount = 2,
         .pagingEnabled = true,
         .defaultBankPages = DEFAULT_BANK_PAGES_128K,
         .activeScreenPage = 5,
@@ -88,14 +88,14 @@ namespace main
 
     extern bool emulationThreadRunning;
     extern const Model* currentModel;
-    extern int tack;
-    extern int frame;
+    extern int currentTack;
+    extern int currentFrame;
   	extern bool* keyStates;
 
     void start();
     void stop();
     void reset(const Model* model);
-    void waitForNextFrame();
+    void tack();
 
     // // Pentagon
     // //int tacksPerLine = 224;

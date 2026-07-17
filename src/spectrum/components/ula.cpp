@@ -5,7 +5,7 @@
 
 namespace ula
 {
-    #define ATTR_GET_FLASH(a) (a & (1<<7)) && ((main::frame % 64) < 32)
+    #define ATTR_GET_FLASH(a) (a & (1<<7)) && ((main::currentFrame % 64) < 32)
     #define ATTR_GET_INK(a) (a & 0x07) | ((a & (1<<6)) >> 3)
     #define ATTR_GET_PAPER(a) ((a >> 3) & 0x07) | ((a & (1<<6)) >> 3)
     #define KEY_PRESSED(vKey, bit) if (main::keyStates[vKey] /*|| _zx->app->display->keyboard->keyStates[vKey]*/) { data &= ~(0x01 << bit); }
@@ -149,14 +149,7 @@ namespace ula
 
     void tack()
     {
-        if (++main::tack == main::currentModel->tacksPerFrame)
-        {
-            main::tack = 0;
-            main::waitForNextFrame();
-            ++main::frame;
-        }
-
-        const int xTack = main::tack + display::GL_MAX_BORDER_SIZE / 2 - main::currentModel->tacksToFirstScreenByte % main::currentModel->tacksPerLine;
+        const int xTack = main::currentTack + display::GL_MAX_BORDER_SIZE / 2 - main::currentModel->tacksToFirstScreenByte % main::currentModel->tacksPerLine;
         const int x = (xTack % main::currentModel->tacksPerLine) * 2;
         const int y = xTack / main::currentModel->tacksPerLine - main::currentModel->tacksToFirstScreenByte / main::currentModel->tacksPerLine + display::GL_MAX_BORDER_SIZE;
 
@@ -164,7 +157,7 @@ namespace ula
         if (x >= 0 && x < display::GL_DISPLAY_BUFFER_WIDTH && y >= 0 && y < display::DISPLAY_BUFFER_HEIGHT)
         {
             uint32_t* scanLine = display::displayBuffer + y * display::GL_DISPLAY_BUFFER_WIDTH;
-            const int pixIndex = (main::tack - firstBytePixelTackIndex) % 4;
+            const int pixIndex = (main::currentTack - firstBytePixelTackIndex) % 4;
 
             // Check if current coordinates are inside the screen
             if (x >= display::GL_MAX_BORDER_SIZE && x < display::GL_DISPLAY_BUFFER_WIDTH - display::GL_MAX_BORDER_SIZE &&
@@ -201,6 +194,8 @@ namespace ula
                 }
             }
         }
+
+        main::tack();
     }
 
     void contendedTacks(uint16_t addr, int tacks, bool force)
@@ -209,7 +204,7 @@ namespace ula
         {
             if (force || ((addr & 0xc000) == 0x4000 || (main::currentModel->pagingEnabled && (addr & 0xc000) == 0xc000 && (memory::activeRamPage & 0x01))))
             {
-                int cTacks = contendedMemoryTacks[main::tack];
+                int cTacks = contendedMemoryTacks[main::currentTack];
                 while (cTacks-- != 0)
                 {
                     tack();
@@ -367,11 +362,11 @@ namespace ula
 
     uint8_t readBus()
     {
-        if (!main::currentModel->floatingBus || floatingBusAddresses[main::tack] == -1)
+        if (!main::currentModel->floatingBus || floatingBusAddresses[main::currentTack] == -1)
         {
             return 0xff;
         }
 
-        return memory::ramPages[memory::activeScreenPage][floatingBusAddresses[main::tack]];
+        return memory::ramPages[memory::activeScreenPage][floatingBusAddresses[main::currentTack]];
     }
 }

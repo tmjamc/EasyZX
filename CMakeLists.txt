@@ -13,20 +13,22 @@ project("EasyZX")
 
 add_executable(EasyZX
 WIN32
-	"src/win_app.cpp"
-	"src/settings.cpp"
-	"src/display.cpp"
-	"src/shader.cpp"
-	"src/spectrum/main.cpp"
-	"src/spectrum/components/memory.cpp"
-	"src/spectrum/components/z80.cpp"
-	"src/spectrum/components/ula.cpp"
-	"src/spectrum/components/io.cpp"
-	"src/spectrum/devices/tape.cpp"
-	"src/resources/resources.rc"
-	"src/libs/glad/src/gl.c"
-	"src/libs/glad/src/wgl.c"
-	"src/libs/mINI/ini.h"
+	src/win_app.cpp
+	src/settings.cpp
+	src/display.cpp
+	src/shader.cpp
+	src/spectrum/main.cpp
+	src/spectrum/components/memory.cpp
+	src/spectrum/components/z80.cpp
+	src/spectrum/components/ula.cpp
+	src/spectrum/components/io.cpp
+	src/spectrum/devices/tape.cpp
+	src/spectrum/devices/beta_disk.cpp
+	src/spectrum/devices/wd1793.cpp
+	src/resources/resources.rc
+	src/libs/glad/src/gl.c
+	src/libs/glad/src/wgl.c
+	src/libs/mINI/ini.h
 )
 
 target_include_directories(EasyZX

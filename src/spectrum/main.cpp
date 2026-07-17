@@ -9,6 +9,8 @@
 #include "z80.h"
 #include "settings.h"
 #include "tape.h"
+#include "beta_disk.h"
+#include "wd1793.h"
 
 namespace main
 {
@@ -23,8 +25,8 @@ namespace main
 
     const Model* currentModel;
 
-    int tack = 0;
-    int frame = 0;
+    int currentTack = 0;
+    int currentFrame = 0;
 	bool* keyStates;
 
     static void init()
@@ -46,13 +48,33 @@ namespace main
 		while (win_app::running)
 		{
             interruptRequested = false;
-            if (tack < currentModel->interruptSignalTacks)
+            if (currentTack < currentModel->interruptSignalTacks)
             {
                 interruptRequested = z80::requestInterrupt();
             }
 
             if (!interruptRequested)
             {
+                if (beta_disk::enabled)
+                {
+                    if (beta_disk::romEnabled)
+                    {
+                        if (z80::registers.pc.w >= 0x4000)
+                        {
+                            memory::banks[0] = memory::romPages[memory::activeRomPage];
+                            beta_disk::romEnabled = false;
+                        }
+                    }
+                    else
+                    {
+                        if ((currentModel->romPagesCount == 1 || memory::activeRomPage == 1) && z80::registers.pc.b.h == 0x3d)
+                        {
+                            memory::banks[0] = beta_disk::rom;
+                            beta_disk::romEnabled = true;
+                        }
+                    }
+                }
+
                 if (settings::current.tapeInstantLoading && z80::registers.pc.w == 0x056c)
                 {
                     tape::instantLoad();
@@ -80,47 +102,7 @@ namespace main
 		}
     }
 
-    void start()
-    {        
-        // TODO: take model from settings
-        currentModel = &SPECTRUM_128K;
-
-        keyStates = new bool[0x100]{};
-        tape::init();
-        memory::init();
-        ula::init();
-        z80::init();
-
-        display::startRenderThread();
-        startEmulationThread();
-    }
-
-    void stop()
-    {
-        stopEmulationThread();
-        display::stopRenderThread();
-
-        delete[0x100] keyStates;
-        tape::cleanUp();
-        memory::cleanUp();
-        ula::cleanUp();
-        z80::cleanUp();
-    }
-
-    void reset(const Model* model)
-    {
-        memory::cleanUp();
-        ula::cleanUp();
-
-        currentModel = model;
-
-        memory::init();
-        ula::init();
-
-        z80::reset();
-    }
-
-    void waitForNextFrame()
+    static void waitForNextFrame()
     {
         // Sync with display thread
         {
@@ -165,4 +147,68 @@ namespace main
             currentFrameTime = std::chrono::steady_clock::now();
         } while (currentFrameTime - start <= std::chrono::microseconds(FRAME_MICROSECONDS));
     }
+
+    void start()
+    {        
+        // TODO: take model from settings
+        currentModel = &PENTAGON_128K;
+
+        // TODO: take beta disk coinfig from settings
+        beta_disk::init();
+        // wd1793::rvmWD1793InsertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\across_the_edge_by_demarche_fix_0.trd");
+        // wd1793::rvmWD1793InsertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\insultplus.scl");
+        // wd1793::rvmWD1793InsertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\OldSkoolCodingOldSchoolStyle.trd");
+        wd1793::rvmWD1793InsertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\summer.trd");
+
+        keyStates = new bool[0x100]{};
+        tape::init();
+        memory::init();
+        ula::init();
+        z80::init();
+
+        display::startRenderThread();
+        startEmulationThread();
+    }
+
+    void stop()
+    {
+        stopEmulationThread();
+        display::stopRenderThread();
+
+        delete[0x100] keyStates;
+        tape::cleanUp();
+        memory::cleanUp();
+        ula::cleanUp();
+        z80::cleanUp();
+        beta_disk::cleanUp();
+    }
+
+    void reset(const Model* model)
+    {
+        memory::cleanUp();
+        ula::cleanUp();
+
+        currentModel = model;
+
+        memory::init();
+        ula::init();
+
+        z80::reset();
+    }
+
+    void tack()
+    {
+        if (beta_disk::enabled)
+        {
+            wd1793::rvmWD1793Step();
+        }
+
+        if (++currentTack == currentModel->tacksPerFrame)
+        {
+            currentTack = 0;
+            waitForNextFrame();
+            ++currentFrame;
+        }
+    }
+
 }
