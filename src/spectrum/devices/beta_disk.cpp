@@ -21,7 +21,7 @@ namespace beta_disk
             file.close();
         }
 
-        wd1793::rvmWD1793Reset();
+        wd1793::reset();
 
         enabled = true;
     }

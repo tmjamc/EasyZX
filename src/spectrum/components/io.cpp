@@ -40,7 +40,7 @@ namespace io
                 case 0x005f:
                 case 0x007f:
                 case 0x00ff:
-                    wd1793::rvmWD1793Write(port, data);
+                    wd1793::ioWrite(port, data);
                     return;
                 }
             }
@@ -73,7 +73,7 @@ namespace io
                 case 0x005f:
                 case 0x007f:
                 case 0x00ff:
-                    return wd1793::rvmWD1793Read(port);
+                    return wd1793::ioRead(port);
                 }
             }
 

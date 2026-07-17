@@ -5,15 +5,6 @@
 
 namespace wd1793
 {
-    #define kRVMwdDiskControlRead 0x000
-    #define kRVMwdDiskControlSeekUp 0x100
-    #define kRVMwdDiskControlSeekDown 0x300
-    #define kRVMwdDiskControlWrite 0x400
-
-    #define kRVMwdDiskOutStepping 0x40
-    #define kRVMwdDiskOutTrack0 0x80
-    #define kRVMwdDiskOutIndex 0x20
-
     #define TRACKHEADER 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
                         0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
                         0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
@@ -48,7 +39,7 @@ namespace wd1793
                        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
                        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
                        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
-                       0x00, 0x00 // Sector Data CRC
+                       0x00, 0x00
                     
     #define SECTORDATA_POST 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
                             0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
@@ -73,50 +64,34 @@ namespace wd1793
                        0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
                        0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e
 
-    static constexpr unsigned char SYSTEM_34_TRACK[] =
+    static constexpr uint8_t SYSTEM_34_TRACK[] =
     {
-        // Track 0, Side 0
         TRACKHEADER,
-        // Sector 1
         SECTORHEADER_PRE, 0x01, SECTORHEADER_POST, SECTORDATA_PRE, SECTORDATA, SECTORDATA_POST,
-        // Sector 2
         SECTORHEADER_PRE, 0x02, SECTORHEADER_POST, SECTORDATA_PRE, SECTORDATA, SECTORDATA_POST,
-        // Sector 3
         SECTORHEADER_PRE, 0x03, SECTORHEADER_POST, SECTORDATA_PRE, SECTORDATA, SECTORDATA_POST,
-        // Sector 4
         SECTORHEADER_PRE, 0x04, SECTORHEADER_POST, SECTORDATA_PRE, SECTORDATA, SECTORDATA_POST,
-        // Sector 5
         SECTORHEADER_PRE, 0x05, SECTORHEADER_POST, SECTORDATA_PRE, SECTORDATA, SECTORDATA_POST,
-        // Sector 6
         SECTORHEADER_PRE, 0x06, SECTORHEADER_POST, SECTORDATA_PRE, SECTORDATA, SECTORDATA_POST,
-        // Sector 7
         SECTORHEADER_PRE, 0x07, SECTORHEADER_POST, SECTORDATA_PRE, SECTORDATA, SECTORDATA_POST,
-        // Sector 8
         SECTORHEADER_PRE, 0x08, SECTORHEADER_POST, SECTORDATA_PRE, SECTORDATA, SECTORDATA_POST,
-        // Sector 9
         SECTORHEADER_PRE, 0x09, SECTORHEADER_POST, SECTORDATA_PRE, SECTORDATA, SECTORDATA_POST,
-        // Sector 10
         SECTORHEADER_PRE, 0x0a, SECTORHEADER_POST, SECTORDATA_PRE, SECTORDATA, SECTORDATA_POST,
-        // Sector 11
         SECTORHEADER_PRE, 0x0b, SECTORHEADER_POST, SECTORDATA_PRE, SECTORDATA, SECTORDATA_POST,
-        // Sector 12
         SECTORHEADER_PRE, 0x0c, SECTORHEADER_POST, SECTORDATA_PRE, SECTORDATA, SECTORDATA_POST,
-        // Sector 13
         SECTORHEADER_PRE, 0x0d, SECTORHEADER_POST, SECTORDATA_PRE, SECTORDATA, SECTORDATA_POST,
-        // Sector 14
         SECTORHEADER_PRE, 0x0e, SECTORHEADER_POST, SECTORDATA_PRE, SECTORDATA, SECTORDATA_POST,
-        // Sector 15
         SECTORHEADER_PRE, 0x0f, SECTORHEADER_POST, SECTORDATA_PRE, SECTORDATA, SECTORDATA_POST,
-        // Sector 16
         SECTORHEADER_PRE, 0x10, SECTORHEADER_POST, SECTORDATA_PRE, SECTORDATA, SECTORDATA_POST,
         TRACK_POST
     };
 
-    struct rvmwdDisk
+    struct Disk
     {
         uint16_t trackCount;
         uint8_t sideCount;
-        uint8_t a, s;
+        uint8_t byteAtHead;
+        uint8_t signal;
         uint32_t trackIndex;
         uint32_t index;
         uint32_t indexDelay;
@@ -131,127 +106,128 @@ namespace wd1793
         int track0side1data;
     };
 
-    #define WD177XSTEPSTATES 112 // 112 states -> 14 states per bit
+    static constexpr int WD1793_STEP_TACTS = 112;
 
-    #define kRVMWD177XCLK 0x1  // 0- 1 mhz, 1- 2mhz
-    #define kRVMWD177XDDEN 0x2 // 0- FM, 1- MFM
-    #define kRVMWD177XTest 0x4
+    #define DiskControlRead 0x000
+    #define DiskControlSeekUp 0x100
+    #define DiskControlSeekDown 0x300
+    #define DiskControlWrite 0x400
 
-    #define kRVMWD177XRateSelect kRVMWD177XCLK | kRVMWD177XDDEN | kRVMWD177XTest
+    #define DiskOutStepping 0x40
+    #define DiskOutTrack0 0x80
+    #define DiskOutIndex 0x20
 
-    #define kRVMWD177XHLD 0x8  // HEAD LOAD -> Signal HLD commands the drive to load the read/write heads
-    #define kRVMWD177XHLT 0x10 // HEAD LOAD TIMING -> Signal HLT informs the controller chip that the head has been properly loaded and to commence read or write operations.
-    #define kRVMWD177XINTRQ 0x20
-    #define kRVMWD177XDire 0x40
-    #define kRVMWD177XWriting 0x80
-    #define kRVMWD177XDRQ 0x100
-    #define kRVMWD177XCommandType 0x200
-    #define kRVMWD177XFINTRQ 0x400
-    #define kRVMWD177XONE 0x800
-    #define kRVMWD177XPower0 0x1000
-    #define kRVMWD177XPower1 0x2000
-    #define kRVMWD177XPower2 0x4000
-    #define kRVMWD177XPower3 0x8000
-    #define kRVMWD177XNotToReady 0x10000
-    #define kRVMWD177XReadyToNot 0x20000
-    #define kRVMWD177XIndexPulse 0x40000
-    #define kRVMWD177XInmediate 0x80000
+    #define CLK 0x1
+    #define DDEN 0x2
+    #define Test 0x4
 
-    // States (Step)
-    #define kRVMWD177XStepIdle 0x0
-    #define kRVMWD177XStepWaiting 0x1
-    #define kRVMWD177XStepWaitingMark 0x2
-    #define kRVMWD177XStepReadByte 0x3
-    #define kRVMWD177XStepWriteByte 0x4
-    #define kRVMWD177XStepLastWriteByte 0x5
-    #define kRVMWD177XStepWaitIndex 0x6
-    #define kRVMWD177XStepWriteRaw 0x7
+    #define RateSelect CLK | DDEN | Test
 
-    // States
-    #define kRVMWD177XNone 0x0
-    #define kRVMWD177XSettingHeader 0x1
-    #define kRVMWD177XSettingEnd 0x2
-    #define kRVMWD177XTypeI0 0x3
-    #define kRVMWD177XTypeI1 0x4
-    #define kRVMWD177XTypeICheck 0x5
-    #define kRVMWD177XTypeIUpdate 0x6
-    #define kRVMWD177XTypeISeek 0x7
-    #define kRVMWD177XTypeIEnd 0x8
-    #define kRVMWD177XReadHeader 0x9
-    #define kRVMWD177XTypeIHeaderReaded 0xA
-    #define kRVMWD177XReadHeaderBytes 0xB
-    #define kRVMWD177XReadCRC 0xC
-    #define kRVMWD177XTypeIHeadSet 0xD
-    #define kRVMWD177XTypeIISetHead 0xE
-    #define kRVMWD177XTypeIICommand 0xF
-    #define kRVMWD177XReadDataFlag 0x10
-    #define kRVMWD177XReadDataFlag2 0x11
-    #define kRVMWD177XReadData 0x12
-    #define kRVMWD177XReadSectorHeader 0x13
-    #define kRVMWD177XReadAddressWait 0x14
-    #define kRVMWD177XReadAddressBytes 0x15
-    #define kRVMWD177XWriteDataFlag 0x16
-    #define kRVMWD177XWriteData 0x17
-    #define kRVMWD177XWriteCRC1 0x18
-    #define kRVMWD177XWriteCRC2 0x19
-    #define kRVMWD177XWriteEnd 0x1A
-    #define kRVMWD177XWriteLast 0x1B
-    #define kRVMWD177XReadAddressDataFlag 0x1C
-    #define kRVMWD177XWriteTrack 0x1D
-    #define kRVMWD177XWriteTrackCRC 0x1E
-    #define kRVMWD177XWriteTrackStart 0x1F
-    #define kRVMWD177XReadTrackStart 0x20
-    #define kRVMWD177XReadTrackData 0x21
+    #define HLD 0x8
+    #define HLT 0x10
+    #define INTRQ 0x20
+    #define Dire 0x40
+    #define Writing 0x80
+    #define DRQ 0x100
+    #define CommandType 0x200
+    #define FINTRQ 0x400
+    #define ONE 0x800
+    #define Power0 0x1000
+    #define Power1 0x2000
+    #define Power2 0x4000
+    #define Power3 0x8000
+    #define NotToReady 0x10000
+    #define ReadyToNot 0x20000
+    #define IndexPulse 0x40000
+    #define Inmediate 0x80000
 
-    #define kRVMWD177XSettingHeaderTime 3750
+    #define StepIdle 0x0
+    #define StepWaiting 0x1
+    #define StepWaitingMark 0x2
+    #define StepReadByte 0x3
+    #define StepWriteByte 0x4
+    #define StepLastWriteByte 0x5
+    #define StepWaitIndex 0x6
+    #define StepWriteRaw 0x7
 
-    // Status Codes
+    #define None 0x0
+    #define SettingHeader 0x1
+    #define SettingEnd 0x2
+    #define TypeI0 0x3
+    #define TypeI1 0x4
+    #define TypeICheck 0x5
+    #define TypeIUpdate 0x6
+    #define TypeISeek 0x7
+    #define TypeIEnd 0x8
+    #define ReadHeader 0x9
+    #define TypeIHeaderReaded 0xA
+    #define ReadHeaderBytes 0xB
+    #define ReadCRC 0xC
+    #define TypeIHeadSet 0xD
+    #define TypeIISetHead 0xE
+    #define TypeIICommand 0xF
+    #define ReadDataFlag 0x10
+    #define ReadDataFlag2 0x11
+    #define ReadData 0x12
+    #define ReadSectorHeader 0x13
+    #define ReadAddressWait 0x14
+    #define ReadAddressBytes 0x15
+    #define WriteDataFlag 0x16
+    #define WriteData 0x17
+    #define WriteCRC1 0x18
+    #define WriteCRC2 0x19
+    #define WriteEnd 0x1A
+    #define WriteLast 0x1B
+    #define ReadAddressDataFlag 0x1C
+    #define WriteTrack 0x1D
+    #define WriteTrackCRC 0x1E
+    #define WriteTrackStart 0x1F
+    #define ReadTrackStart 0x20
+    #define ReadTrackData 0x21
 
-    #define kRVMWD177XStatusBusy 0x1
-    #define kRVMWD177XStatusIndex 0x2
-    #define kRVMWD177XStatusTrack0 0x4
-    #define kRVMWD177XStatusCRC 0x8
-    #define kRVMWD177XStatusSeek 0x10
-    #define kRVMWD177XStatusHeadLoaded 0x20
-    #define kRVMWD177XStatusProtected 0x40
-    #define kRVMWD177XStatusNotReady 0x80
+    #define StatusBusy 0x1
+    #define StatusIndex 0x2
+    #define StatusTrack0 0x4
+    #define StatusCRC 0x8
+    #define StatusSeek 0x10
+    #define StatusHeadLoaded 0x20
+    #define StatusProtected 0x40
+    #define StatusNotReady 0x80
 
-    #define kRVMWD177XStatusDataRequest 0x2
-    #define kRVMWD177XStatusLostData 0x4
-    #define kRVMWD177XStatusRecordNotFound 0x10
-    #define kRVMWD177XStatusRecordType 0x20
-    #define kRVMWD177XStatusWriteFault 0x20
+    #define StatusDataRequest 0x2
+    #define StatusLostData 0x4
+    #define StatusRecordNotFound 0x10
+    #define StatusRecordType 0x20
+    #define StatusWriteFault 0x20
 
-    #define kRVMWD177XStatusSetWP 0x100
-    #define kRVMWD177XStatusSetTrack0 0x200
-    #define kRVMWD177XStatusSetIndex 0x400
-    #define kRVMWD177XStatusSetHead 0x800
+    #define StatusSetWP 0x100
+    #define StatusSetTrack0 0x200
+    #define StatusSetIndex 0x400
+    #define StatusSetHead 0x800
 
-    // Command bits
-    #define kRVMWD177XHeadBit 0x8
-    #define kRVMWD177XUpdateBit 0x10
-    #define kRVMWD177XVerifyBit 0x4
-    #define kRVMWD177XStepInOut 0x40
-    #define kRVMWD177XTypeI 0x80
+    #define HeadBit 0x8
+    #define UpdateBit 0x10
+    #define VerifyBit 0x4
+    #define StepInOut 0x40
+    #define TypeI 0x80
 
-    static constexpr uint32_t srate[8][4] =
+    static constexpr uint32_t RATES[8][4] =
     {
-        {1500, 3000, 5000, 7500}, // 1mhz mfm test
-        {750, 1500, 2500, 3750},  // 2mhz mfm test
-        {1500, 3000, 5000, 7500}, // 1mhz fm test
-        {750, 1500, 2500, 3750},  // 2mhz fm test
-        {92, 95, 99, 104},        // 1mhz mfm !test
-        {46, 47, 49, 52},         // 2mhz mfm !test
-        {92, 95, 99, 104},        // 1mhz fm !test
-        {46, 47, 49, 52},         // 2mhz fm !test
+        {1500, 3000, 5000, 7500},
+        {750, 1500, 2500, 3750},
+        {1500, 3000, 5000, 7500},
+        {750, 1500, 2500, 3750},
+        {92, 95, 99, 104},
+        {46, 47, 49, 52},
+        {92, 95, 99, 104},
+        {46, 47, 49, 52}
     };
 
-    // Sectdatapos = (cursect * 392) + 146 + 16;
     static constexpr uint16_t SECTOR_DATA_POSITION[16] = {162, 554, 946, 1338, 1730, 2122, 2514, 2906, 3298, 3690, 4082, 4474, 4866, 5258, 5650, 6042};
 
-    #define mark 0xa1a1a1
-    #define indexMark 0xC2
-    #define sectorMark 0xA1
+    #define Mark 0xa1a1a1
+    #define IndexMark 0xC2
+    #define SectorMark 0xA1
 
     uint32_t state, stepState, nextState;
     uint32_t control;
@@ -260,97 +236,85 @@ namespace wd1793
     uint8_t command;
     uint8_t track;
     uint8_t sector;
-    uint8_t data, dsr;
+    uint8_t data;
+    uint8_t sataSeekRegister;
     uint16_t status;
 
     uint8_t header[7];
-    uint8_t headerI;
+    uint8_t headerIndex;
 
-    uint8_t selectedDiskIndex; // Disk selected
-    uint8_t previousDiskIndex; // Disk previous
+    uint8_t selectedDiskIndex;
+    uint8_t previousDiskIndex;
 
-    uint8_t retry;
+    uint8_t retries;
 
-    uint64_t marka;
+    uint64_t markA;
     uint8_t a, e, wb;
 
     uint16_t crc, aa;
     uint8_t side;
 
-    rvmwdDisk *disks[4];
+    Disk *disks[4];
 
-    bool fastmode;
+    bool fastMode;
 
     bool sclConverted;
-    unsigned char track0[2304]; // Store SCL translated track0
+    uint8_t track0[2304];
 
-    int wtrackmark, wtracksector;
+    int wTrackMark, wTrackSector;
 
     uint8_t led;
 
-    static void readDiskData(rvmwdDisk *d, unsigned char *buffer, int count)
+    static void readDiskData(Disk* disk, uint8_t* buffer, int count)
     {
         while (count--)
         {
-            if (d->dataIndex >= d->dataLength)
+            if (disk->dataIndex >= disk->dataLength)
             {
                 *buffer++ = 0;
             }
             else
             {
-                *buffer++ = d->data[d->dataIndex++];
+                *buffer++ = disk->data[disk->dataIndex++];
             }
         }
     }
 
-    static void writeDiskData(rvmwdDisk *d, unsigned char *buffer, int count)
+    static void writeDiskData(Disk* disk, uint8_t* buffer, int count)
     {
         while (count--)
         {
-            d->data[d->dataIndex++] = *buffer++;
+            disk->data[disk->dataIndex++] = *buffer++;
         }
     }
 
-    static void SCLtoTRD(rvmwdDisk *d, unsigned char *track0)
+    static void SCLtoTRD(Disk* disk, uint8_t* track0)
     {
-
         uint8_t numberOfFiles;
 
-        // Reset track 0 info
         memset(track0, 0, 2304);
 
-        d->dataIndex = 8;
-        // fseek(d->Diskfile, 8, SEEK_SET);
-        readDiskData(d, &numberOfFiles, 1);
-        // fread(&numberOfFiles, 1, 1, d->Diskfile);
-
-        // printf("Number of files: %d\n",(int)numberOfFiles);
+        disk->dataIndex = 8;
+        readDiskData(disk, &numberOfFiles, 1);
 
         char diskNameArray[9] = "SCL_DISK";
 
-        // Populate FAT.
         int startSector = 0;
-        int startTrack = 1; // Since Track 0 is reserved for FAT and Disk Specification.
+        int startTrack = 1;
 
         uint8_t data;
-        for (int i = 0; i < numberOfFiles; i++)
+        for (int i = 0; i < numberOfFiles; ++i)
         {
-
             int n = i << 4;
 
-            for (int j = 0; j < 13; j++)
+            for (int j = 0; j < 13; ++j)
             {
-                readDiskData(d, &data, 1);
-                // fread(&data, 1, 1, d->Diskfile);
+                readDiskData(disk, &data, 1);
                 track0[n + j] = data;
             }
 
-            readDiskData(d, &data, 1);
-            // fread(&data, 1, 1, d->Diskfile); // Filelenght
+            readDiskData(disk, &data, 1);
             track0[n + 13] = data;
-
-            // printf("File #: %d, Filelenght: %d\n",i + 1,(int)data);
-
             track0[n + 14] = (uint8_t)startSector;
             track0[n + 15] = (uint8_t)startTrack;
 
@@ -359,48 +323,48 @@ namespace wd1793
             startTrack = newStartTrack;
         }
 
-        // Populate Disk Specification.
         track0[2273] = (uint8_t)startSector;
         track0[2274] = (uint8_t)startTrack;
-        track0[2275] = 22;                     // Disk Type
-        track0[2276] = (uint8_t)numberOfFiles; // File Count
+        track0[2275] = 22;
+        track0[2276] = (uint8_t)numberOfFiles;
         uint16_t freeSectors = 2560 - (startTrack << 4) + startSector;
-        // printf("Free Sectors: %d\n",freeSectors);
         track0[2277] = freeSectors & 0x00ff;
         track0[2278] = freeSectors >> 8;
-        track0[2279] = 0x10; // TR-DOS ID
+        track0[2279] = 0x10;
 
-        for (int i = 0; i < 9; i++)
+        for (int i = 0; i < 9; ++i)
+        {
             track0[2282 + i] = 0x20;
+        }
 
-        // Store the image file name in the disk label section of the Disk Specification.
-        for (int i = 0; i < 8; i++)
+        for (int i = 0; i < 8; ++i)
+        {
             track0[2293 + i] = diskNameArray[i];
+        }
 
-        d->sclDataOffset = (9 + (numberOfFiles * 14)) - 4096;
+        disk->sclDataOffset = (9 + (numberOfFiles * 14)) - 4096;
     }
 
-    static void rvmwdDiskStep_read()
+    static void diskStepRead()
     {
+        Disk* disk = disks[selectedDiskIndex];
 
-        rvmwdDisk* disk = disks[selectedDiskIndex];
+        disk->byteAtHead = 0;
 
-        disk->a = 0;
-
-        disk->s = disk->trackIndex ? 0 : kRVMwdDiskOutTrack0;
+        disk->signal = disk->trackIndex ? 0 : DiskOutTrack0;
 
         if (disk->indexDelay)
         {
-            disk->indexDelay--;
-            disk->s |= kRVMwdDiskOutIndex;
+            --disk->indexDelay;
+            disk->signal |= DiskOutIndex;
             return;
         }
 
         if (disk->sectorBufferIndex < 0xff)
         {
-            disk->sectorBufferIndex++;
-            disk->index++;
-            disk->a = disk->sectorBuffer[disk->sectorBufferIndex];
+            ++disk->sectorBufferIndex;
+            ++disk->index;
+            disk->byteAtHead = disk->sectorBuffer[disk->sectorBufferIndex];
             return;
         }
 
@@ -412,98 +376,88 @@ namespace wd1793
             return;
         }
 
-        disk->index++;
+        ++disk->index;
 
         const uint32_t cursect = (disk->index - 146) / 392;
 
         if (cursect < 16)
         {
-
             if (disk->index == SECTOR_DATA_POSITION[cursect])
-            { // Track in sector header
-                disk->a = (!disk->trackIndex && side) ? disk->track0side1data : disk->trackIndex;
+            {
+                disk->byteAtHead = (!disk->trackIndex && side) ? disk->track0side1data : disk->trackIndex;
                 return;
             }
 
             if (disk->index == SECTOR_DATA_POSITION[cursect] + 44)
-            { // Sector data
-
+            {
                 if ((disk->scl) && (!disk->trackIndex) && (!side))
                 {
-
-                    // Create track0 from SCL file if not already done
                     if (!sclConverted)
                     {
                         SCLtoTRD(disk, track0);
                         sclConverted = true;
                     }
 
-                    // SCL disk -> Read sector to cache from created Track0
                     if (cursect < 9)
+                    {
                         memcpy(disk->sectorBuffer, track0 + (cursect << 8), 0x100);
+                    }
                     else
+                    {
                         memset(disk->sectorBuffer, 0, 0x100);
+                    }
                 }
                 else
                 {
-
                     const int seekptr = (disk->trackIndex << (11 + disk->sideCount)) + (side << 12) + (cursect << 8) + disk->sclDataOffset;
 
                     disk->dataIndex = seekptr;
-                    // fseek(disk->Diskfile, seekptr, SEEK_SET);
                     readDiskData(disk, disk->sectorBuffer, 0x100);
-                    // fread(disk->cursectbuf, 0x100, 1, disk->Diskfile);
                 }
 
-                disk->a = disk->sectorBuffer[0];
+                disk->byteAtHead = disk->sectorBuffer[0];
                 disk->sectorBufferIndex = 0;
 
                 return;
             }
         }
 
-        disk->a = SYSTEM_34_TRACK[disk->index];
+        disk->byteAtHead = SYSTEM_34_TRACK[disk->index];
     }
 
-    static void rvmwdDiskStep_write(uint8_t wbyte)
+    static void diskStepWrite(uint8_t byte)
     {
+        Disk *disk = disks[selectedDiskIndex];
 
-        rvmwdDisk *disk = disks[selectedDiskIndex];
+        disk->byteAtHead = 0;
 
-        disk->a = 0;
-
-        disk->s = disk->trackIndex ? 0 : kRVMwdDiskOutTrack0;
+        disk->signal = disk->trackIndex ? 0 : DiskOutTrack0;
 
         if (disk->indexDelay)
         {
-            disk->indexDelay--;
-            disk->s |= kRVMwdDiskOutIndex;
+            --disk->indexDelay;
+            disk->signal |= DiskOutIndex;
             return;
         }
 
         if (disk->sectorBufferIndex < 0xff)
         {
+            ++disk->sectorBufferIndex;
 
-            disk->sectorBufferIndex++;
+            disk->sectorBuffer[disk->sectorBufferIndex] = byte;
 
-            disk->sectorBuffer[disk->sectorBufferIndex] = wbyte;
-
-            // Flush byte to disk
-            // fwrite(&wbyte,1,1,disk->Diskfile);
-
-            // Sector complete (flush to disk)
             if (disk->sectorBufferIndex == 0xff)
             {
-                disk->dataIndex -= 0x100;                 // fseek(disk->Diskfile, -0x100, SEEK_CUR);
-                writeDiskData(disk, disk->sectorBuffer, 0x100); // fwrite(disk->cursectbuf,1,0x100,disk->Diskfile);
+                disk->dataIndex -= 0x100;
+                writeDiskData(disk, disk->sectorBuffer, 0x100);
             }
 
-            disk->index++;
+            ++disk->index;
 
             return;
         }
 
-        if (disk->index != 0xffffffff && disk->index >= /*6417*/ 6663)
+        if (disk->index != 0xffffffff && disk->index >= 6663)
         {
             disk->index = 0xffffffff;
             disk->sectorBufferIndex = 0xff;
@@ -511,1138 +465,878 @@ namespace wd1793
             return;
         }
 
-        disk->index++;
+        ++disk->index;
 
         const uint32_t cursect = (disk->index - 146) / 392;
 
         if (cursect < 16)
         {
-
-            // if (disk->indx == sectdatapos[cursect]) { // Track in sector header
-
-            //   return;
-
-            // }
-
             if (disk->index == SECTOR_DATA_POSITION[cursect] + 44)
-            { // Sector data
-
+            {
                 const int seekptr = (disk->trackIndex << (11 + disk->sideCount)) + (side << 12) + (cursect << 8);
 
-                disk->dataIndex = seekptr;               // fseek(disk->Diskfile, seekptr, SEEK_SET);
-                readDiskData(disk, disk->sectorBuffer, 0x100); // fread(disk->cursectbuf, 0x100, 1, disk->Diskfile);
+                disk->dataIndex = seekptr;
+                readDiskData(disk, disk->sectorBuffer, 0x100);
 
-                // fseek(disk->Diskfile,-0x100,SEEK_CUR); // fseek(disk->Diskfile,seekptr,SEEK_SET); <- What's faster ? SEEK_SET or SEEK_CUR with negative offset ?
-                // fwrite(&wbyte,1,1,disk->Diskfile);
-
-                disk->sectorBuffer[0] = wbyte;
+                disk->sectorBuffer[0] = byte;
 
                 disk->sectorBufferIndex = 0;
             }
         }
     }
     
-    static void _end()
+    static void endProcess()
     {
-        status &= ~kRVMWD177XStatusBusy;
-        state = kRVMWD177XNone;
-        stepState = kRVMWD177XStepIdle;
-        control &= ~(kRVMWD177XWriting | kRVMWD177XDRQ);
-        retry = 15;
+        status &= ~StatusBusy;
+        state = None;
+        stepState = StepIdle;
+        control &= ~(Writing | DRQ);
+        retries = 15;
         led = 0;
-        control |= kRVMWD177XINTRQ; // TODO: ADD A INTERRUPT HANDLER
+        control |= INTRQ;
     }
 
-    static void _do()
+    static void process()
     {
-
         switch (state)
         {
 
-        case kRVMWD177XSettingHeader:
+        case SettingHeader:
         {
-
-            if (control & kRVMWD177XHLD)
-            { // Head load
+            if (control & HLD)
+            {
                 state = nextState;
-                _do();
+                process();
                 return;
             }
 
-            // RVM plays motor audio sample here
             led = 1;
 
-            control |= kRVMWD177XHLD;
-            // c=kRVMWD177XSettingHeaderTime * ((control&kRVMWD177XTest)?1:0);
+            control |= HLD;
             counter = 1;
-            state = kRVMWD177XSettingEnd;
-            stepState = kRVMWD177XStepWaiting;
+            state = SettingEnd;
+            stepState = StepWaiting;
             return;
         }
 
-        case kRVMWD177XSettingEnd:
+        case SettingEnd:
         {
-            control |= kRVMWD177XHLT;
+            control |= HLT;
             state = nextState;
-            _do();
+            process();
             return;
         }
 
-        case kRVMWD177XTypeI0:
+        case TypeI0:
         {
-            if (command & kRVMWD177XHeadBit)
+            if (command & HeadBit)
             {
-                nextState = kRVMWD177XTypeI1;
-                state = kRVMWD177XSettingHeader;
+                nextState = TypeI1;
+                state = SettingHeader;
             }
             else
             {
-                control &= ~kRVMWD177XHLD | kRVMWD177XHLT;
-                state = kRVMWD177XTypeI1;
+                control &= ~HLD | HLT;
+                state = TypeI1;
             }
-            _do();
+            process();
             return;
         }
 
-        case kRVMWD177XTypeI1:
+        case TypeI1:
         {
-            if (command & kRVMWD177XStepInOut)
+            if (command & StepInOut)
             {
-                // StepIn or stepOut
                 if (command & 0x20)
                 {
-                    // Step Out
-                    // printf("Step Out\n");
-                    control &= ~kRVMWD177XDire;
+                    control &= ~Dire;
                 }
                 else
                 {
-                    // Step In
-                    // printf("Step In\n");
-                    control |= kRVMWD177XDire;
+                    control |= Dire;
                 }
-                if (command & kRVMWD177XUpdateBit)
+
+                if (command & UpdateBit)
                 {
-                    state = kRVMWD177XTypeIUpdate;
+                    state = TypeIUpdate;
                 }
                 else
                 {
-                    state = kRVMWD177XTypeISeek;
+                    state = TypeISeek;
                 }
             }
             else
             {
                 if (command & 0x20)
-                { // Step
-                    if (command & kRVMWD177XUpdateBit)
+                {
+                    if (command & UpdateBit)
                     {
-                        state = kRVMWD177XTypeIUpdate;
+                        state = TypeIUpdate;
                     }
                     else
                     {
-                        state = kRVMWD177XTypeISeek;
+                        state = TypeISeek;
                     }
                 }
                 else
                 {
-                    if (command & 0x10)
-                    { // Seek
-                    }
-                    else
-                    { // Restore
+                    if (!(command & 0x10))
+                    {
                         track = 0xff;
                         data = 0;
                     }
 
-                    // printf("Seeking disk %d to track %d (disk in track: %d)\n",diskS,data,disk[diskS]->t);
-                    dsr = data;
-                    state = kRVMWD177XTypeICheck;
+                    sataSeekRegister = data;
+                    state = TypeICheck;
                 }
             }
 
-            _do();
+            process();
             return;
         }
 
-        case kRVMWD177XTypeICheck:
+        case TypeICheck:
         {
-            if (track == dsr)
+            if (track == sataSeekRegister)
             {
-                state = kRVMWD177XTypeIEnd;
+                state = TypeIEnd;
             }
             else
             {
-                if (dsr > track)
+                if (sataSeekRegister > track)
                 {
-                    control |= kRVMWD177XDire;
+                    control |= Dire;
                 }
                 else
                 {
-                    control &= ~kRVMWD177XDire;
+                    control &= ~Dire;
                 }
-                state = kRVMWD177XTypeIUpdate;
+                state = TypeIUpdate;
             }
-            _do();
+            process();
             return;
         }
 
-        case kRVMWD177XTypeIUpdate:
+        case TypeIUpdate:
         {
-
-            if (control & kRVMWD177XDire)
-                track++;
-            else
-                track--;
-
-            // printf("UPDATE TRACK %d\n",track);
-            state = kRVMWD177XTypeISeek;
-            _do();
-            return;
-        }
-
-        case kRVMWD177XTypeISeek:
-        {
-
-            if (!(control & kRVMWD177XDire) && (disks[selectedDiskIndex]->s & kRVMwdDiskOutTrack0))
+            if (control & Dire)
             {
+                ++track;
+            }
+            else
+            {
+                --track;
+            }
 
-                // printf("No seek track 0 end\n");
+            state = TypeISeek;
+            process();
+            return;
+        }
+
+        case TypeISeek:
+        {
+            if (!(control & Dire) && (disks[selectedDiskIndex]->signal & DiskOutTrack0))
+            {
                 track = 0;
-                state = kRVMWD177XTypeIEnd;
-                _do();
+                state = TypeIEnd;
+                process();
                 return;
             }
             else
             {
-
-                // printf("Seek track: %d side: %d\n", track, side);
-
-                // Seek forward or backward
-                // { printf("--- Disk Seek Command ---\n");
-                // printf("Current track: %d\n", (int) disk->t);
-
-                if (control & kRVMWD177XDire)
+                if (control & Dire)
                 {
                     if (disks[selectedDiskIndex]->trackIndex < disks[selectedDiskIndex]->trackCount)
-                        disks[selectedDiskIndex]->trackIndex++;
+                    {
+                        ++disks[selectedDiskIndex]->trackIndex;
+                    }
                 }
                 else
                 {
                     if (disks[selectedDiskIndex]->trackIndex > 0)
-                        disks[selectedDiskIndex]->trackIndex--;
+                    {
+                        --disks[selectedDiskIndex]->trackIndex;
+                    }
                 }
 
-                // printf("New track: %d\n", (int) disk->t);
-                // printf("-------------------------\n"); }
+                diskStepRead();
 
-                rvmwdDiskStep_read();
+                led = 1;
 
-                led = 1; // RVM plays seek audio sample here
+                counter = (RATES[(control & RateSelect) ^ 0x4][command & 0x3]) >> 3;
 
-                counter = (srate[(control & kRVMWD177XRateSelect) ^ 0x4][command & 0x3]) >> 3; // Value for 1 bit per diskstep / 8
-
-                // printf("c: %d, RateSelect: %d\n",c,(control & kRVMWD177XRateSelect) ^ 0x4);
-                // printf("RATE: %llu\n",c);
-                // printf("STEP\n");
-
-                stepState = kRVMWD177XStepWaiting;
-                if (!(command & 0xe0)) // Seek or restore
-                    state = kRVMWD177XTypeICheck;
+                stepState = StepWaiting;
+                if (!(command & 0xe0))
+                {
+                    state = TypeICheck;
+                }
                 else
-                    state = kRVMWD177XTypeIEnd;
+                {
+                    state = TypeIEnd;
+                }
 
                 return;
             }
         }
 
-        case kRVMWD177XTypeIEnd:
+        case TypeIEnd:
         {
-            if (command & kRVMWD177XVerifyBit)
+            if (command & VerifyBit)
             {
-                // printf("Verify\n");
-                if (control & kRVMWD177XHLD)
+                if (control & HLD)
                 {
-                    nextState = kRVMWD177XTypeIHeadSet;
-                    state = kRVMWD177XSettingHeader;
+                    nextState = TypeIHeadSet;
+                    state = SettingHeader;
                 }
                 else
                 {
-                    retry = 5; // 5 retrys
-                    state = kRVMWD177XReadHeader;
-                    nextState = kRVMWD177XTypeIHeaderReaded;
+                    retries = 5;
+                    state = ReadHeader;
+                    nextState = TypeIHeaderReaded;
                 }
 
-                _do();
+                process();
                 return;
             }
             else
             {
-                // printf("Type I end\n");
-                control |= kRVMWD177XINTRQ;
-                status |= kRVMWD177XStatusSetHead;
-                status &= ~kRVMWD177XStatusBusy;
+                control |= INTRQ;
+                status |= StatusSetHead;
+                status &= ~StatusBusy;
             }
             return;
         }
 
-        case kRVMWD177XTypeIHeadSet:
+        case TypeIHeadSet:
         {
-            retry = 5; // 5 retrys
-            state = kRVMWD177XReadHeader;
-            nextState = kRVMWD177XTypeIHeaderReaded;
-            _do();
+            retries = 5;
+            state = ReadHeader;
+            nextState = TypeIHeaderReaded;
+            process();
             return;
         }
 
-        case kRVMWD177XReadHeader:
+        case ReadHeader:
         {
-
-            if (!retry)
+            if (!retries)
             {
-                status |= kRVMWD177XStatusSeek;
-                _end();
+                status |= StatusSeek;
+                endProcess();
                 return;
             }
 
-            // _waitMark();
-            // printf("Waitmark ReadHeader\n");
-            stepState = kRVMWD177XStepWaitingMark;
-            marka = mark;
-            //
+            stepState = StepWaitingMark;
+            markA = Mark;
 
-            headerI = 0xff;
-            state = kRVMWD177XReadHeaderBytes;
+            headerIndex = 0xff;
+            state = ReadHeaderBytes;
             return;
         }
 
-        case kRVMWD177XReadAddressWait:
+        case ReadAddressWait:
         {
-
-            if (!retry)
+            if (!retries)
             {
-                status |= kRVMWD177XStatusSeek;
-                _end();
+                status |= StatusSeek;
+                endProcess();
                 return;
             }
 
-            //_waitMark();
-            // printf("Waitmark ReadAddressWait\n");
-            stepState = kRVMWD177XStepWaitingMark;
-            marka = mark;
-            //
+            stepState = StepWaitingMark;
+            markA = Mark;
 
-            headerI = 0xff;
-            state = kRVMWD177XReadAddressDataFlag;
+            headerIndex = 0xff;
+            state = ReadAddressDataFlag;
             return;
         }
 
-        case kRVMWD177XReadAddressDataFlag:
+        case ReadAddressDataFlag:
         {
-            stepState = kRVMWD177XStepReadByte;
-            state = kRVMWD177XReadAddressBytes;
+            stepState = StepReadByte;
+            state = ReadAddressBytes;
             return;
         }
 
-        case kRVMWD177XReadAddressBytes:
+        case ReadAddressBytes:
         {
-
-            if (!retry)
+            if (!retries)
             {
-                status |= kRVMWD177XStatusSeek;
-                _end();
+                status |= StatusSeek;
+                endProcess();
                 return;
             }
 
             led = 1;
 
-            if (headerI == 0xff)
+            if (headerIndex == 0xff)
             {
                 if (a != 0xfe)
                 {
-                    state = kRVMWD177XReadAddressWait;
-                    _do();
+                    state = ReadAddressWait;
+                    process();
                     return;
                 }
             }
             else
             {
-                // printf("Data %02x crc:%04x\n",a,crc);
-                //  if(headerI == 0) {
-                //    header[0]=1;
-                //    data=1;
-                //  } else {
-                if (headerI < 7)
-                    header[headerI] = a;
-                data = a;
-                // }
-                if (control & kRVMWD177XDRQ)
+                if (headerIndex < 7)
                 {
-                    status |= kRVMWD177XStatusLostData;
+                    header[headerIndex] = a;
                 }
-                control |= kRVMWD177XDRQ;
+
+                data = a;
+
+                if (control & DRQ)
+                {
+                    status |= StatusLostData;
+                }
+                control |= DRQ;
             }
 
-            headerI++;
+            ++headerIndex;
 
-            if (headerI == 0x6)
+            if (headerIndex == 0x6)
             {
-
                 sector = header[0];
-
-                // printf("Read Adress sector: %d\n",header[0]);
-
-                // printf("Header crc: %04x\n",crc);
-
-                // if(crc) {
-                // status|=kRVMWD177XStatusCRC;
-                // }
-
-                _end();
-
+                endProcess();
                 return;
             }
 
             return;
         }
 
-        case kRVMWD177XReadHeaderBytes:
+        case ReadHeaderBytes:
         {
-
-            if (!retry)
+            if (!retries)
             {
-                status |= kRVMWD177XStatusSeek;
-                _end();
+                status |= StatusSeek;
+                endProcess();
                 return;
             }
 
-            if (headerI != 0xff)
+            if (headerIndex != 0xff)
             {
-                if (headerI < 7)
-                    header[headerI] = a;
+                if (headerIndex < 7)
+                {
+                    header[headerIndex] = a;
+                }
             }
 
-            headerI++;
+            ++headerIndex;
 
-            if (headerI == 0x7)
+            if (headerIndex == 0x7)
             {
                 state = nextState;
-                _do();
+                process();
                 return;
             }
 
-            stepState = kRVMWD177XStepReadByte;
+            stepState = StepReadByte;
             return;
         }
 
-        case kRVMWD177XTypeIHeaderReaded:
+        case TypeIHeaderReaded:
         {
-            if (!retry)
+            if (!retries)
             {
-                status |= kRVMWD177XStatusSeek;
-                _end();
+                status |= StatusSeek;
+                endProcess();
                 return;
             }
 
             if (header[0] != 0xfe)
             {
-                state = kRVMWD177XReadHeader;
-                _do();
+                state = ReadHeader;
+                process();
                 return;
             }
 
             if (header[1] != track)
             {
-                state = kRVMWD177XReadHeader;
-                _do();
+                state = ReadHeader;
+                process();
                 return;
             }
 
-            // printf("Header readed, track:%d sector:%d\n",header[1],header[3]);
-
-            // if(crc) {
-            //   status|=kRVMWD177XStatusCRC;
-            // } else {
-            status &= ~kRVMWD177XStatusCRC;
-            _end();
-            return;
-            // }
-        }
-
-        case kRVMWD177XTypeIISetHead:
-        {
-            nextState = kRVMWD177XTypeIICommand;
-            state = kRVMWD177XSettingHeader;
-            _do();
+            status &= ~StatusCRC;
+            endProcess();
             return;
         }
 
-        case kRVMWD177XTypeIICommand:
+        case TypeIISetHead:
         {
+            nextState = TypeIICommand;
+            state = SettingHeader;
+            process();
+            return;
+        }
 
+        case TypeIICommand:
+        {
             if ((command & 0xc0) == 0x80)
-            { // Read or Write Sector
-
+            {
                 if (command & 0x20)
-                { // Write Sector
+                {
                     if (disks[selectedDiskIndex]->writeProtect)
                     {
-                        status |= kRVMWD177XStatusProtected;
-                        _end();
+                        status |= StatusProtected;
+                        endProcess();
                         return;
                     }
-                    // printf("WRITE SECTOR: track: %d, sector: %d\n",track,sector);
                 }
-                else
-                {
-                    // printf("READ SECTOR: track: %d, sector: %d\n",track,sector);
-                }
-                retry = 5; // 5 retrys
 
-                // state=kRVMWD177XReadHeader;
-                // next=kRVMWD177XReadSectorHeader;
-                // _do();
+                retries = 5;
+                stepState = StepWaitingMark;
+                markA = Mark;
 
-                // _waitMark();
-                // printf("Waitmark ReadHeader\n");
-                stepState = kRVMWD177XStepWaitingMark;
-                marka = mark;
-                //
-
-                headerI = 0xff;
-                state = kRVMWD177XReadHeaderBytes;
-                nextState = kRVMWD177XReadSectorHeader;
+                headerIndex = 0xff;
+                state = ReadHeaderBytes;
+                nextState = ReadSectorHeader;
             }
             else if ((command & 0xf0) == 0xc0)
-            { // Read Address
-
-                retry = 5; // 5 retrys
-                state = kRVMWD177XReadAddressWait;
-                // printf("State -> ReadAddressWait\n");
-                _do();
+            {
+                retries = 5;
+                state = ReadAddressWait;
+                process();
             }
             else if ((command & 0xf0) == 0xf0)
-            { // Write Track
-
+            {
                 if (disks[selectedDiskIndex]->writeProtect)
                 {
-                    status |= kRVMWD177XStatusProtected;
-                    _end();
+                    status |= StatusProtected;
+                    endProcess();
                     return;
                 }
 
-                state = kRVMWD177XWriteTrackStart;
-                stepState = kRVMWD177XStepWaitIndex;
-                control |= kRVMWD177XDRQ;
-                wtrackmark = 0;
-                //_do();
+                state = WriteTrackStart;
+                stepState = StepWaitIndex;
+                control |= DRQ;
+                wTrackMark = 0;
             }
             else if ((command & 0xf0) == 0xe0)
-            { // Read Track
-
-                state = kRVMWD177XReadTrackStart;
-                stepState = kRVMWD177XStepWaitIndex;
+            {
+                state = ReadTrackStart;
+                stepState = StepWaitIndex;
             }
 
             return;
         }
 
-        case kRVMWD177XReadSectorHeader:
+        case ReadSectorHeader:
         {
-
             if (header[0] != 0xfe)
             {
-                state = kRVMWD177XReadHeader;
-                _do();
+                state = ReadHeader;
+                process();
                 return;
             }
-
-            //   printf("--------------------\n");
-            //   printf(" Header track, sector and side: %d, %d, %d\n",header[1],header[3],header[2]);
-            //   printf("Desired track, sector and side: %d, %d, %d\n",track,sector,side);
-            //   printf("Disk index: %d\n",disk[diskS]->indx);
-            //   for (int i = 0; i < 7; i++) {
-            //     printf("Header[%d]: %02x\n",i,header[i]);
-            //   }
-            //   printf("--------------------\n");
 
             if (header[1] != track)
             {
-                state = kRVMWD177XReadHeader;
-                _do();
+                state = ReadHeader;
+                process();
                 return;
             }
 
-            if (!fastmode || command & 0x20)
+            if (!fastMode || command & 0x20)
             {
-
                 if (header[3] != sector)
                 {
-                    state = kRVMWD177XReadHeader;
-                    _do();
+                    state = ReadHeader;
+                    process();
                     return;
                 }
 
                 if ((command & 0x2) && (header[2] & ((command >> 3) & 0x1)))
                 {
-                    state = kRVMWD177XReadHeader;
-                    _do();
+                    state = ReadHeader;
+                    process();
                     return;
                 }
             }
             else
             {
-
                 if ((command & 0x2) && (header[2] & ((command >> 3) & 0x1)))
                 {
-                    state = kRVMWD177XReadHeader;
-                    _do();
+                    state = ReadHeader;
+                    process();
                     return;
                 }
 
                 header[3] = sector;
-                disks[selectedDiskIndex]->index = SECTOR_DATA_POSITION[sector - 1] + 39; // 5;
+                disks[selectedDiskIndex]->index = SECTOR_DATA_POSITION[sector - 1] + 39;
             }
 
-            // if(crc) {
+            status &= ~StatusCRC;
 
-            //   printf("ReadSectorHeader CRC %08X\n",crc);
+            counter = 0x100;
 
-            //   status|=kRVMWD177XStatusCRC;
-            //   state=kRVMWD177XReadHeader;
-            //   _do();
-            //   return;
-
-            // } else {
-
-            status &= ~kRVMWD177XStatusCRC;
-
-            counter = 0x100; // Esto, en Betadisk, siempre será el tamaño del sector
-
-            // _waitMark();
-            // printf("Waitmark ReadSectorHeader\n");
-            stepState = kRVMWD177XStepWaitingMark;
-            marka = mark;
-            //
+            stepState = StepWaitingMark;
+            markA = Mark;
 
             if (command & 0x20)
             {
-
-                // printf("Writing Command: %02x Track:%d Sector:%d Size:%llu\n",command,track,sector,c);
-
-                state = kRVMWD177XWriteDataFlag;
-                control |= kRVMWD177XDRQ;
+                state = WriteDataFlag;
+                control |= DRQ;
             }
             else
             {
-
-                state = kRVMWD177XReadDataFlag;
+                state = ReadDataFlag;
             }
 
             return;
-
-            // }
         }
 
-        case kRVMWD177XReadDataFlag:
+        case ReadDataFlag:
         {
-            stepState = kRVMWD177XStepReadByte;
-            state = kRVMWD177XReadDataFlag2;
+            stepState = StepReadByte;
+            state = ReadDataFlag2;
             return;
         }
 
-        case kRVMWD177XWriteDataFlag:
+        case WriteDataFlag:
         {
-            stepState = kRVMWD177XStepWriteByte;
-            state = kRVMWD177XWriteData;
-            control |= kRVMWD177XWriting;
+            stepState = StepWriteByte;
+            state = WriteData;
+            control |= Writing;
             a = (command & 0x1) ? 0xf8 : 0xfb;
-            // crc=crc(crc,a);
             return;
         }
 
-        case kRVMWD177XWriteData:
+        case WriteData:
         {
-
-            // Verificar underrun ANTES de procesar el byte
-            if (control & kRVMWD177XDRQ)
+            if (control & DRQ)
             {
-                // printf("Lost data in write - aborting command\n");
-
-                // Flush written data to disk
                 if (disks[selectedDiskIndex]->sectorBufferIndex < 0xff)
                 {
-                    disks[selectedDiskIndex]->dataIndex -= 0x100;                                                             // fseek(disk[diskS]->Diskfile,-0x100,SEEK_CUR);
-                    writeDiskData(disks[selectedDiskIndex], disks[selectedDiskIndex]->sectorBuffer, disks[selectedDiskIndex]->sectorBufferIndex); // fwrite(disk[diskS]->cursectbuf,1,disk[diskS]->cursectbufpos,disk[diskS]->Diskfile);
+                    disks[selectedDiskIndex]->dataIndex -= 0x100;
+                    writeDiskData(disks[selectedDiskIndex], disks[selectedDiskIndex]->sectorBuffer, disks[selectedDiskIndex]->sectorBufferIndex);
                 }
 
-                status |= kRVMWD177XStatusLostData;
-                control &= ~kRVMWD177XWriting;
-                _end();
+                status |= StatusLostData;
+                control &= ~Writing;
+                endProcess();
                 return;
             }
 
             led = 2;
 
             a = data;
-            // crc=crc(crc,a);
-            // printf("Write %d data: %02x CRC: %04x\n",c,a,crc);
             data = 0;
 
             if (--counter)
             {
-                control |= kRVMWD177XDRQ;
+                control |= DRQ;
             }
             else
             {
-                state = kRVMWD177XWriteCRC1;
-                //_do();
+                state = WriteCRC1;
             }
             return;
         }
 
-        case kRVMWD177XWriteCRC1:
+        case WriteCRC1:
         {
-            // a=crc>>8;
-            // printf("Write CRC byte: %02x CRC: %04x\n",a,crc);
-            state = kRVMWD177XWriteCRC2;
+            state = WriteCRC2;
             return;
         }
 
-        case kRVMWD177XWriteCRC2:
+        case WriteCRC2:
         {
-            // a=crc & 0xff;
-            // printf("Write CRC byte: %02x CRC: %04x\n",a,crc);
-            state = kRVMWD177XWriteLast;
-
+            state = WriteLast;
             return;
         }
 
-        case kRVMWD177XWriteLast:
+        case WriteLast:
         {
-            state = kRVMWD177XWriteEnd;
-            stepState = kRVMWD177XStepLastWriteByte;
+            state = WriteEnd;
+            stepState = StepLastWriteByte;
             return;
         }
 
-        case kRVMWD177XWriteEnd:
+        case WriteEnd:
         {
-
-            control &= ~kRVMWD177XWriting;
-
-            // Write buffer to diskfile
-            // int saveptr = ftell(disk[diskS]->Diskfile);
-            // int seekptr = (track << (11 + disk[diskS]->sides)) + (side ? 4096 : 0) + ((sector - 1) << 8);
-            // fseek(disk[diskS]->Diskfile,seekptr,SEEK_SET);
-            // fwrite(disk[diskS]->cursectbuf,1,0x100, disk[diskS]->Diskfile);
-            // fseek(disk[diskS]->Diskfile,saveptr,SEEK_SET);
-
-            // printf("Track:%d, Side:%d, Sector: %d\n",track,side,sector);
-            // for (int i=0; i< 0x100; i+= 0x10) {
-            //   printf("Pos %04x: ",i);
-            //   for (int n=0; n< 0x10; n++) {
-            //     printf("%02x ",disk[diskS]->cursectbuf[i + n]);
-            //   }
-            //   printf("\n");
-            // }
-            // printf("==================================\n");
+            control &= ~Writing;
 
             if (command & 0x10)
-            { // Write sector: Multiple record flag on
-                sector++;
-                state = kRVMWD177XTypeIICommand;
-                _do();
+            {
+                ++sector;
+                state = TypeIICommand;
+                process();
             }
             else
-            { // Write sector: Multiple record flag off
-                _end();
+            {
+                endProcess();
             }
             return;
         }
 
-        case kRVMWD177XReadDataFlag2:
+        case ReadDataFlag2:
         {
-
             if (a == 0xf8)
             {
-                status |= kRVMWD177XStatusRecordType;
+                status |= StatusRecordType;
             }
             else if (a == 0xfb)
             {
-                status &= ~kRVMWD177XStatusRecordType;
+                status &= ~StatusRecordType;
             }
             else
             {
-                state = kRVMWD177XTypeIICommand;
-                _do();
-                stepState = kRVMWD177XNone;
+                state = TypeIICommand;
+                process();
+                stepState = None;
                 return;
             }
-            state = kRVMWD177XReadData;
+            state = ReadData;
             return;
         }
 
-        case kRVMWD177XReadData:
+        case ReadData:
         {
-
             led = 1;
 
             data = a;
 
-            // printf("Read %d byte: %02x CRC: %04x\n",c,a,crc);
-            if (control & kRVMWD177XDRQ)
+            if (control & DRQ)
             {
-                // printf("Lost data in read\n");
-                status |= kRVMWD177XStatusLostData;
+                status |= StatusLostData;
             }
 
-            control |= kRVMWD177XDRQ;
+            control |= DRQ;
             if (!--counter)
             {
-                state = kRVMWD177XReadCRC;
-                counter = 2; // 2 bytes CRC
+                state = ReadCRC;
+                counter = 2;
                 return;
             }
             return;
         }
 
-        case kRVMWD177XReadCRC:
+        case ReadCRC:
         {
-            // printf("Read CRC byte: %02x CRC: %04x\n",a,crc);
             if (!--counter)
-            { // CRC readed
-
-                // if(crc) {
-                //   status|=kRVMWD177XStatusCRC;
-                // } else {
-                status &= ~kRVMWD177XStatusCRC;
-                // }
+            {
+                status &= ~StatusCRC;
 
                 if (command & 0x10)
-                { // Read sector: Multiple record flag on
+                {
+                    ++sector;
 
-                    sector++; // Next sector
-
-                    if (!fastmode || sector > 16)
+                    if (!fastMode || sector > 16)
                     {
-
-                        // printf("Fast mode Next sector: ");
-                        // if (sector > 16)
-                        //   printf("Sector >  16: %d\n",sector);
-                        // else
-                        //   printf("Sector <= 16: %d\n",sector);
-
-                        // printf("Read Sector, multiple: sector %d\n",sector);
-
-                        state = kRVMWD177XTypeIICommand;
-                        _do();
+                        state = TypeIICommand;
+                        process();
                     }
                     else
                     {
-
                         header[3] = sector;
-                        disks[selectedDiskIndex]->index = SECTOR_DATA_POSITION[sector - 1] + 39; // + 5;
+                        disks[selectedDiskIndex]->index = SECTOR_DATA_POSITION[sector - 1] + 39;
 
-                        status &= ~kRVMWD177XStatusCRC;
-                        counter = 0x100; // Esto, en Betadisk, siempre será el tamaño del sector
+                        status &= ~StatusCRC;
+                        counter = 0x100;
 
-                        // _waitMark();
-                        stepState = kRVMWD177XStepWaitingMark;
-                        marka = mark;
-                        //
+                        stepState = StepWaitingMark;
+                        markA = Mark;
 
-                        state = kRVMWD177XReadDataFlag;
+                        state = ReadDataFlag;
                     }
                 }
                 else
-                { // Read sector: Multiple record flag off
-
-                    _end();
+                {
+                    endProcess();
                 }
             }
 
             return;
         }
 
-        case kRVMWD177XWriteTrackStart:
+        case WriteTrackStart:
         {
-            if (control & kRVMWD177XDRQ)
+            if (control & DRQ)
             {
-                status |= kRVMWD177XStatusLostData;
-                _end();
+                status |= StatusLostData;
+                endProcess();
                 return;
             }
 
-            control |= kRVMWD177XWriting;
-            state = kRVMWD177XWriteTrack;
+            control |= Writing;
+            state = WriteTrack;
 
             disks[selectedDiskIndex]->index = 0xffffffff;
             disks[selectedDiskIndex]->sectorBufferIndex = 0xff;
             disks[selectedDiskIndex]->indexDelay = 0;
 
-            _do();
+            process();
             return;
         }
 
-        case kRVMWD177XWriteTrack:
+        case WriteTrack:
         {
 
-            if (!retry)
+            if (!retries)
             {
-                _end();
+                endProcess();
                 return;
             }
 
-            // Verificar underrun ANTES de procesar
-            if (control & kRVMWD177XDRQ)
+            if (control & DRQ)
             {
-                // printf("Lost data in write track - aborting command\n");
-
-                // Flush written data to disk
                 if (disks[selectedDiskIndex]->sectorBufferIndex < 0xff)
                 {
-                    disks[selectedDiskIndex]->dataIndex -= 0x100;                                                             // fseek(disk[diskS]->Diskfile,-0x100,SEEK_CUR);
-                    writeDiskData(disks[selectedDiskIndex], disks[selectedDiskIndex]->sectorBuffer, disks[selectedDiskIndex]->sectorBufferIndex); // fwrite(disk[diskS]->cursectbuf,1,disk[diskS]->cursectbufpos,disk[diskS]->Diskfile);
+                    disks[selectedDiskIndex]->dataIndex -= 0x100;
+                    writeDiskData(disks[selectedDiskIndex], disks[selectedDiskIndex]->sectorBuffer, disks[selectedDiskIndex]->sectorBufferIndex);
                 }
 
-                status |= kRVMWD177XStatusLostData;
-                control &= ~kRVMWD177XWriting;
-                _end();
+                status |= StatusLostData;
+                control &= ~Writing;
+                endProcess();
                 return;
             }
 
             led = 2;
-
-            // // e=8;
-            // if(control & kRVMWD177XDRQ) {
-
-            //   a = 0;
-            //   // crc=crc(crc,a);
-            //   stepState=kRVMWD177XStepWriteByte;
-            //   status|=kRVMWD177XStatusLostData;
-            //   control|=kRVMWD177XDRQ;
-
-            //   // printf("kRVMWD177XWriteTrack kRVMWD177XStatusLostData -> !! ->");
-
-            // } else {
-
-            // if (disk[diskS]->indx >0 && disk[diskS]->indx < 32) {
-            //   printf("Format byte: %02x, ",a);
-            //   printf("Disk index %d\n",disk[diskS]->indx);
-            //   // printf("Disk index delay: %d\n",disk[diskS]->indexDelay);
-            //   delay(125);
-            // }
 
             switch (data)
             {
 
             case 0xf5:
             {
-                // aa=sectorMark;
-                // // e=16;
-                // stepState=kRVMWD177XStepWriteRaw;
-                // control|=kRVMWD177XDRQ;
-                // // crc=0xcdb4;
-                wtrackmark++;
+                ++wTrackMark;
 
-                a = sectorMark;
-                stepState = kRVMWD177XStepWriteByte;
-                control |= kRVMWD177XDRQ;
-                // printf("kRVMWD177XWriteTrack -> Sector Mark!! ->");
+                a = SectorMark;
+                stepState = StepWriteByte;
+                control |= DRQ;
                 break;
-                // return;
             }
-
-                // case 0xf6: {
-
-                //   wtrackmark=0;
-
-                //   // aa=indexMark;
-                //   // // e=16;
-                //   // stepState=kRVMWD177XStepWriteRaw;
-                //   // control|=kRVMWD177XDRQ;
-
-                //   a=indexMark;
-                //   stepState=kRVMWD177XStepWriteByte;
-                //   control|=kRVMWD177XDRQ;
-
-                //   // printf("kRVMWD177XWriteTrack -> Index Mark!! ->");
-                //   break;
-                //   // return;
-                // }
 
             case 0xf7:
             {
+                wTrackMark = 0;
 
-                wtrackmark = 0;
-
-                // a=crc>>8;
                 a = 0;
-                stepState = kRVMWD177XStepWriteByte;
-                state = kRVMWD177XWriteTrackCRC;
-                // printf("kRVMWD177XWriteTrack -> CRC!! ->");
+                stepState = StepWriteByte;
+                state = WriteTrackCRC;
                 break;
-                // return;
             }
 
             default:
             {
-
-                if (wtrackmark == 3 && data == 0xfe)
+                if (wTrackMark == 3 && data == 0xfe)
                 {
-                    // printf("Write Sector Header, track %d, side %d\n",track,side);
-                    wtrackmark = 0b100000000;
+                    wTrackMark = 0b100000000;
                 }
-                else if (wtrackmark == 3 && data == 0xfb)
+                else if (wTrackMark == 3 && data == 0xfb)
                 {
-                    // printf("Write Sector Data at sector %d\n",wtracksector);
-                    // wtrackmark=0b1000000000;
-                    disks[selectedDiskIndex]->index = SECTOR_DATA_POSITION[wtracksector - 1] + 41;
+                    disks[selectedDiskIndex]->index = SECTOR_DATA_POSITION[wTrackSector - 1] + 41;
                 }
-                else if (wtrackmark & 0b100000000)
+                else if (wTrackMark & 0b100000000)
                 {
-                    wtrackmark++;
-                    // printf("   Write Sector Header, byte: %02x\n",data);
-                    if (wtrackmark == 0b100000001)
+                    ++wTrackMark;
+                    if (wTrackMark == 0b100000001)
                     {
-                        // printf("Write track to track0 side1 sector header!\n");
                         if (track == 0 && side == 1)
+                        {
                             disks[selectedDiskIndex]->track0side1data = data;
+                        }
                     }
                     else
-                        // if (wtrackmark == 0b100000011) {
-                        //   // side = data;
-                        // }
-                        if (wtrackmark == 0b100000011)
+                    {
+                        if (wTrackMark == 0b100000011)
                         {
-                            wtracksector = data;
-                            wtrackmark = 0;
+                            wTrackSector = data;
+                            wTrackMark = 0;
                         }
-                    /*} else if (wtrackmark & 0b1000000000) {
-                    // int seekptr = (track << (11 + disk[diskS]->sides)) + (side ? 4096 : 0) + ((wtracksector - 1) << 8);
-                    // fseek(disk[diskS]->Diskfile,seekptr,SEEK_SET);
-                    wtrackmark=0b10000000000;
-                    } else if (wtrackmark & 0b10000000000) {
-                    // int seekptr = (track << (11 + disk[diskS]->sides)) + (side ? 4096 : 0) + ((wtracksector - 1) << 8);
-                    // fseek(disk[diskS]->Diskfile,seekptr,SEEK_SET);
-                    // wtrackmark=0;
-                    // fwrite(&data,1,1, disk[diskS]->Diskfile);
-                    wtrackmark++;
-                    if (wtrackmark & 0b100000000) wtrackmark = 0;*/
+                    }
                 }
                 else
                 {
-                    wtrackmark = 0;
+                    wTrackMark = 0;
                 }
 
                 a = data;
-                // crc=crc(crc,a);
-                // printf("Format byte: %02x\n",a);
-                stepState = kRVMWD177XStepWriteByte;
-                control |= kRVMWD177XDRQ;
+                stepState = StepWriteByte;
+                control |= DRQ;
                 break;
-                // return;
             }
             }
-
-            // }
-
-            // printf("Format byte: %02x\n",a);
 
             return;
         }
 
-        case kRVMWD177XWriteTrackCRC:
+        case WriteTrackCRC:
         {
-            // a=crc & 0xff;
             a = 0x0;
-            stepState = kRVMWD177XStepWriteByte;
-            state = kRVMWD177XWriteTrack;
-            control |= kRVMWD177XDRQ;
-
-            // disk[diskS]->indx -= 4;
-            // disk[diskS]->cursectbufpos = 0xffff;
-
-            // printf("kRVMWD177XWriteTrack -> CRC!! ->");
-            // printf("Format byte: %02x\n",a);
+            stepState = StepWriteByte;
+            state = WriteTrack;
+            control |= DRQ;
             return;
         }
 
-        case kRVMWD177XReadTrackStart:
+        case ReadTrackStart:
         {
-            stepState = kRVMWD177XStepReadByte;
-            state = kRVMWD177XReadTrackData;
-            retry = 1;
-            // printf("ReadTrackStart!\n");
+            stepState = StepReadByte;
+            state = ReadTrackData;
+            retries = 1;
             return;
         }
 
-        case kRVMWD177XReadTrackData:
+        case ReadTrackData:
         {
-
-            // printf("ReadTrackData!\n");
-
-            if (!retry)
+            if (!retries)
             {
-                _end();
+                endProcess();
                 return;
             }
 
             led = 1;
 
-            if (control & kRVMWD177XDRQ)
-                status |= kRVMWD177XStatusLostData;
+            if (control & DRQ)
+            {
+                status |= StatusLostData;
+            }
 
-            control |= kRVMWD177XDRQ;
+            control |= DRQ;
             data = a;
             return;
         }
         }
     }
 
-    void rvmWD1793Write(uint16_t addr, uint8_t value)
+    void ioWrite(uint16_t port, uint8_t value)
     {
-        switch (addr & 0x00ff)
+        switch (port & 0x00ff)
         {
 
-        case 0x1f: // Command
+        case 0x1f:
 
             if ((value & 0xf0) == 0xd0)
             {
-
-                // Force interrupt
-                if (status & kRVMWD177XStatusBusy)
+                if (status & StatusBusy)
                 {
-
-                    status &= ~kRVMWD177XStatusBusy;
-                    state = kRVMWD177XNone;
-                    stepState = kRVMWD177XStepIdle;
-                    control &= ~(kRVMWD177XWriting | kRVMWD177XDRQ);
-                    retry = 15;
+                    status &= ~StatusBusy;
+                    state = None;
+                    stepState = StepIdle;
+                    control &= ~(Writing | DRQ);
+                    retries = 15;
                     led = 0;
                 }
                 else
                 {
-
-                    status = kRVMWD177XStatusSetIndex | kRVMWD177XStatusSetTrack0 | kRVMWD177XStatusSetWP;
+                    status = StatusSetIndex | StatusSetTrack0 | StatusSetWP;
                 }
 
                 if ((value & 0xf) == 0x0)
                 {
-
-                    control &= ~(kRVMWD177XINTRQ | kRVMWD177XFINTRQ);
+                    control &= ~(INTRQ | FINTRQ);
                 }
                 else
                 {
-
                     if (value & 0x8)
                     {
-
-                        // Inmediate interrupt
-                        control |= kRVMWD177XFINTRQ;
+                        control |= FINTRQ;
                     }
                     else
                     {
-
                         control = (control & 0xffff) | ((value & 0xf) << 16); // Set conditions
                     }
                 }
@@ -1650,422 +1344,380 @@ namespace wd1793
                 return;
             }
 
-            if (!(status & kRVMWD177XStatusBusy))
+            if (!(status & StatusBusy))
             {
-
-                control &= ~(kRVMWD177XINTRQ | kRVMWD177XFINTRQ);
+                control &= ~(INTRQ | FINTRQ);
 
                 command = value;
 
-                // printf("COMMAND: %02x TRACK: %02x SECTOR %02x\n",command,track,sector);
-
-                if (disks[selectedDiskIndex] && (control & (kRVMWD177XPower0 << selectedDiskIndex)))
+                if (disks[selectedDiskIndex] && (control & (Power0 << selectedDiskIndex)))
                 {
-
-                    // Issue command
-                    if (command & kRVMWD177XTypeI)
+                    if (command & TypeI)
                     {
-
-                        // printf("TYPE II,III or IV COMMAND: %02x TRACK: %02x SECTOR %02x SIDE %02x\n",command,track,sector, side);
-
-                        // Type II, III, IV kRVMWD177XTypeIISetHead
                         if ((command & 0xc0) == 0x80 || (command & 0xfb) == 0xc0 || (command & 0xfb) == 0xf0 || (command & 0xfb) == 0xe0)
                         {
+                            state = TypeIISetHead;
+                            status = StatusBusy;
 
-                            // TYPE
-                            state = kRVMWD177XTypeIISetHead;
-                            status = kRVMWD177XStatusBusy;
-
-                            if (command & kRVMWD177XVerifyBit)
+                            if (command & VerifyBit)
                             {
-
-                                stepState = kRVMWD177XStepWaiting;
-
-                                // if (fastmode)
-                                //   c = 1;
-                                // else
-                                counter = 937; // 7500 (Value for 1 bit per diskstep) / 8
-                                             // printf("Waiting 30ms\n");
+                                stepState = StepWaiting;
+                                counter = 937;
                             }
                             else
                             {
-
-                                _do();
+                                process();
                             }
                         }
                         else
                         {
-
-                            control |= kRVMWD177XINTRQ;
+                            control |= INTRQ;
                         }
                     }
                     else
                     {
-
-                        // printf("TYPE I COMMAND: %02x TRACK: %02x SECTOR %02x SIDE %02x\n",command,track,sector, side);
-
-                        // Type I
-                        status = kRVMWD177XStatusSetIndex | kRVMWD177XStatusSetTrack0 | kRVMWD177XStatusSetWP | kRVMWD177XStatusBusy;
-                        state = kRVMWD177XTypeI0;
-
-                        _do();
+                        status = StatusSetIndex | StatusSetTrack0 | StatusSetWP | StatusBusy;
+                        state = TypeI0;
+                        process();
                     }
                 }
                 else
                 {
-
-                    status = kRVMWD177XStatusNotReady;
-                    control |= kRVMWD177XINTRQ;
+                    status = StatusNotReady;
+                    control |= INTRQ;
                 }
-
-            } // else printf("BUSY!!!\n");
+            }
 
             break;
 
-        case 0x3f: // Track
-                // if(!(status & kRVMWD177XStatusBusy)) {
+        case 0x3f:
             track = value;
-            //}
             break;
-        case 0x5f: // Sector
-                // if(!(status & kRVMWD177XStatusBusy)) {
-            sector = value;
-            //}
-            break;
-        case 0x7f: // Data
-            data = value;
-            control &= ~kRVMWD177XDRQ;
-            break;
-        case 0x00ff:
-            // FDDStep(true);
 
-            // Change active disk unit
+        case 0x5f:
+            sector = value;
+            break;
+
+        case 0x7f:
+            data = value;
+            control &= ~DRQ;
+            break;
+
+        case 0x00ff:
             if (selectedDiskIndex != (value & 0x3))
             {
                 selectedDiskIndex = value & 0x3;
                 if (disks[selectedDiskIndex] != NULL && side && disks[selectedDiskIndex]->sideCount == 1)
+                {
                     side = 0;
+                }
                 sclConverted = false;
             }
 
             if (!(value & 0x4))
             {
-                rvmWD1793Reset();
+                reset();
             }
 
             if (value & 0x8)
-                control |= kRVMWD177XTest;
+            {
+                control |= Test;
+            }
             else
-                control &= ~kRVMWD177XTest;
+            {
+                control &= ~Test;
+            }
 
             if (value & 0x10)
+            {
                 side = 0;
+            }
             else
             {
                 if (disks[selectedDiskIndex] != NULL)
+                {
                     side = disks[selectedDiskIndex]->sideCount == 1 ? 0 : 1;
+                }
                 else
+                {
                     side = 1;
+                }
             }
 
             if (value & 0x40)
-                control |= kRVMWD177XDDEN;
+            {
+                control |= DDEN;
+            }
             else
-                control &= ~kRVMWD177XDDEN;
+            {
+                control &= ~DDEN;
+            }
                 
             break;
         }
     }
 
-    uint8_t rvmWD1793Read(uint16_t addr)
+    uint8_t ioRead(uint16_t port)
     {
         uint8_t r;
 
-        switch (addr & 0x00ff)
+        switch (port & 0x00ff)
         {
-        case 0x1f: // Status
-            control &= ~kRVMWD177XINTRQ;
+
+        case 0x1f:
+            control &= ~INTRQ;
 
             r = status & 0xff;
 
             if (disks[selectedDiskIndex])
             {
-                if (status & kRVMWD177XStatusSetWP)
+                if (status & StatusSetWP)
                 {
                     if (disks[selectedDiskIndex]->writeProtect)
                     {
-                        r |= kRVMWD177XStatusProtected;
+                        r |= StatusProtected;
                     }
                     else
                     {
-                        r &= ~kRVMWD177XStatusProtected;
+                        r &= ~StatusProtected;
                     }
                 }
 
-                if ((status & kRVMWD177XStatusSetTrack0) && (disks[selectedDiskIndex]->s & kRVMwdDiskOutTrack0))
+                if ((status & StatusSetTrack0) && (disks[selectedDiskIndex]->signal & DiskOutTrack0))
                 {
-                    r |= kRVMWD177XStatusTrack0;
+                    r |= StatusTrack0;
                 }
 
-                if ((status & kRVMWD177XStatusSetIndex) && (disks[selectedDiskIndex]->s & kRVMwdDiskOutIndex))
+                if ((status & StatusSetIndex) && (disks[selectedDiskIndex]->signal & DiskOutIndex))
                 {
-                    r |= kRVMWD177XStatusIndex;
+                    r |= StatusIndex;
                 }
                 else
                 {
-                    if (control & kRVMWD177XDRQ)
-                        r |= kRVMWD177XStatusDataRequest;
+                    if (control & DRQ)
+                        r |= StatusDataRequest;
                 }
 
-                if (status & kRVMWD177XStatusSetHead)
+                if (status & StatusSetHead)
                 {
-                    r |= kRVMWD177XStatusHeadLoaded;
+                    r |= StatusHeadLoaded;
                 }
             }
             else
             {
-                r |= kRVMWD177XStatusNotReady;
+                r |= StatusNotReady;
             }
 
-            // printf("Read status: %02x\n",r);
             return r;
-        case 0x3f: // Track
+
+        case 0x3f:
             return track;
-        case 0x5f: // Sector
+
+        case 0x5f:
             return sector;
-        case 0x7f: // Data
 
-            // if(!(control&kRVMWD177XDRQ)) {
-            //   printf("Read data register overrunning\n");
-            // }
-
-            control &= ~kRVMWD177XDRQ;
-
-            // printf("read data: %02x\n", data);
+        case 0x7f:
+            control &= ~DRQ;
             return data;
+
         case 0x00ff:
         {
-            //FDDStep(true);
             uint8_t v = 0;
-            if (control & kRVMWD177XDRQ) v |= 0x40;
-            if (control & (kRVMWD177XINTRQ | kRVMWD177XFINTRQ)) v |= 0x80;
+            if (control & DRQ) v |= 0x40;
+            if (control & (INTRQ | FINTRQ)) v |= 0x80;
             return v;
         }
+
         }
 
         return 0;
     }
 
-    void rvmWD1793Step()
+    void tact()
     {
-        if ((main::currentTack % WD177XSTEPSTATES) != 0 || (control & (kRVMWD177XHLD | kRVMWD177XHLT) == 0))
+        if ((main::currentTack % WD1793_STEP_TACTS) != 0 || (control & (HLD | HLT) == 0))
         {
             return;
         }
 
-        uint8_t dd = 0x0;
-        uint8_t s = 0x0;
-
-        // uint8_t s=0x0;
-        // uint8_t dd=0x0;
+        uint8_t dd = 0x00;
+        uint8_t s = 0x00;
 
         if (disks[selectedDiskIndex])
-        { // If active disk exists ..
-
-            // uint16_t w = 0;
-            // if((control & kRVMWD177XWriting) && !disk[diskS]->writeprotect) {
-            //   w |= kRVMwdDiskControlWrite | wb;
-            // }
-            // rvmwdDiskStep(wd, w);
-
-            if ((control & kRVMWD177XWriting) && !disks[selectedDiskIndex]->writeProtect)
+        {
+            if ((control & Writing) && !disks[selectedDiskIndex]->writeProtect)
             {
-                rvmwdDiskStep_write(wb);
+                diskStepWrite(wb);
                 dd = 0;
             }
             else
             {
-                rvmwdDiskStep_read();
-                dd = disks[selectedDiskIndex]->a;
+                diskStepRead();
+                dd = disks[selectedDiskIndex]->byteAtHead;
             }
 
-            s = disks[selectedDiskIndex]->s;
+            s = disks[selectedDiskIndex]->signal;
         }
 
         uint8_t pd = s ^ previousDiskIndex;
         previousDiskIndex = s;
 
-        // printf("stepState: %d\n",stepState);
-
         switch (stepState)
         {
 
-        case kRVMWD177XStepIdle:
+        case StepIdle:
         {
-
-            if (retry && (pd & kRVMwdDiskOutIndex) && (s & kRVMwdDiskOutIndex))
+            if (retries && (pd & DiskOutIndex) && (s & DiskOutIndex))
             {
-                retry--;
-                if (!retry)
+                --retries;
+                if (!retries)
                 {
-                    control &= ~(kRVMWD177XHLD | kRVMWD177XHLT);
+                    control &= ~(HLD | HLT);
                     return;
                 }
             }
             break;
         }
 
-        case kRVMWD177XStepWaiting:
+        case StepWaiting:
         {
-
-            if (fastmode)
+            if (fastMode)
             {
                 counter = 0;
-                _do();
+                process();
             }
             else if (!(--counter))
             {
-                _do();
+                process();
             }
 
             break;
         }
 
-        case kRVMWD177XStepWaitingMark:
+        case StepWaitingMark:
         {
-
-            // _checkIndex(wd,pd,s);
-            if (retry && (pd & kRVMwdDiskOutIndex) && (s & kRVMwdDiskOutIndex))
+            if (retries && (pd & DiskOutIndex) && (s & DiskOutIndex))
             {
-                retry--;
-                if (!retry)
-                    _do();
-            }
-            // end _checkIndex
-
-            if ((marka & 0xff) == dd)
-            {
-                marka >>= 8;
-                if (!marka)
+                --retries;
+                if (!retries)
                 {
-                    // printf("Mark found for Track: %d, Sector: %d, Index: %d!\n",track, sector, disk[diskS]->indx);
-                    _do();
-                    if (control & kRVMWD177XWriting)
+                    process();
+                }
+            }
+
+            if ((markA & 0xff) == dd)
+            {
+                markA >>= 8;
+                if (!markA)
+                {
+                    process();
+                    if (control & Writing)
                         goto write;
                 }
             }
             else
             {
-                marka = mark;
+                markA = Mark;
             }
 
             break;
         }
 
-        case kRVMWD177XStepReadByte:
+        case StepReadByte:
         {
-
-            // _checkIndex(wd,pd,s);
-            if (retry && (pd & kRVMwdDiskOutIndex) && (s & kRVMwdDiskOutIndex))
+            if (retries && (pd & DiskOutIndex) && (s & DiskOutIndex))
             {
-                retry--;
-                if (!retry)
-                    _do();
+                --retries;
+                if (!retries)
+                    process();
             }
-            // end _checkIndex
 
             a = dd;
-            _do();
+            process();
             a = 0;
 
             break;
         }
 
-        case kRVMWD177XStepWriteByte:
+        case StepWriteByte:
         {
-
         write:
-
-            // _checkIndex(wd,pd,s);
-            if (retry && (pd & kRVMwdDiskOutIndex) && (s & kRVMwdDiskOutIndex))
+            if (retries && (pd & DiskOutIndex) && (s & DiskOutIndex))
             {
-                retry--;
-                if (!retry)
-                    _do();
+                --retries;
+                if (!retries)
+                {
+                    process();
+                }
             }
-            // end _checkIndex
 
             wb = a;
-            _do();
+            process();
 
             break;
         }
 
-        case kRVMWD177XStepWriteRaw:
+        case StepWriteRaw:
         {
-
-            // _checkIndex(wd,pd,s);
-            if (retry && (pd & kRVMwdDiskOutIndex) && (s & kRVMwdDiskOutIndex))
+            if (retries && (pd & DiskOutIndex) && (s & DiskOutIndex))
             {
-                retry--;
-                if (!retry)
-                    _do();
+                --retries;
+                if (!retries)
+                {
+                    process();
+                }
             }
-            // end _checkIndex
 
             wb = a;
-            _do();
+            process();
 
             break;
         }
 
-        case kRVMWD177XStepLastWriteByte:
-            _do();
+        case StepLastWriteByte:
+            process();
             break;
 
-        case kRVMWD177XStepWaitIndex:
+        case StepWaitIndex:
         {
-            if ((pd & kRVMwdDiskOutIndex) && (s & kRVMwdDiskOutIndex))
+            if ((pd & DiskOutIndex) && (s & DiskOutIndex))
             {
-                retry = 1;
-                _do();
+                retries = 1;
+                process();
             }
             break;
         }
+
         }
     }
 
-    void rvmWD1793Reset()
+    void reset()
     {
-        state = kRVMWD177XNone;
-        stepState = kRVMWD177XStepIdle;
-        nextState = kRVMWD177XNone;
-
+        state = None;
+        stepState = StepIdle;
+        nextState = None;
         counter = 0;
         control &= 0xf000;
-        command = sector = data = dsr = 0x0;
-        status = kRVMWD177XStatusSetIndex | kRVMWD177XStatusSetTrack0 | kRVMWD177XStatusSetWP;
+        command = sector = data = sataSeekRegister = 0x0;
+        status = StatusSetIndex | StatusSetTrack0 | StatusSetWP;
         track = 0xff;
-        wtrackmark = 0;
-        headerI = 0;
-        retry = 0;
-        // crc=0xffff;
-        crc = 0; // Disable CRC. Not needed for Betadisk emulation
+        wTrackMark = 0;
+        headerIndex = 0;
+        retries = 0;
+        crc = 0;
         side = 0;
         selectedDiskIndex = 0;
-        fastmode = false;//(Config::DiskCtrl == 2 || Config::DiskCtrl == 4);
-        //!!!!!!!!!!!!
+        fastMode = false;
         sclConverted = false;
     }
 
-    bool rvmWD1793InsertDisk(unsigned char UnitNum, std::string Filename)
+    bool insertDisk(uint8_t unit, std::string fileName)
     {
-        // Close any open disk in this unit
-        wdDiskEject(UnitNum);
+        ejectDisk(unit);
 
-        disks[UnitNum] = new rvmwdDisk(); //(rvmwdDisk*)heap_caps_calloc(1, sizeof(rvmwdDisk), MALLOC_CAP_8BIT);
+        disks[unit] = new Disk();
 
-        std::ifstream file(Filename, std::ios::in | std::ios::binary);
+        std::ifstream file(fileName, std::ios::in | std::ios::binary);
         if (!file.is_open())
         {
             return false;
@@ -2073,121 +1725,97 @@ namespace wd1793
 
         file.seekg(0, std::ios::end);
         std::streampos fileSize = file.tellg();
-        disks[UnitNum]->dataLength = (int)fileSize;
-        disks[UnitNum]->data = new uint8_t[disks[UnitNum]->dataLength];
+        disks[unit]->dataLength = (int)fileSize;
+        disks[unit]->data = new uint8_t[disks[unit]->dataLength];
 
         file.seekg(0, std::ios::beg);
-        file.read((char *)disks[UnitNum]->data, fileSize);
+        file.read((char *)disks[unit]->data, fileSize);
         file.close();
 
         uint8_t diskType;
 
-        std::string magic = std::string((char *)(disks[UnitNum]->data), 8);
+        std::string magic = std::string((char *)(disks[unit]->data), 8);
 
         if (magic == "SINCLAIR")
         {
-
-            // SCL file
-            printf("SCL disk loaded\n");
-            disks[UnitNum]->scl = true;
-            disks[UnitNum]->writeProtect = true; // SCL files are read only
+            disks[unit]->scl = true;
+            disks[unit]->writeProtect = true;
             diskType = 0x16;
         }
         else
         {
-
-            disks[UnitNum]->scl = false;
-            disks[UnitNum]->writeProtect = false; // Maybe I should consider that TRD files are loaded read only by default and add an option to open them read/write
-            disks[UnitNum]->sclDataOffset = 0;
-            diskType = disks[UnitNum]->data[2048 + 227];
+            disks[unit]->scl = false;
+            disks[unit]->writeProtect = false;
+            disks[unit]->sclDataOffset = 0;
+            diskType = disks[unit]->data[2048 + 227];
         }
 
         switch (diskType)
         {
         case 0x16:
-            disks[UnitNum]->trackCount = 79;
-            disks[UnitNum]->sideCount = 2;
+            disks[unit]->trackCount = 79;
+            disks[unit]->sideCount = 2;
             break;
         case 0x17:
-            disks[UnitNum]->trackCount = 39;
-            disks[UnitNum]->sideCount = 2;
+            disks[unit]->trackCount = 39;
+            disks[unit]->sideCount = 2;
             break;
         case 0x18:
-            disks[UnitNum]->trackCount = 79;
-            disks[UnitNum]->sideCount = 1;
+            disks[unit]->trackCount = 79;
+            disks[unit]->sideCount = 1;
             break;
         case 0x19:
-            disks[UnitNum]->trackCount = 39;
-            disks[UnitNum]->sideCount = 1;
+            disks[unit]->trackCount = 39;
+            disks[unit]->sideCount = 1;
             break;
         default:
-            wdDiskEject(UnitNum);
+            ejectDisk(unit);
             return false;
         }
 
-        // Check if we have more tracks than on a standard disk
-        if (!disks[UnitNum]->scl)
+        if (!disks[unit]->scl)
         {
-            // Get file size
-            if (disks[UnitNum]->dataLength > disks[UnitNum]->sideCount * disks[UnitNum]->trackCount * 16 * 256)
+            if (disks[unit]->dataLength > disks[unit]->sideCount * disks[unit]->trackCount * 16 * 256)
             {
                 int i;
-                for (int i = disks[UnitNum]->trackCount + 1; i < 83; i++)
+                for (int i = disks[unit]->trackCount + 1; i < 83; ++i)
                 {
-                    if (disks[UnitNum]->sideCount * i * 16 * 256 >= disks[UnitNum]->dataLength)
+                    if (disks[unit]->sideCount * i * 16 * 256 >= disks[unit]->dataLength)
                     {
-                        disks[UnitNum]->trackCount = i;
+                        disks[unit]->trackCount = i;
                         break;
                     }
                 }
             }
         }
 
-        disks[UnitNum]->dataIndex = 0; // rewind(disk[UnitNum]->Diskfile);
+        disks[unit]->dataIndex = 0;
 
-        disks[UnitNum]->track0side1data = 0;
-        disks[UnitNum]->sectorBufferIndex = 0xff; // 0xffff;
+        disks[unit]->track0side1data = 0;
+        disks[unit]->sectorBufferIndex = 0xff;
 
-        // Power on drive
-        control |= kRVMWD177XPower0 << UnitNum;
-
-        printf("Disk %d inserted! Disktype: %d\n", UnitNum, (int)diskType);
-
-        // disk[UnitNum]->fname = Filename;
+        control |= Power0 << unit;
 
         return true;
     }
 
-    void wdDiskEject(unsigned char UnitNum)
+    void ejectDisk(uint8_t unit)
     {
-        if (disks[UnitNum] != NULL)
+        if (disks[unit] != NULL)
         {
+            delete[disks[unit]->dataLength] disks[unit]->data;
+            disks[unit] = NULL;
 
-            printf("Ejecting disk\n");
-
-            // if (disk[UnitNum]->Diskfile != NULL) {
-            //     fclose(disk[UnitNum]->Diskfile);
-            //     disk[UnitNum]->Diskfile = NULL;
-            // }
-
-            // free(disk[UnitNum]);
-            delete[disks[UnitNum]->dataLength] disks[UnitNum]->data;
-            disks[UnitNum] = NULL;
-
-            if (selectedDiskIndex == UnitNum)
+            if (selectedDiskIndex == unit)
             {
-
-                _end();
+                endProcess();
 
                 side = 0;
 
                 sclConverted = false;
             }
 
-            // Power off drive
-            control &= ~(kRVMWD177XPower0 << UnitNum);
+            control &= ~(Power0 << unit);
         }
-        else
-            printf("No disk to eject\n");
     }
 }

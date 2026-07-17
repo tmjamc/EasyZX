@@ -155,10 +155,10 @@ namespace main
 
         // TODO: take beta disk coinfig from settings
         beta_disk::init();
-        // wd1793::rvmWD1793InsertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\across_the_edge_by_demarche_fix_0.trd");
-        // wd1793::rvmWD1793InsertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\insultplus.scl");
-        // wd1793::rvmWD1793InsertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\OldSkoolCodingOldSchoolStyle.trd");
-        wd1793::rvmWD1793InsertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\summer.trd");
+        wd1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\across_the_edge_by_demarche_fix_0.trd");
+        // wd1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\insultplus.scl");
+        // wd1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\OldSkoolCodingOldSchoolStyle.trd");
+        // wd1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\summer.trd");
 
         keyStates = new bool[0x100]{};
         tape::init();
@@ -200,7 +200,7 @@ namespace main
     {
         if (beta_disk::enabled)
         {
-            wd1793::rvmWD1793Step();
+            wd1793::tact();
         }
 
         if (++currentTack == currentModel->tacksPerFrame)
