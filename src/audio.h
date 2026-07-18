@@ -2,6 +2,6 @@
 
 namespace audio
 {
-    void startAudioThread();
-    void stopAudioThread();
+    void init();
+    void cleanUp();
 }

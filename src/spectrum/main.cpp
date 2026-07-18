@@ -12,6 +12,7 @@
 #include "beta_disk.h"
 #include "wd1793.h"
 #include "audio.h"
+#include "beeper.h"
 
 namespace main
 {
@@ -154,6 +155,8 @@ namespace main
     void start()
     {        
         // TODO: take model from settings
+        // currentModel = &SPECTRUM_48K;
+        // currentModel = &SPECTRUM_128K;
         currentModel = &PENTAGON_128K;
 
         // TODO: take beta disk coinfig from settings
@@ -168,8 +171,10 @@ namespace main
         memory::init();
         ula::init();
         z80::init();
+        beeper::init();
+        audio::init();
 
-        audio::startAudioThread();
+        // audio::startAudioThread();
         display::startRenderThread();
         startEmulationThread();
     }
@@ -178,7 +183,7 @@ namespace main
     {
         stopEmulationThread();
         display::stopRenderThread();
-        audio::stopAudioThread();
+        // audio::stopAudioThread();
 
         delete[0x100] keyStates;
         tape::cleanUp();
@@ -186,6 +191,8 @@ namespace main
         ula::cleanUp();
         z80::cleanUp();
         beta_disk::cleanUp();
+        beeper::cleanUp();
+        audio::cleanUp();
     }
 
     void reset(const Model* model)
@@ -207,6 +214,8 @@ namespace main
         {
             wd1793::tact();
         }
+
+        beeper::tact();
 
         if (++currentTact == currentModel->tactsPerFrame)
         {

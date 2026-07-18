@@ -1,109 +1,188 @@
-#include <windows.h>
 #include <cstdint>
-#include <thread>
+#include <vector>
+#include <mutex>
 
+#include "RtAudio.h"
 #include "audio.h"
-#include "win_app.h"
+#include "main.h"
+#include "settings.h"
 
 namespace audio
 {
-    #define NUM_BUFFERS 4
-    #define BUFFER_SAMPLES 882
+    static constexpr unsigned int OUTPUT_HZ = 44100;
+	static constexpr unsigned int SAMPLES_PER_FRAME = OUTPUT_HZ / 50;
 
-    bool audioThreadReady = false;
-	std::thread audioThread;
-    
-    WAVEHDR waveHdr[NUM_BUFFERS];
-    int16_t audioData[NUM_BUFFERS][BUFFER_SAMPLES];
-    
-    HANDLE hAudioEvent = nullptr;
-    HWAVEOUT hWaveOut = nullptr;
-    
-    static void init()
+	int bufferSize;
+	double period = 0.0;
+	double periodDelta = 0.0;
+	std::vector<RtAudio::DeviceInfo> devices;
+
+	RtAudio rtAudio;
+	std::mutex mutex;
+	std::vector<int16_t> audioBuffer;
+
+    static int rtAudioCallback(void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames, double streamTime, RtAudioStreamStatus status, void *userData)
     {
-        WAVEFORMATEX wfx = {0};
-        wfx.wFormatTag = WAVE_FORMAT_PCM;
-        wfx.nChannels = 1;
-        wfx.nSamplesPerSec = 44100;
-        wfx.wBitsPerSample = 16;
-        wfx.nBlockAlign = wfx.nChannels * wfx.wBitsPerSample / 8;
-        wfx.nAvgBytesPerSec = wfx.nSamplesPerSec * wfx.nBlockAlign;
-        
-        HANDLE hAudioEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+        mutex.lock();
 
-        MMRESULT result = waveOutOpen(&hWaveOut, WAVE_MAPPER, &wfx, (DWORD_PTR)hAudioEvent, (DWORD_PTR)nullptr, CALLBACK_EVENT);
-        if (result != MMSYSERR_NOERROR)
-        {
-            win_app::info("AUDIO: ERROR!");
-            return;
-        }
+        int16_t *buffer = (int16_t *)outputBuffer;
 
-        for (int i = 0; i < NUM_BUFFERS; i++)
+        // Write interleaved audio data.
+        const unsigned int dBufferFrames = nBufferFrames * 2;
+        unsigned int samplesWritten = 0;
+        while (samplesWritten < dBufferFrames)
         {
-            for (int j = 0; j < BUFFER_SAMPLES; ++j)
+            if (samplesWritten >= audioBuffer.size() /*|| _zx->paused*/)
             {
-                audioData[i][j] = rand() & 0xfff;
+                *buffer++ = 0;
+                *buffer++ = 0;
+                samplesWritten += 2;
             }
-
-            waveHdr[i] = {};
-            waveHdr[i].lpData = (LPSTR)audioData[i];
-            waveHdr[i].dwBufferLength = BUFFER_SAMPLES * sizeof(int16_t);
-
-            waveOutPrepareHeader(hWaveOut, &waveHdr[i], sizeof(WAVEHDR));
-            waveOutWrite(hWaveOut, &waveHdr[i], sizeof(WAVEHDR));
-        }
-    }
-
-    static void cleanUp()
-    {
-        waveOutClose(hWaveOut);
-
-        for (int i = 0; i < NUM_BUFFERS; i++)
-        {
-            waveOutUnprepareHeader(hWaveOut, &waveHdr[i], sizeof(WAVEHDR));
-        }
-    }
-
-    static void run()
-    {
-        init();
-
-        audioThreadReady = true;
-
-        while (win_app::running)
-        {
-            WaitForSingleObject(hAudioEvent, INFINITE);
-
-            for (int i = 0; i < NUM_BUFFERS; i++)
+            else
             {
-                if (waveHdr[i].dwFlags & WHDR_DONE)
+                *buffer++ = audioBuffer[samplesWritten++];
+                *buffer++ = audioBuffer[samplesWritten++];
+            }
+        }
+
+        // Remove samples written to buffer
+        if (samplesWritten < audioBuffer.size())
+        {
+            audioBuffer.erase(audioBuffer.begin(), audioBuffer.begin() + samplesWritten);
+        }
+
+        // Adjust period to match samples needed by audio callback
+        if (true/*!_zx->paused*/)
+        {
+            if (audioBuffer.size() > dBufferFrames)
+            {
+                // if there is more samples than neccesary, increase period to decrease samples for next frame
+                if (periodDelta < 0.0)
                 {
-                    for (int j = 0; j < BUFFER_SAMPLES; ++j)
-                    {
-                        audioData[i][j] = rand() & 0xfff;
-                    }
-
-                    waveOutWrite(hWaveOut, &waveHdr[i], sizeof(WAVEHDR));
-                    break;
+                    periodDelta = 0.0;
                 }
+                periodDelta += 0.01;
+            }
+            else if (audioBuffer.size() < dBufferFrames)
+            {
+                // if more samples in buffer are needed, decrease period to increase number of samples for next frame
+                if (periodDelta > 0.0)
+                {
+                    periodDelta = 0.0;
+                }
+                periodDelta -= 0.01;
+            }
+            else
+            {
+                periodDelta = 0.0;
+            }
+
+            period = (double)main::currentModel->tactsPerFrame / (double)SAMPLES_PER_FRAME + periodDelta;
+        }
+
+        // Remove remaining samples if there are too many
+        if (audioBuffer.size() > dBufferFrames + dBufferFrames / 10)
+        {
+            audioBuffer.erase(audioBuffer.begin(), audioBuffer.end() - dBufferFrames);
+            periodDelta = 0.0;
+        }
+
+        bufferSize = audioBuffer.size();
+
+        mutex.unlock();
+
+        return 0;
+    }
+
+    void init()
+    {
+        period = (double)main::currentModel->tactsPerFrame / (double)SAMPLES_PER_FRAME;
+
+        std::vector<unsigned int> deviceIds = rtAudio.getDeviceIds();
+        if (deviceIds.size() < 1)
+        {
+            std::cout << "\nNo audio devices found!\n";
+            exit(0);
+        }
+
+        devices.clear();
+        for (unsigned int id : deviceIds)
+        {
+            RtAudio::DeviceInfo info = rtAudio.getDeviceInfo(id);
+            if (info.outputChannels == 2)
+            {
+                devices.push_back(info);
             }
         }
 
-        audioThreadReady = false;
+        RtAudio::StreamParameters parameters;
 
-        cleanUp();
+        for (RtAudio::DeviceInfo deviceInfo : devices)
+        {
+            if (deviceInfo.ID == settings::current.audioDeviceId)
+            {
+                parameters.deviceId = deviceInfo.ID;
+                break;
+            }
+        }
+
+        if (!parameters.deviceId)
+        {
+            parameters.deviceId = rtAudio.getDefaultOutputDevice();
+            // settings::current.audioDeviceId = parameters.deviceId;
+        }
+
+        parameters.nChannels = 2;
+        parameters.firstChannel = 0;
+        unsigned int sampleRate = OUTPUT_HZ;
+        unsigned int bufferFrames = SAMPLES_PER_FRAME;
+
+        if (rtAudio.openStream(
+                &parameters,
+                NULL,
+                RTAUDIO_SINT16,
+                sampleRate,
+                &bufferFrames,
+                rtAudioCallback,
+                NULL))
+        {
+            std::cout << '\n'
+                      << rtAudio.getErrorText() << '\n'
+                      << std::endl;
+            exit(-1); // problem with device settings
+        }
+
+        if (rtAudio.startStream())
+        {
+            std::cout << rtAudio.getErrorText() << std::endl;
+            exit(-1); // problem with device settings
+        }
     }
 
-    void startAudioThread()
+    void cleanUp()
     {
-        audioThread = std::thread(run);
+        if (rtAudio.isStreamRunning())
+        {
+            rtAudio.stopStream();
+        }
+
+        if (rtAudio.isStreamOpen())
+        {
+            rtAudio.closeStream();
+        }
     }
 
-    void stopAudioThread()
+    void addSample(int16_t sample)
     {
-        if (audioThread.joinable())
-		{
-			audioThread.join();
-		}
+        mutex.lock();
+        audioBuffer.push_back(sample);
+        mutex.unlock();
     }
+
+    // void clearBuffer()
+    // {
+    //     mutex.lock();
+    //     audioBuffer.clear();
+    //     mutex.unlock();
+    // }
 }
