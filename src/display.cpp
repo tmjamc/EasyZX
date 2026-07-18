@@ -25,6 +25,7 @@ namespace display
 	uint32_t VBO = 0;
 	uint32_t EBO = 0;
 
+    bool renderThreadReady = false;
 	std::thread renderThread;
 
 	bool frameReady = false;
@@ -96,10 +97,12 @@ namespace display
 	{
 		init();
 		
+		renderThreadReady = true;
+
 		while (win_app::running)
 		{
 			// Wait for frame to be ready
-			if (main::emulationThreadRunning)
+			if (main::emulationThreadReady)
 			{
 				std::unique_lock<std::mutex> lock(frameReadyMutex);
 				frameReadyConditionVariable.wait(lock, []
@@ -126,7 +129,7 @@ namespace display
 
 			glClear(GL_COLOR_BUFFER_BIT);
 
-			if (main::emulationThreadRunning)
+			if (main::emulationThreadReady)
 			{
 				// Upload the framebuffer into the OpenGL texture.
 				// The texture is reused every frame to avoid recreating GPU resources.
@@ -201,13 +204,15 @@ namespace display
 			SwapBuffers(win_app::hDC);
 		}
 
+		renderThreadReady = false;
+		
 		shader::cleanUp();
 	}
 
 	void startRenderThread()
 	{
 		displayBuffer = new uint32_t[GL_DISPLAY_BUFFER_WIDTH * GL_DISPLAY_BUFFER_HEIGHT];
-		std::fill(displayBuffer, displayBuffer + GL_DISPLAY_BUFFER_WIDTH * GL_DISPLAY_BUFFER_HEIGHT, 0xffffffff);
+		std::fill(displayBuffer, displayBuffer + GL_DISPLAY_BUFFER_WIDTH * GL_DISPLAY_BUFFER_HEIGHT, 0x00000000);
 
 		renderThread = std::thread(run);
 	}

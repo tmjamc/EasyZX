@@ -17,6 +17,7 @@ WIN32
 	src/settings.cpp
 	src/display.cpp
 	src/shader.cpp
+	src/audio.cpp
 	src/spectrum/main.cpp
 	src/spectrum/components/memory.cpp
 	src/spectrum/components/z80.cpp
@@ -43,5 +44,5 @@ PUBLIC
 
 target_link_libraries(EasyZX
 PRIVATE
-	opengl32
+	opengl32 winmm
 )

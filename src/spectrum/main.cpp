@@ -11,10 +11,11 @@
 #include "tape.h"
 #include "beta_disk.h"
 #include "wd1793.h"
+#include "audio.h"
 
 namespace main
 {
-    bool emulationThreadRunning = false;
+    bool emulationThreadReady = false;
 	std::thread emulationThread;
 
     constexpr static int FRAME_MICROSECONDS = 20 * 1000;
@@ -44,6 +45,8 @@ namespace main
     {
         init();
         
+        emulationThreadReady = true;
+
         bool interruptRequested = false;
 		while (win_app::running)
 		{
@@ -84,18 +87,18 @@ namespace main
             }
         }
 
+        emulationThreadReady = false;
+
         cleanUp();
     }
 
     static void startEmulationThread()
     {
         emulationThread = std::thread(run);
-        emulationThreadRunning = true;
     }
 
     static void stopEmulationThread()
     {
-        emulationThreadRunning = false;
         if (emulationThread.joinable())
 		{
 			emulationThread.join();
@@ -166,6 +169,7 @@ namespace main
         ula::init();
         z80::init();
 
+        audio::startAudioThread();
         display::startRenderThread();
         startEmulationThread();
     }
@@ -174,6 +178,7 @@ namespace main
     {
         stopEmulationThread();
         display::stopRenderThread();
+        audio::stopAudioThread();
 
         delete[0x100] keyStates;
         tape::cleanUp();

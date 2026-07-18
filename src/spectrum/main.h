@@ -86,7 +86,7 @@ namespace main
         .romFileNames = DEFAULT_ROM_NAMES_PENTAGON_128K
     };
 
-    extern bool emulationThreadRunning;
+    extern bool emulationThreadReady;
     extern const Model* currentModel;
     extern int currentTack;
     extern int currentFrame;
@@ -96,20 +96,4 @@ namespace main
     void stop();
     void reset(const Model* model);
     void tack();
-
-    // // Pentagon
-    // //int tacksPerLine = 224;
-    // //int tacksPerFrame = 71680;
-    // //int TacksToFirstScreenByte = 17983;
-
-    // // 128K
-    // int tacksPerLine = 228;
-    // int tacksPerFrame = 70908;
-    // int TacksToFirstScreenByte = 14361;
-
-    // // 48K
-    // //int tacksPerLine = 224;
-    // //int tacksPerFrame = 69888;
-    // //int TacksToFirstScreenByte = 14335;
-
 }
