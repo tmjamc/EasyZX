@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <string>
 
-namespace wd1793
+namespace wd_1793
 {
     extern uint8_t led;
 

@@ -2,7 +2,7 @@
 #include "ula.h"
 #include "memory.h"
 #include "beta_disk.h"
-#include "wd1793.h"
+#include "wd_1793.h"
 
 namespace io
 {
@@ -40,7 +40,7 @@ namespace io
                 case 0x005f:
                 case 0x007f:
                 case 0x00ff:
-                    wd1793::ioWrite(port, data);
+                    wd_1793::ioWrite(port, data);
                     return;
                 }
             }
@@ -73,7 +73,7 @@ namespace io
                 case 0x005f:
                 case 0x007f:
                 case 0x00ff:
-                    return wd1793::ioRead(port);
+                    return wd_1793::ioRead(port);
                 }
             }
 

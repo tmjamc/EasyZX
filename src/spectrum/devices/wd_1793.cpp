@@ -1,9 +1,9 @@
 #include <fstream>
 
-#include "wd1793.h"
+#include "wd_1793.h"
 #include "main.h"
 
-namespace wd1793
+namespace wd_1793
 {
     #define TRACKHEADER 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
                         0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
@@ -248,10 +248,9 @@ namespace wd1793
 
     uint8_t retries;
 
-    uint64_t markA;
-    uint8_t a, e, wb;
+    uint64_t markAtHead;
+    uint8_t byteAtHead, byteToWrite;
 
-    uint16_t crc, aa;
     uint8_t side;
 
     Disk *disks[4];
@@ -261,7 +260,7 @@ namespace wd1793
     bool sclConverted;
     uint8_t track0[2304];
 
-    int wTrackMark, wTrackSector;
+    int writeTrackMark, writeTrackSector;
 
     uint8_t led;
 
@@ -726,7 +725,7 @@ namespace wd1793
             }
 
             stepState = StepWaitingMark;
-            markA = Mark;
+            markAtHead = Mark;
 
             headerIndex = 0xff;
             state = ReadHeaderBytes;
@@ -743,7 +742,7 @@ namespace wd1793
             }
 
             stepState = StepWaitingMark;
-            markA = Mark;
+            markAtHead = Mark;
 
             headerIndex = 0xff;
             state = ReadAddressDataFlag;
@@ -770,7 +769,7 @@ namespace wd1793
 
             if (headerIndex == 0xff)
             {
-                if (a != 0xfe)
+                if (byteAtHead != 0xfe)
                 {
                     state = ReadAddressWait;
                     process();
@@ -781,10 +780,10 @@ namespace wd1793
             {
                 if (headerIndex < 7)
                 {
-                    header[headerIndex] = a;
+                    header[headerIndex] = byteAtHead;
                 }
 
-                data = a;
+                data = byteAtHead;
 
                 if (control & DRQ)
                 {
@@ -818,7 +817,7 @@ namespace wd1793
             {
                 if (headerIndex < 7)
                 {
-                    header[headerIndex] = a;
+                    header[headerIndex] = byteAtHead;
                 }
             }
 
@@ -887,7 +886,7 @@ namespace wd1793
 
                 retries = 5;
                 stepState = StepWaitingMark;
-                markA = Mark;
+                markAtHead = Mark;
 
                 headerIndex = 0xff;
                 state = ReadHeaderBytes;
@@ -911,7 +910,7 @@ namespace wd1793
                 state = WriteTrackStart;
                 stepState = StepWaitIndex;
                 control |= DRQ;
-                wTrackMark = 0;
+                writeTrackMark = 0;
             }
             else if ((command & 0xf0) == 0xe0)
             {
@@ -972,7 +971,7 @@ namespace wd1793
             counter = 0x100;
 
             stepState = StepWaitingMark;
-            markA = Mark;
+            markAtHead = Mark;
 
             if (command & 0x20)
             {
@@ -999,7 +998,7 @@ namespace wd1793
             stepState = StepWriteByte;
             state = WriteData;
             control |= Writing;
-            a = (command & 0x1) ? 0xf8 : 0xfb;
+            byteAtHead = (command & 0x1) ? 0xf8 : 0xfb;
             return;
         }
 
@@ -1021,7 +1020,7 @@ namespace wd1793
 
             led = 2;
 
-            a = data;
+            byteAtHead = data;
             data = 0;
 
             if (--counter)
@@ -1073,11 +1072,11 @@ namespace wd1793
 
         case ReadDataFlag2:
         {
-            if (a == 0xf8)
+            if (byteAtHead == 0xf8)
             {
                 status |= StatusRecordType;
             }
-            else if (a == 0xfb)
+            else if (byteAtHead == 0xfb)
             {
                 status &= ~StatusRecordType;
             }
@@ -1096,7 +1095,7 @@ namespace wd1793
         {
             led = 1;
 
-            data = a;
+            data = byteAtHead;
 
             if (control & DRQ)
             {
@@ -1137,7 +1136,7 @@ namespace wd1793
                         counter = 0x100;
 
                         stepState = StepWaitingMark;
-                        markA = Mark;
+                        markAtHead = Mark;
 
                         state = ReadDataFlag;
                     }
@@ -1201,9 +1200,9 @@ namespace wd1793
 
             case 0xf5:
             {
-                ++wTrackMark;
+                ++writeTrackMark;
 
-                a = SectorMark;
+                byteAtHead = SectorMark;
                 stepState = StepWriteByte;
                 control |= DRQ;
                 break;
@@ -1211,9 +1210,9 @@ namespace wd1793
 
             case 0xf7:
             {
-                wTrackMark = 0;
+                writeTrackMark = 0;
 
-                a = 0;
+                byteAtHead = 0;
                 stepState = StepWriteByte;
                 state = WriteTrackCRC;
                 break;
@@ -1221,18 +1220,18 @@ namespace wd1793
 
             default:
             {
-                if (wTrackMark == 3 && data == 0xfe)
+                if (writeTrackMark == 3 && data == 0xfe)
                 {
-                    wTrackMark = 0b100000000;
+                    writeTrackMark = 0b100000000;
                 }
-                else if (wTrackMark == 3 && data == 0xfb)
+                else if (writeTrackMark == 3 && data == 0xfb)
                 {
-                    disks[selectedDiskIndex]->index = SECTOR_DATA_POSITION[wTrackSector - 1] + 41;
+                    disks[selectedDiskIndex]->index = SECTOR_DATA_POSITION[writeTrackSector - 1] + 41;
                 }
-                else if (wTrackMark & 0b100000000)
+                else if (writeTrackMark & 0b100000000)
                 {
-                    ++wTrackMark;
-                    if (wTrackMark == 0b100000001)
+                    ++writeTrackMark;
+                    if (writeTrackMark == 0b100000001)
                     {
                         if (track == 0 && side == 1)
                         {
@@ -1241,19 +1240,19 @@ namespace wd1793
                     }
                     else
                     {
-                        if (wTrackMark == 0b100000011)
+                        if (writeTrackMark == 0b100000011)
                         {
-                            wTrackSector = data;
-                            wTrackMark = 0;
+                            writeTrackSector = data;
+                            writeTrackMark = 0;
                         }
                     }
                 }
                 else
                 {
-                    wTrackMark = 0;
+                    writeTrackMark = 0;
                 }
 
-                a = data;
+                byteAtHead = data;
                 stepState = StepWriteByte;
                 control |= DRQ;
                 break;
@@ -1265,7 +1264,7 @@ namespace wd1793
 
         case WriteTrackCRC:
         {
-            a = 0x0;
+            byteAtHead = 0x0;
             stepState = StepWriteByte;
             state = WriteTrack;
             control |= DRQ;
@@ -1296,7 +1295,7 @@ namespace wd1793
             }
 
             control |= DRQ;
-            data = a;
+            data = byteAtHead;
             return;
         }
         }
@@ -1540,34 +1539,34 @@ namespace wd1793
             return;
         }
 
-        uint8_t dd = 0x00;
-        uint8_t s = 0x00;
+        uint8_t diskMark = 0x00;
+        uint8_t signal = 0x00;
 
         if (disks[selectedDiskIndex])
         {
             if ((control & Writing) && !disks[selectedDiskIndex]->writeProtect)
             {
-                diskStepWrite(wb);
-                dd = 0;
+                diskStepWrite(byteToWrite);
+                diskMark = 0;
             }
             else
             {
                 diskStepRead();
-                dd = disks[selectedDiskIndex]->byteAtHead;
+                diskMark = disks[selectedDiskIndex]->byteAtHead;
             }
 
-            s = disks[selectedDiskIndex]->signal;
+            signal = disks[selectedDiskIndex]->signal;
         }
 
-        uint8_t pd = s ^ previousDiskIndex;
-        previousDiskIndex = s;
+        uint8_t diskIndex = signal ^ previousDiskIndex;
+        previousDiskIndex = signal;
 
         switch (stepState)
         {
 
         case StepIdle:
         {
-            if (retries && (pd & DiskOutIndex) && (s & DiskOutIndex))
+            if (retries && (diskIndex & DiskOutIndex) && (signal & DiskOutIndex))
             {
                 --retries;
                 if (!retries)
@@ -1596,7 +1595,7 @@ namespace wd1793
 
         case StepWaitingMark:
         {
-            if (retries && (pd & DiskOutIndex) && (s & DiskOutIndex))
+            if (retries && (diskIndex & DiskOutIndex) && (signal & DiskOutIndex))
             {
                 --retries;
                 if (!retries)
@@ -1605,10 +1604,10 @@ namespace wd1793
                 }
             }
 
-            if ((markA & 0xff) == dd)
+            if ((markAtHead & 0xff) == diskMark)
             {
-                markA >>= 8;
-                if (!markA)
+                markAtHead >>= 8;
+                if (!markAtHead)
                 {
                     process();
                     if (control & Writing)
@@ -1617,7 +1616,7 @@ namespace wd1793
             }
             else
             {
-                markA = Mark;
+                markAtHead = Mark;
             }
 
             break;
@@ -1625,16 +1624,16 @@ namespace wd1793
 
         case StepReadByte:
         {
-            if (retries && (pd & DiskOutIndex) && (s & DiskOutIndex))
+            if (retries && (diskIndex & DiskOutIndex) && (signal & DiskOutIndex))
             {
                 --retries;
                 if (!retries)
                     process();
             }
 
-            a = dd;
+            byteAtHead = diskMark;
             process();
-            a = 0;
+            byteAtHead = 0;
 
             break;
         }
@@ -1642,7 +1641,7 @@ namespace wd1793
         case StepWriteByte:
         {
         write:
-            if (retries && (pd & DiskOutIndex) && (s & DiskOutIndex))
+            if (retries && (diskIndex & DiskOutIndex) && (signal & DiskOutIndex))
             {
                 --retries;
                 if (!retries)
@@ -1651,7 +1650,7 @@ namespace wd1793
                 }
             }
 
-            wb = a;
+            byteToWrite = byteAtHead;
             process();
 
             break;
@@ -1659,7 +1658,7 @@ namespace wd1793
 
         case StepWriteRaw:
         {
-            if (retries && (pd & DiskOutIndex) && (s & DiskOutIndex))
+            if (retries && (diskIndex & DiskOutIndex) && (signal & DiskOutIndex))
             {
                 --retries;
                 if (!retries)
@@ -1668,7 +1667,7 @@ namespace wd1793
                 }
             }
 
-            wb = a;
+            byteToWrite = byteAtHead;
             process();
 
             break;
@@ -1680,7 +1679,7 @@ namespace wd1793
 
         case StepWaitIndex:
         {
-            if ((pd & DiskOutIndex) && (s & DiskOutIndex))
+            if ((diskIndex & DiskOutIndex) && (signal & DiskOutIndex))
             {
                 retries = 1;
                 process();
@@ -1701,10 +1700,9 @@ namespace wd1793
         command = sector = data = sataSeekRegister = 0x0;
         status = StatusSetIndex | StatusSetTrack0 | StatusSetWP;
         track = 0xff;
-        wTrackMark = 0;
+        writeTrackMark = 0;
         headerIndex = 0;
         retries = 0;
-        crc = 0;
         side = 0;
         selectedDiskIndex = 0;
         fastMode = false;

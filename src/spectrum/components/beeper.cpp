@@ -1,32 +1,23 @@
 #include "beeper.h"
-#include "main.h"
 #include "ula.h"
-#include "audio.h"
 
 namespace beeper
 {
-    int16_t* buffer;
+    int previousBufferIndex = -1;
+    int16_t previousSample = 0;
+    DcAdjustmentFilter filter;
 
     void init()
     {
-        buffer = new int16_t[882]{};
+        filter.setBufferPercentLength(50);
     }
 
     void cleanUp()
     {
-        delete[882] buffer;
     }
 
     void tact()
     {
-        if (main::currentTact == 0)
-        {
-            // audio::update();
-            std::fill(buffer, buffer + 882, static_cast<int16_t>(0));
-        }
-
-        const int bufferIndex = (main::currentTact * 882) / main::currentModel->tactsPerFrame;
-        buffer[bufferIndex] = (buffer[bufferIndex] + (((ula::portData & 0x10) == 0) ? -8192 : 8192)) / 2;
-        // buffer[bufferIndex] = rand() & 0xfff;
+        filter.add((ula::portData & 0x10) == 0 ? -8192 : 8192);
     }
 }

@@ -11,6 +11,8 @@ endif()
 
 project("EasyZX")
 
+add_definitions(-D__WINDOWS_WASAPI__)
+
 add_executable(EasyZX
 WIN32
 	src/win_app.cpp
@@ -26,12 +28,13 @@ WIN32
 	src/spectrum/components/beeper.cpp
 	src/spectrum/devices/tape.cpp
 	src/spectrum/devices/beta_disk.cpp
-	src/spectrum/devices/wd1793.cpp
+	src/spectrum/devices/wd_1793.cpp
 	src/resources/resources.rc
 	src/libs/glad/src/gl.c
 	src/libs/glad/src/wgl.c
 	src/libs/mINI/ini.h
 	src/libs/RtAudio/RtAudio.cpp
+	src/libs/audio_filters/dc_adjustment_filter.cpp
 )
 
 target_include_directories(EasyZX
@@ -43,9 +46,10 @@ PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}/src/libs/mINI
 	${CMAKE_CURRENT_SOURCE_DIR}/src/libs/glad/include
 	${CMAKE_CURRENT_SOURCE_DIR}/src/libs/RtAudio
+	${CMAKE_CURRENT_SOURCE_DIR}/src/libs/audio_filters
 )
 
 target_link_libraries(EasyZX
 PRIVATE
-	opengl32 winmm
+	opengl32
 )

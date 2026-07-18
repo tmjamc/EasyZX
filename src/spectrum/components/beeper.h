@@ -2,9 +2,11 @@
 
 #include <cstdint>
 
+#include "dc_adjustment_filter.h"
+
 namespace beeper
 {
-    extern int16_t* buffer;
+    extern DcAdjustmentFilter filter;
 
     void init();
     void cleanUp();

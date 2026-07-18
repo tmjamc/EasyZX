@@ -10,7 +10,7 @@
 #include "settings.h"
 #include "tape.h"
 #include "beta_disk.h"
-#include "wd1793.h"
+#include "wd_1793.h"
 #include "audio.h"
 #include "beeper.h"
 
@@ -155,13 +155,13 @@ namespace main
     void start()
     {        
         // TODO: take model from settings
-        // currentModel = &SPECTRUM_48K;
+        currentModel = &SPECTRUM_48K;
         // currentModel = &SPECTRUM_128K;
-        currentModel = &PENTAGON_128K;
+        // currentModel = &PENTAGON_128K;
 
         // TODO: take beta disk coinfig from settings
         beta_disk::init();
-        wd1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\across_the_edge_by_demarche_fix_0.trd");
+        wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\across_the_edge_by_demarche_fix_0.trd");
         // wd1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\insultplus.scl");
         // wd1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\OldSkoolCodingOldSchoolStyle.trd");
         // wd1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\summer.trd");
@@ -212,10 +212,19 @@ namespace main
     {
         if (beta_disk::enabled)
         {
-            wd1793::tact();
+            wd_1793::tact();
         }
 
         beeper::tact();
+
+        if (audio::tact())
+        {
+            const int16_t sample = beeper::filter.getSample();
+
+            // Twice for left and right channels
+            audio::addSample(sample);
+            audio::addSample(sample);
+        }
 
         if (++currentTact == currentModel->tactsPerFrame)
         {

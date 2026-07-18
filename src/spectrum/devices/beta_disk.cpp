@@ -2,7 +2,7 @@
 #include <fstream>
 
 #include "beta_disk.h"
-#include "wd1793.h"
+#include "wd_1793.h"
 
 namespace beta_disk
 {
@@ -21,7 +21,7 @@ namespace beta_disk
             file.close();
         }
 
-        wd1793::reset();
+        wd_1793::reset();
 
         enabled = true;
     }
