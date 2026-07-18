@@ -88,6 +88,7 @@ namespace main
 
     extern bool emulationThreadReady;
     extern const Model* currentModel;
+    extern uint64_t totalTacts;
     extern int currentTact;
     extern int currentFrame;
   	extern bool* keyStates;

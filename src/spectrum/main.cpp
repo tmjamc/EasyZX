@@ -28,6 +28,7 @@ namespace main
 
     const Model* currentModel;
 
+    uint64_t totalTacts = 0;
     int currentTact = 0;
     int currentFrame = 0;
 	bool* keyStates;
@@ -80,9 +81,14 @@ namespace main
                     }
                 }
 
-                if (settings::current.tapeInstantLoading && z80::registers.pc.w == 0x056c)
+                // if (settings::current.tapeInstantLoading && z80::registers.pc.w == 0x056c)
+                // {
+                //     tape::instantLoad();
+                // }
+
+                if (!tape::Started() && z80::registers.pc.w == 0x056c)
                 {
-                    tape::instantLoad();
+                    tape::StartTape();
                 }
 
                 z80::executeInstruction();
@@ -156,13 +162,13 @@ namespace main
     void start()
     {        
         // TODO: take model from settings
-        // currentModel = &SPECTRUM_48K;
+        currentModel = &SPECTRUM_48K;
         // currentModel = &SPECTRUM_128K;
-        currentModel = &PENTAGON_128K;
+        // currentModel = &PENTAGON_128K;
 
         // TODO: take beta disk coinfig from settings
         beta_disk::init();
-        wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\across_the_edge_by_demarche_fix_0.trd");
+        // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\across_the_edge_by_demarche_fix_0.trd");
         // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\insultplus.scl");
         // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\OldSkoolCodingOldSchoolStyle.trd");
         // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\summer.trd");
@@ -239,6 +245,8 @@ namespace main
             audio::addSample(sample);
             audio::addSample(sample);
         }
+
+        ++totalTacts;
 
         if (++currentTact == currentModel->tactsPerFrame)
         {
