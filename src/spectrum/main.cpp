@@ -86,10 +86,10 @@ namespace main
                 //     tape::instantLoad();
                 // }
 
-                if (!tape::Started() && z80::registers.pc.w == 0x056c)
-                {
-                    tape::StartTape();
-                }
+                // if (!tape::Started() && z80::registers.pc.w == 0x056c)
+                // {
+                //     tape::StartTape();
+                // }
 
                 z80::executeInstruction();
             }
@@ -115,6 +115,16 @@ namespace main
 
     static void waitForNextFrame()
     {
+        // Do not throttle the frame rate
+        if (keyStates[VK_F9])
+        {
+            const uint64_t frameTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - currentFrameTime).count();
+            if (frameTime < 20)
+            {
+                return;
+            }
+        }
+
         // Sync with display thread
         {
             // This code MUST be inside a block to release lock before notify_one() is called,
@@ -175,7 +185,7 @@ namespace main
         // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\esprit.trd");
 
         keyStates = new bool[0x100]{};
-        tape::init();
+        // tape::init();
         memory::init();
         ula::init();
         z80::init();
@@ -193,7 +203,7 @@ namespace main
         display::stopRenderThread();
 
         delete[0x100] keyStates;
-        tape::cleanUp();
+        // tape::cleanUp();
         memory::cleanUp();
         ula::cleanUp();
         z80::cleanUp();

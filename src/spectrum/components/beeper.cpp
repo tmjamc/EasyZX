@@ -21,7 +21,7 @@ namespace beeper
 
     void tact()
     {
-        // filter.add((ula::portData & 0x10) == 0 ? 0 : 5000);
-        filter.add(tape::Started() && tape::TapeBit() == 0 ? 0 : 5000);
+        filter.add((ula::portData & 0x10) ? 0 : MAX_AMPLITUDE);
+        // filter.add((ula::portData & 0x10 || tape::Started() && tape::TapeBit() == 0) == 0 ? 0 : 5000);
     }
 }
