@@ -3,6 +3,7 @@
 #include "memory.h"
 #include "beta_disk.h"
 #include "wd_1793.h"
+#include "ay_3_8912.h"
 
 namespace io
 {
@@ -17,18 +18,18 @@ namespace io
 
         if (port & 0x0001)
         {
-            // // AY-3-8912
-            // if ((port & 0xc007) == 0xc005)
-            // {
-            //     _zx->ay_3_8912->setRegister(data);
-            //     return;
-            // }
+            // AY-3-8912
+            if ((port & 0xc007) == 0xc005)
+            {
+                ay_3_8912::setRegister(data);
+                return;
+            }
 
-            // if ((port & 0xc007) == 0x8005)
-            // {
-            //     _zx->ay_3_8912->setRegisterValue(data);
-            //     return;
-            // }
+            if ((port & 0xc007) == 0x8005)
+            {
+                ay_3_8912::setRegisterValue(data);
+                return;
+            }
 
             // BetaDisk
             if (beta_disk::romEnabled)
@@ -57,11 +58,11 @@ namespace io
     {
         if (port & 0x0001)
         {
-            // // AY-3-8912
-            // if ((port & 0xc007) == 0xc005)
-            // {
-            //     return _zx->ay_3_8912->getRegisterValue();
-            // }
+            // AY-3-8912
+            if ((port & 0xc007) == 0xc005)
+            {
+                return ay_3_8912::getRegisterValue();
+            }
 
             // BetaDisk
             if (beta_disk::romEnabled)

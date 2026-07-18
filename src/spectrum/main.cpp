@@ -13,6 +13,7 @@
 #include "wd_1793.h"
 #include "audio.h"
 #include "beeper.h"
+#include "ay_3_8912.h"
 
 namespace main
 {
@@ -160,19 +161,21 @@ namespace main
         // currentModel = &PENTAGON_128K;
 
         // TODO: take beta disk coinfig from settings
-        beta_disk::init();
-        wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\across_the_edge_by_demarche_fix_0.trd");
-        // wd1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\insultplus.scl");
-        // wd1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\OldSkoolCodingOldSchoolStyle.trd");
-        // wd1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\summer.trd");
+        // beta_disk::init();
+        // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\across_the_edge_by_demarche_fix_0.trd");
+        // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\insultplus.scl");
+        // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\OldSkoolCodingOldSchoolStyle.trd");
+        // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\summer.trd");
+        // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\esprit.trd");
 
         keyStates = new bool[0x100]{};
         tape::init();
         memory::init();
         ula::init();
         z80::init();
-        beeper::init();
-        audio::init();
+        // beeper::init();
+        // ay_3_8912::init();
+        // audio::init();
 
         // audio::startAudioThread();
         display::startRenderThread();
@@ -190,9 +193,10 @@ namespace main
         memory::cleanUp();
         ula::cleanUp();
         z80::cleanUp();
-        beta_disk::cleanUp();
-        beeper::cleanUp();
-        audio::cleanUp();
+        // beta_disk::cleanUp();
+        // beeper::cleanUp();
+        // ay_3_8912::cleanUp();
+        // audio::cleanUp();
     }
 
     void reset(const Model* model)
@@ -210,21 +214,33 @@ namespace main
 
     void tact()
     {
-        if (beta_disk::enabled)
-        {
-            wd_1793::tact();
-        }
+        // if (beta_disk::enabled)
+        // {
+        //     wd_1793::tact();
+        // }
 
-        beeper::tact();
+        // beeper::tact();
 
-        if (audio::tact())
-        {
-            const int16_t sample = beeper::filter.getSample();
+        // if (ay_3_8912::enabled)
+        // {
+        //     ay_3_8912::tact();
+        // }
 
-            // Twice for left and right channels
-            audio::addSample(sample);
-            audio::addSample(sample);
-        }
+        // if (audio::tact())
+        // {
+        //     int16_t sample = beeper::filter.getSample() - beeper::MAX_AMPLITUDE / 2;
+
+        //     if (ay_3_8912::enabled)
+        //     {
+        //         sample += ay_3_8912::filterA.getSample() - ay_3_8912::MAX_AMPLITUDE / 2;
+        //         sample += ay_3_8912::filterB.getSample() - ay_3_8912::MAX_AMPLITUDE / 2;
+        //         sample += ay_3_8912::filterC.getSample() - ay_3_8912::MAX_AMPLITUDE / 2;
+        //     }
+
+        //     // Twice for left and right channels
+        //     audio::addSample(sample);
+        //     audio::addSample(sample);
+        // }
 
         if (++currentTact == currentModel->tactsPerFrame)
         {

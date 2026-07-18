@@ -45,7 +45,7 @@ namespace tape
         // std::ifstream file("C:\\Users\\jam\\source\\repos\\RawZX\\tapes\\tests\\minfo.tap", std::ios::in | std::ios::binary);
         // std::ifstream file("C:\\Users\\jam\\source\\repos\\RawZX\\tapes\\tests\\ULA 48 Simple Test (2012-10-06)(azesmbog)[!].tap", std::ios::in | std::ios::binary);
         // std::ifstream file("C:\\Users\\jam\\source\\repos\\RawZX\\tapes\\tests\\floating_bus.tap", std::ios::in | std::ios::binary);
-        // std::ifstream file("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\48k\\BorderTrix.tap", std::ios::in | std::ios::binary);
+        std::ifstream file("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\48k\\BorderTrix.tap", std::ios::in | std::ios::binary);
         // std::ifstream file("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\48k\\SHOCK.tap", std::ios::in | std::ios::binary);
         // std::ifstream file("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\128k\\BreakSpace.tap", std::ios::in | std::ios::binary);
         // std::ifstream file("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\128k\\Tiratok.tap", std::ios::in | std::ios::binary);
@@ -58,8 +58,9 @@ namespace tape
         // std::ifstream file("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\EYEACHE2.tap", std::ios::in | std::ios::binary);
         // std::ifstream file("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\128k\\AddMortem.tap", std::ios::in | std::ios::binary);
         // std::ifstream file("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\modern\\Super Mario.tap", std::ios::in | std::ios::binary);
-        std::ifstream file("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\music\\beeper\\thevocoders.tap", std::ios::in | std::ios::binary);
+        // std::ifstream file("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\music\\beeper\\thevocoders.tap", std::ios::in | std::ios::binary);
         // std::ifstream file("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\music\\beeper\\EarShaver.tap", std::ios::in | std::ios::binary);
+        // std::ifstream file("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\music\\beeper\\DH10Beep.tap", std::ios::in | std::ios::binary);
         // std::ifstream file("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\music\\beeper\\final_signal.tap", std::ios::in | std::ios::binary);
         if (!file.is_open())
         {

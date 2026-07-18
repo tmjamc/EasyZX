@@ -3,9 +3,11 @@
 
 namespace beeper
 {
+    static constexpr int MAX_DC_BUFFER_LENGTH = 882;
+
     int previousBufferIndex = -1;
     int16_t previousSample = 0;
-    DcAdjustmentFilter filter;
+    DcAdjustmentFilter filter(MAX_DC_BUFFER_LENGTH);
 
     void init()
     {
@@ -18,6 +20,6 @@ namespace beeper
 
     void tact()
     {
-        filter.add((ula::portData & 0x10) == 0 ? -8192 : 8192);
+        filter.add((ula::portData & 0x10) == 0 ? 0 : 5000);
     }
 }

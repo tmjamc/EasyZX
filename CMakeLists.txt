@@ -29,6 +29,7 @@ WIN32
 	src/spectrum/devices/tape.cpp
 	src/spectrum/devices/beta_disk.cpp
 	src/spectrum/devices/wd_1793.cpp
+	src/spectrum/devices/ay_3_8912.cpp
 	src/resources/resources.rc
 	src/libs/glad/src/gl.c
 	src/libs/glad/src/wgl.c
