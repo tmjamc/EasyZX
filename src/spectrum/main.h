@@ -72,7 +72,7 @@ namespace main
     {
         .tactsPerFrame = 71680,
         .tactsPerLine = 224,
-        .tactsToFirstScreenByte = 17986,
+        .tactsToFirstScreenByte = 17987,
         .interruptSignalTacts = 32,
         .hiresBorder = true,
         .contendedMemory = false,
