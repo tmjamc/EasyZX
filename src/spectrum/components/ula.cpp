@@ -149,6 +149,8 @@ namespace ula
 
     void tact()
     {
+        main::tact();
+
         const int xTact = main::currentTact + display::GL_MAX_BORDER_SIZE / 2 - main::currentModel->tactsToFirstScreenByte % main::currentModel->tactsPerLine;
         const int x = (xTact % main::currentModel->tactsPerLine) * 2;
         const int y = xTact / main::currentModel->tactsPerLine - main::currentModel->tactsToFirstScreenByte / main::currentModel->tactsPerLine + display::GL_MAX_BORDER_SIZE;
@@ -194,8 +196,6 @@ namespace ula
                 }
             }
         }
-
-        main::tact();
     }
 
     void contendedTacts(uint16_t addr, int tacts, bool force)
