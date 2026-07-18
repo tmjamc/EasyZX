@@ -28,10 +28,10 @@ namespace ula
 
     void init();
     void cleanUp();
-    void tack();
-    void contendedTacks(uint16_t addr, int tacks, bool force = false);
-    void preIOTacks(uint16_t port);
-    void postIOTacks(uint16_t port);
+    void tact();
+    void contendedTacts(uint16_t addr, int tacts, bool force = false);
+    void ioPreTacts(uint16_t port);
+    void ioPostTacts(uint16_t port);
     uint8_t readPort(uint16_t port);
     uint8_t readBus();
 }

@@ -26,7 +26,7 @@ namespace main
 
     const Model* currentModel;
 
-    int currentTack = 0;
+    int currentTact = 0;
     int currentFrame = 0;
 	bool* keyStates;
 
@@ -51,7 +51,7 @@ namespace main
 		while (win_app::running)
 		{
             interruptRequested = false;
-            if (currentTack < currentModel->interruptSignalTacks)
+            if (currentTact < currentModel->interruptSignalTacts)
             {
                 interruptRequested = z80::requestInterrupt();
             }
@@ -201,16 +201,16 @@ namespace main
         z80::reset();
     }
 
-    void tack()
+    void tact()
     {
         if (beta_disk::enabled)
         {
             wd1793::tact();
         }
 
-        if (++currentTack == currentModel->tacksPerFrame)
+        if (++currentTact == currentModel->tactsPerFrame)
         {
-            currentTack = 0;
+            currentTact = 0;
             waitForNextFrame();
             ++currentFrame;
         }

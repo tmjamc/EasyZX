@@ -1535,7 +1535,7 @@ namespace wd1793
 
     void tact()
     {
-        if ((main::currentTack % WD1793_STEP_TACTS) != 0 || (control & (HLD | HLT) == 0))
+        if ((main::currentTact % WD1793_STEP_TACTS) != 0 || (control & (HLD | HLT) == 0))
         {
             return;
         }

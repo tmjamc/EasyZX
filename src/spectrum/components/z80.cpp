@@ -139,7 +139,7 @@ namespace z80
 
         ++R;
 
-        ula::contendedTacks(0, 7);
+        ula::contendedTacts(0, 7);
 
         contendWrite(--SP, PCH);
         contendWrite(--SP, PCL);

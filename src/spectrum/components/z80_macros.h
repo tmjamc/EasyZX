@@ -65,9 +65,9 @@ namespace z80
 
 #define IS_CMOS false
 
-#define CONTEND(addr, tacks) ula::contendedTacks(addr, tacks)
-#define CONTEND_READ_NO_MREQ(addr, tacks) ula::contendedTacks(addr, tacks)
-#define CONTEND_WRITE_NO_MREQ(addr, tacks) ula::contendedTacks(addr, tacks)
+#define CONTEND(addr, tacts) ula::contendedTacts(addr, tacts)
+#define CONTEND_READ_NO_MREQ(addr, tacts) ula::contendedTacts(addr, tacts)
+#define CONTEND_WRITE_NO_MREQ(addr, tacts) ula::contendedTacts(addr, tacts)
 
 #define INC(r)                                                                          \
     ++r;                                                                                \

@@ -15,11 +15,11 @@ namespace main
 
     struct Model
     {
-        const int tacksPerFrame;
-        const int tacksPerLine;
-        const int tacksToFirstScreenByte;
-        const int tacksToFirstContendedMemory;
-        const int interruptSignalTacks;
+        const int tactsPerFrame;
+        const int tactsPerLine;
+        const int tactsToFirstScreenByte;
+        const int tactsToFirstContendedMemory;
+        const int interruptSignalTacts;
         const bool hiresBorder;
         const bool contendedMemory;
         const bool floatingBus;
@@ -34,10 +34,10 @@ namespace main
 
     constexpr static Model SPECTRUM_48K =
     {
-        .tacksPerFrame = 69888,
-        .tacksPerLine = 224,
-        .tacksToFirstScreenByte = 14340,
-        .interruptSignalTacks = 32,
+        .tactsPerFrame = 69888,
+        .tactsPerLine = 224,
+        .tactsToFirstScreenByte = 14340,
+        .interruptSignalTacts = 32,
         .hiresBorder = false,
         .contendedMemory = true,
         .floatingBus = true,
@@ -52,10 +52,10 @@ namespace main
 
     constexpr static Model SPECTRUM_128K =
     {
-        .tacksPerFrame = 70908,
-        .tacksPerLine = 228,
-        .tacksToFirstScreenByte = 14366,
-        .interruptSignalTacks = 36,
+        .tactsPerFrame = 70908,
+        .tactsPerLine = 228,
+        .tactsToFirstScreenByte = 14366,
+        .interruptSignalTacts = 36,
         .hiresBorder = false,
         .contendedMemory = true,
         .floatingBus = true,
@@ -70,10 +70,10 @@ namespace main
 
     constexpr static Model PENTAGON_128K =
     {
-        .tacksPerFrame = 71680,
-        .tacksPerLine = 224,
-        .tacksToFirstScreenByte = 17986,
-        .interruptSignalTacks = 32,
+        .tactsPerFrame = 71680,
+        .tactsPerLine = 224,
+        .tactsToFirstScreenByte = 17986,
+        .interruptSignalTacts = 32,
         .hiresBorder = true,
         .contendedMemory = false,
         .floatingBus = false,
@@ -88,12 +88,12 @@ namespace main
 
     extern bool emulationThreadReady;
     extern const Model* currentModel;
-    extern int currentTack;
+    extern int currentTact;
     extern int currentFrame;
   	extern bool* keyStates;
 
     void start();
     void stop();
     void reset(const Model* model);
-    void tack();
+    void tact();
 }

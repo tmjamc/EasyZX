@@ -87,23 +87,23 @@ namespace io
 
     uint8_t read(uint16_t port)
     {
-        ula::preIOTacks(port);
-        ula::postIOTacks(port);
+        ula::ioPreTacts(port);
+        ula::ioPostTacts(port);
 
         const uint8_t data = readDevicePort(port);
 
-        ula::tack();
+        ula::tact();
 
         return data;
     }
 
     void write(uint16_t port, uint8_t data)
     {
-        ula::preIOTacks(port);
+        ula::ioPreTacts(port);
 
         writeDevicePort(port, data);
 
-        ula::postIOTacks(port);
-        ula::tack();
+        ula::ioPostTacts(port);
+        ula::tact();
     }
 }

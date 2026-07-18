@@ -12,14 +12,14 @@ namespace ula
 
     constexpr static uint8_t CONTENDED_MEMORY_PATTERN[8] = { 6, 5, 4, 3, 2, 1, 0, 0 };
 
-    int firstBytePixelTackIndex;
+    int firstBytePixelTactIndex;
 
     uint8_t portData = 0xff;
 
     int16_t* floatingBusAddresses = nullptr;
     int floatingBusAddressesLength = 0;
-    uint8_t* contendedMemoryTacks = nullptr;
-    int contendedMemoryTacksLength = 0;
+    uint8_t* contendedMemoryTacts = nullptr;
+    int contendedMemoryTactsLength = 0;
 
     static void buildTables()
     {
@@ -80,20 +80,20 @@ namespace ula
         // Build contention table
         if (main::currentModel->contendedMemory)
         {
-            contendedMemoryTacksLength = main::currentModel->tacksPerFrame;
-            contendedMemoryTacks = new uint8_t[contendedMemoryTacksLength];
-            std::fill(contendedMemoryTacks, contendedMemoryTacks + contendedMemoryTacksLength, static_cast<uint8_t>(0));
+            contendedMemoryTactsLength = main::currentModel->tactsPerFrame;
+            contendedMemoryTacts = new uint8_t[contendedMemoryTactsLength];
+            std::fill(contendedMemoryTacts, contendedMemoryTacts + contendedMemoryTactsLength, static_cast<uint8_t>(0));
 
             int index = 0;
-            int tack = main::currentModel->tacksToFirstScreenByte - 5;
-            while (tack < main::currentModel->tacksToFirstScreenByte - 5 + 192 * main::currentModel->tacksPerLine)
+            int tact = main::currentModel->tactsToFirstScreenByte - 5;
+            while (tact < main::currentModel->tactsToFirstScreenByte - 5 + 192 * main::currentModel->tactsPerLine)
             {
-                contendedMemoryTacks[tack++] = CONTENDED_MEMORY_PATTERN[index % 8];
+                contendedMemoryTacts[tact++] = CONTENDED_MEMORY_PATTERN[index % 8];
 
                 if (++index == 128)
                 {
                     index = 0;
-                    tack += (main::currentModel->tacksPerLine - 128);
+                    tact += (main::currentModel->tactsPerLine - 128);
                 }
             }
         }
@@ -101,41 +101,41 @@ namespace ula
         // Build floating bus table
         if (main::currentModel->floatingBus)
         {
-            floatingBusAddressesLength = main::currentModel->tacksPerFrame;
+            floatingBusAddressesLength = main::currentModel->tactsPerFrame;
             floatingBusAddresses = new int16_t[floatingBusAddressesLength];
             std::fill(floatingBusAddresses, floatingBusAddresses + floatingBusAddressesLength, static_cast<int16_t>(-1));
-            int tack = main::currentModel->tacksToFirstScreenByte - 2;
-            while (tack < main::currentModel->tacksToFirstScreenByte - 2 + 192 * main::currentModel->tacksPerLine)
+            int tact = main::currentModel->tactsToFirstScreenByte - 2;
+            while (tact < main::currentModel->tactsToFirstScreenByte - 2 + 192 * main::currentModel->tactsPerLine)
             {
-                const int scrY = (tack + display::GL_MAX_BORDER_SIZE / 2 - main::currentModel->tacksToFirstScreenByte) / main::currentModel->tacksPerLine;
+                const int scrY = (tact + display::GL_MAX_BORDER_SIZE / 2 - main::currentModel->tactsToFirstScreenByte) / main::currentModel->tactsPerLine;
                 int pixelAddr = ((scrY & 0xc0) << 5) | ((scrY & 0x07) << 8) | ((scrY & 0x38) << 2);
                 int attrAddr = 0x1800 + ((scrY & ~0x07) << 2);
                 for (int i = 0; i < 16; ++i)
                 {
-                    floatingBusAddresses[tack++] = pixelAddr++;
-                    floatingBusAddresses[tack++] = attrAddr++;
-                    floatingBusAddresses[tack++] = pixelAddr++;
-                    floatingBusAddresses[tack++] = attrAddr++;
-                    tack += 4;
+                    floatingBusAddresses[tact++] = pixelAddr++;
+                    floatingBusAddresses[tact++] = attrAddr++;
+                    floatingBusAddresses[tact++] = pixelAddr++;
+                    floatingBusAddresses[tact++] = attrAddr++;
+                    tact += 4;
                 }
-                tack += (main::currentModel->tacksPerLine - 128);
+                tact += (main::currentModel->tactsPerLine - 128);
             }
         }
     }
 
     void init()
     {
-        firstBytePixelTackIndex = main::currentModel->tacksToFirstScreenByte % 4;
+        firstBytePixelTactIndex = main::currentModel->tactsToFirstScreenByte % 4;
         buildTables();
     }
 
     void cleanUp()
     {
-        if (contendedMemoryTacksLength > 0)
+        if (contendedMemoryTactsLength > 0)
         {
-            delete[contendedMemoryTacksLength] contendedMemoryTacks;
-            contendedMemoryTacks = nullptr;
-            contendedMemoryTacksLength = 0;
+            delete[contendedMemoryTactsLength] contendedMemoryTacts;
+            contendedMemoryTacts = nullptr;
+            contendedMemoryTactsLength = 0;
         }
 
         if (floatingBusAddressesLength > 0)
@@ -147,17 +147,17 @@ namespace ula
 
     }
 
-    void tack()
+    void tact()
     {
-        const int xTack = main::currentTack + display::GL_MAX_BORDER_SIZE / 2 - main::currentModel->tacksToFirstScreenByte % main::currentModel->tacksPerLine;
-        const int x = (xTack % main::currentModel->tacksPerLine) * 2;
-        const int y = xTack / main::currentModel->tacksPerLine - main::currentModel->tacksToFirstScreenByte / main::currentModel->tacksPerLine + display::GL_MAX_BORDER_SIZE;
+        const int xTact = main::currentTact + display::GL_MAX_BORDER_SIZE / 2 - main::currentModel->tactsToFirstScreenByte % main::currentModel->tactsPerLine;
+        const int x = (xTact % main::currentModel->tactsPerLine) * 2;
+        const int y = xTact / main::currentModel->tactsPerLine - main::currentModel->tactsToFirstScreenByte / main::currentModel->tactsPerLine + display::GL_MAX_BORDER_SIZE;
 
         // Check if current coordinates are inside the display buffer
         if (x >= 0 && x < display::GL_DISPLAY_BUFFER_WIDTH && y >= 0 && y < display::DISPLAY_BUFFER_HEIGHT)
         {
             uint32_t* scanLine = display::displayBuffer + y * display::GL_DISPLAY_BUFFER_WIDTH;
-            const int pixIndex = (main::currentTack - firstBytePixelTackIndex) % 4;
+            const int pixIndex = (main::currentTact - firstBytePixelTactIndex) % 4;
 
             // Check if current coordinates are inside the screen
             if (x >= display::GL_MAX_BORDER_SIZE && x < display::GL_DISPLAY_BUFFER_WIDTH - display::GL_MAX_BORDER_SIZE &&
@@ -195,26 +195,26 @@ namespace ula
             }
         }
 
-        main::tack();
+        main::tact();
     }
 
-    void contendedTacks(uint16_t addr, int tacks, bool force)
+    void contendedTacts(uint16_t addr, int tacts, bool force)
     {
         if (main::currentModel->contendedMemory)
         {
             if (force || ((addr & 0xc000) == 0x4000 || (main::currentModel->pagingEnabled && (addr & 0xc000) == 0xc000 && (memory::activeRamPage & 0x01))))
             {
-                int cTacks = contendedMemoryTacks[main::currentTack];
-                while (cTacks-- != 0)
+                int cTacts = contendedMemoryTacts[main::currentTact];
+                while (cTacts-- != 0)
                 {
-                    tack();
+                    tact();
                 }
             }
         }
 
-        while (tacks-- != 0)
+        while (tacts-- != 0)
         {
-            tack();
+            tact();
         }
     }
 
@@ -226,17 +226,17 @@ namespace ula
     // Yes        | 0       | C:1 C:3         | C 1 | C 3
     // No         | 0       | N:1 C:3         | 1   | C 3
 
-    void preIOTacks(uint16_t port)
+    void ioPreTacts(uint16_t port)
     {
-        contendedTacks(port, 1);
+        contendedTacts(port, 1);
     }
     
-    void postIOTacks(uint16_t port)
+    void ioPostTacts(uint16_t port)
     {
         if (!main::currentModel->contendedMemory)
         {
-            tack();
-            tack();
+            tact();
+            tact();
             return;
         }
 
@@ -244,19 +244,19 @@ namespace ula
         {
             if ((port & 0xc000) == 0x4000 || (main::currentModel->pagingEnabled && (port & 0xc000) == 0xc000 && (memory::activeRamPage & 0x01)))
             {
-                contendedTacks(port, 1, true);
-                contendedTacks(port, 1, true);
-                contendedTacks(port, 0, true);
+                contendedTacts(port, 1, true);
+                contendedTacts(port, 1, true);
+                contendedTacts(port, 0, true);
             }
             else
             {
-                tack();
-                tack();
+                tact();
+                tact();
             }
         }
         else
         {
-            contendedTacks(port, 2, true);
+            contendedTacts(port, 2, true);
         }
     }
 
@@ -362,11 +362,11 @@ namespace ula
 
     uint8_t readBus()
     {
-        if (!main::currentModel->floatingBus || floatingBusAddresses[main::currentTack] == -1)
+        if (!main::currentModel->floatingBus || floatingBusAddresses[main::currentTact] == -1)
         {
             return 0xff;
         }
 
-        return memory::ramPages[memory::activeScreenPage][floatingBusAddresses[main::currentTack]];
+        return memory::ramPages[memory::activeScreenPage][floatingBusAddresses[main::currentTact]];
     }
 }
