@@ -184,6 +184,8 @@ namespace main
         // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\summer.trd");
         // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\esprit.trd");
 
+        tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\Movie.tzx");
+
         keyStates = new bool[0x100]{};
         // tape::init();
         memory::init();
@@ -203,7 +205,7 @@ namespace main
         display::stopRenderThread();
 
         delete[0x100] keyStates;
-        // tape::cleanUp();
+        tape::cleanUp();
         memory::cleanUp();
         ula::cleanUp();
         z80::cleanUp();
