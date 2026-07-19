@@ -24,7 +24,7 @@ namespace tape
 
     std::vector<Block> blocks;
 
-    std::string getDataInfo(int index, int blockLength)
+    static std::string getDataInfo(int index, int blockLength)
     {
         char fileName[11]{};
 
@@ -138,7 +138,7 @@ namespace tape
             case 0x20:
             {
                 const uint16_t duration = data[index] | data[index + 1] << 8;
-                blocks.emplace_back(type, index, 2, "Pause", std::format("{}s", duration / 1000));
+                blocks.emplace_back(type, index, 0, "Pause", std::format("{}s", duration / 1000));
                 index += 2;
                 break;
             }
@@ -173,12 +173,20 @@ namespace tape
             {
                 break;
             }
+
+            // Stop the tape
+            case 0x2a:
+            {
+                blocks.emplace_back(type, index, 0, "Stop the tape", "");
+                index += 4;
+                break;
+            }
             
             // Text description
             case 0x30: 
             {
                 const uint8_t blockLength = data[index++];
-                blocks.emplace_back(type, index, blockLength, "Description", std::string(data + index, data + index + blockLength));
+                blocks.emplace_back(type, index, 0, "Description", std::string(data + index, data + index + blockLength));
                 index += blockLength;
                 break;
             }
@@ -202,9 +210,23 @@ namespace tape
 
             default:
                 win_app::info("tape block type not implemented");
-                break;
+                return;
 
             }
+        }
+    }
+
+    static void tapParseBlocks()
+    {
+        blocks.clear();
+
+        int index = 0;
+        while (index < dataLength)
+        {
+            const uint16_t blockLength = data[index] | data[index + 1] << 8;
+            blocks.emplace_back(0x10, index, blockLength, "Standard block", getDataInfo(index + 2, blockLength));
+            index += 2;
+            index += blockLength;
         }
     }
 
@@ -236,24 +258,24 @@ namespace tape
             return;
         }
 
-        // int index = 0;
-        // while (index < tapeDataLength)
-        // {
-        //     int blockLength = _tapeData[index++];
-        //     blockLength |= (_tapeData[index++] << 8);
+        int index = 0;
+        while (index < dataLength)
+        {
+            int blockLength = data[index++];
+            blockLength |= (data[index++] << 8);
 
-        //     index += blockLength;
+            index += blockLength;
 
-        //     if (index == tapeDataLength)
-        //     {
-        //         _tapeformat = TapeFormat::tap;
-        //         buildTapBlockList();
-        //         return;
-        //     }
-        // }
+            if (index == dataLength)
+            {
+                format = TAP;
+                tapParseBlocks();
+                return;
+            }
+        }
 
-        // // invalid format !!!
-        // cleanUp();
+        // invalid format !!!
+        cleanUp();
     }
 
     void cleanUp()
