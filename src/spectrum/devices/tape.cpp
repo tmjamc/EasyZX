@@ -1,6 +1,7 @@
 #include <fstream>
 #include <vector>
 #include <format>
+#include <ranges>
 
 #include "tape.h"
 #include "win_app.h"
@@ -11,20 +12,35 @@ namespace tape
     uint8_t* data;
 
     enum Format { TAP, TZX };
-    Format format;
+    Format fileFormat;
 
     struct Block
     {
         uint8_t type;
         int start;
-        int length;
-        std::string name;
         std::string description;
+        int length;
     };
 
     std::vector<Block> blocks;
 
-    static std::string getDataInfo(int index, int blockLength)
+    bool playing = false;
+    int blockIndex = 0;
+    int dataIndex = 0;
+
+    struct Pulse
+    {
+        int length; // pulse length in z80 cycles
+        int count;  // repeat this pulse "count" times. Each time a pulse is played whatever in this struct or the next one, the signal changes
+                    // count = -1 means a pause of "length" cycles
+    };
+
+    std::vector<Pulse> pulses;
+    int pulseIndex = 0;
+    Pulse pulse{};
+    bool pulseSignal = false;
+
+    static std::string getDataInfo(int index, int blockLength, std::string defaultValue)
     {
         char fileName[11]{};
 
@@ -71,7 +87,7 @@ namespace tape
             }
         }
 
-        return "";
+        return defaultValue;
     }
 
     static void tzxParseBlocks()
@@ -83,6 +99,7 @@ namespace tape
         int groupCount = 0;
         std::string groupName;
         int index = 10;
+        bool latestBlockWasStandardHeader = false;
         while (index < dataLength)
         {
             const uint8_t type = data[index++];
@@ -93,7 +110,22 @@ namespace tape
             case 0x10:
             {
                 const uint16_t blockLength = data[index + 2] | data[index + 3] << 8;
-                blocks.emplace_back(type, index, blockLength, "Standard block", getDataInfo(index + 4, blockLength));
+                
+                if (latestBlockWasStandardHeader)
+                {                    
+                    Block* latestBlock = &blocks[blocks.size() - 1];
+                    latestBlock->length = blockLength;
+                    latestBlockWasStandardHeader = false;
+                }
+                else
+                {
+                    blocks.emplace_back(type, index, getDataInfo(index + 4, blockLength, "Standard Speed Data Block"), blockLength);
+                    Block* currentBlock = &blocks[blocks.size() - 1];
+                    if (currentBlock->length == 19 && !currentBlock->description.empty())
+                    {
+                        latestBlockWasStandardHeader = true;
+                    }
+                }
                 index += 4;
                 index += blockLength;
                 break;
@@ -103,7 +135,7 @@ namespace tape
             case 0x11:
             {
                 const uint32_t blockLength = data[index + 15] | (data[index + 16] << 8) | data[index + 17] << 16;
-                blocks.emplace_back(type, index, blockLength, "Turbo block", getDataInfo(index + 18, blockLength));
+                blocks.emplace_back(type, index, getDataInfo(index + 18, blockLength, "Turbo Speed Data Block"), blockLength);
                 index += 18;
                 index += blockLength;
                 break;
@@ -134,11 +166,18 @@ namespace tape
                 break;
             }
 
-            // Pause
+            // Pause or stop the tape
             case 0x20:
             {
                 const uint16_t duration = data[index] | data[index + 1] << 8;
-                blocks.emplace_back(type, index, 0, "Pause", std::format("{}s", duration / 1000));
+                if (duration == 0)
+                {
+                    blocks.emplace_back(type, index, "Stop the tape", 0);
+                }
+                else
+                {
+                    blocks.emplace_back(type, index, std::format("Pause {}s", duration / 1000), 0);
+                }
                 index += 2;
                 break;
             }
@@ -157,7 +196,7 @@ namespace tape
             // Group end
             case 0x22:
             {
-                blocks.emplace_back(0x21, groupIndex, groupLength, "Group", groupName.empty() ? std::format("block {}", ++groupCount) : groupName);
+                blocks.emplace_back(0x21, groupIndex, groupName.empty() ? std::format("group {}", ++groupCount) : groupName, groupLength);
                 break;
             }
 
@@ -177,7 +216,7 @@ namespace tape
             // Stop the tape
             case 0x2a:
             {
-                blocks.emplace_back(type, index, 0, "Stop the tape", "");
+                blocks.emplace_back(type, index, "Stop the tape", 0);
                 index += 4;
                 break;
             }
@@ -186,7 +225,7 @@ namespace tape
             case 0x30: 
             {
                 const uint8_t blockLength = data[index++];
-                blocks.emplace_back(type, index, 0, "Description", std::string(data + index, data + index + blockLength));
+                blocks.emplace_back(type, index, std::string(data + index, data + index + blockLength), 0);
                 index += blockLength;
                 break;
             }
@@ -224,10 +263,56 @@ namespace tape
         while (index < dataLength)
         {
             const uint16_t blockLength = data[index] | data[index + 1] << 8;
-            blocks.emplace_back(0x10, index, blockLength, "Standard block", getDataInfo(index + 2, blockLength));
+            blocks.emplace_back(0x10, index, getDataInfo(index + 2, blockLength, "Standard block"), blockLength);
             index += 2;
             index += blockLength;
         }
+    }
+
+    static bool setBlockPulses()
+    {
+        bool result = false;
+
+        if (blockIndex == blocks.size())
+        {
+            blockIndex = 0;
+            return false;
+        }
+
+        dataIndex = blocks[blockIndex].start;
+
+        // pulses.clear();
+        // while (_tapeDataIndex < tapeDataLength)
+        // {
+        //     switch (_tapeformat)
+        //     {
+        //     case TapeFormat::tap:
+        //         result = setTapBlockPulses();
+        //         break;
+    }
+
+    static void printBlocks()
+    {
+        
+        int max = 0;
+        for (auto block : blocks)
+        {
+            if (block.description.length() > max)
+            {
+                max = block.description.length();
+            }
+        }
+
+        const std::string fmt = std::format("0x{{:02x}}{{: 6d}} {{:<{}}}{{: 6d}}", max);
+
+        win_app::info("");
+
+        for (auto block : blocks)
+        {
+            win_app::info(std::vformat(fmt, std::make_format_args(block.type, block.start, block.description, block.length)).c_str());
+        }
+
+        win_app::info("");
     }
 
     void load(const char *fileName)
@@ -253,8 +338,9 @@ namespace tape
 
         if (signature == "ZXTape!")
         {
-            format = TZX;
+            fileFormat = TZX;
             tzxParseBlocks();
+            printBlocks();
             return;
         }
 
@@ -268,8 +354,9 @@ namespace tape
 
             if (index == dataLength)
             {
-                format = TAP;
+                fileFormat = TAP;
                 tapParseBlocks();
+                printBlocks();
                 return;
             }
         }
@@ -294,5 +381,28 @@ namespace tape
         // info.clear();
         // blockIndexesList.clear();
         // blocksList.clear();
+    }
+
+    void play()
+    {
+        if (playing)
+        {
+            return;
+        }
+
+        if (!setBlockPulses())
+        {
+            return;
+        }
+        
+        playing = true;
+    }
+
+    void tact()
+    {
+        if (!playing)
+        {
+            return;
+        }
     }
 }
