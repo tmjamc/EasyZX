@@ -8,6 +8,15 @@
 
 namespace tape
 {
+    constexpr static const int PILOT_PULSES_HEADER_COUNT = 8063;
+    constexpr static const int PILOT_PULSES_DATA_COUNT = 3223;
+    constexpr static const int PILOT_PULSES_LENGTH = 2168;
+    constexpr static const int SYNC_PULSE_1_LENGTH = 667;
+    constexpr static const int SYNC_PULSE_2_LENGTH = 735;
+    constexpr static const int PULSE_ZERO_LENGTH = 855;
+    constexpr static const int PULSE_ONE_LENGTH = 1710;
+    constexpr static const int BLOCK_PAUSE_CYCLES = 69888 * 50;
+
     int dataLength;
     uint8_t* data;
 
@@ -26,7 +35,6 @@ namespace tape
 
     bool playing = false;
     int blockIndex = 0;
-    int dataIndex = 0;
 
     struct Pulse
     {
@@ -119,7 +127,7 @@ namespace tape
                 }
                 else
                 {
-                    blocks.emplace_back(type, index, getDataInfo(index + 4, blockLength, "Standard Speed Data Block"), blockLength);
+                    blocks.emplace_back(type, index - 1, getDataInfo(index + 4, blockLength, "Standard Speed Data Block"), blockLength);
                     Block* currentBlock = &blocks[blocks.size() - 1];
                     if (currentBlock->length == 19 && !currentBlock->description.empty())
                     {
@@ -135,7 +143,7 @@ namespace tape
             case 0x11:
             {
                 const uint32_t blockLength = data[index + 15] | (data[index + 16] << 8) | data[index + 17] << 16;
-                blocks.emplace_back(type, index, getDataInfo(index + 18, blockLength, "Turbo Speed Data Block"), blockLength);
+                blocks.emplace_back(type, index - 1, getDataInfo(index + 18, blockLength, "Turbo Speed Data Block"), blockLength);
                 index += 18;
                 index += blockLength;
                 break;
@@ -172,11 +180,11 @@ namespace tape
                 const uint16_t duration = data[index] | data[index + 1] << 8;
                 if (duration == 0)
                 {
-                    blocks.emplace_back(type, index, "Stop the tape", 0);
+                    blocks.emplace_back(0x2a, index - 1, "Stop the tape", 0);
                 }
                 else
                 {
-                    blocks.emplace_back(type, index, std::format("Pause {}s", duration / 1000), 0);
+                    blocks.emplace_back(type, index - 1, std::format("Pause {}s", duration / 1000), 0);
                 }
                 index += 2;
                 break;
@@ -196,7 +204,7 @@ namespace tape
             // Group end
             case 0x22:
             {
-                blocks.emplace_back(0x21, groupIndex, groupName.empty() ? std::format("group {}", ++groupCount) : groupName, groupLength);
+                blocks.emplace_back(0x21, groupIndex - 1, groupName.empty() ? std::format("group {}", ++groupCount) : groupName, groupLength);
                 break;
             }
 
@@ -216,7 +224,7 @@ namespace tape
             // Stop the tape
             case 0x2a:
             {
-                blocks.emplace_back(type, index, "Stop the tape", 0);
+                blocks.emplace_back(type, index - 1, "Stop the tape", 0);
                 index += 4;
                 break;
             }
@@ -225,7 +233,7 @@ namespace tape
             case 0x30: 
             {
                 const uint8_t blockLength = data[index++];
-                blocks.emplace_back(type, index, std::string(data + index, data + index + blockLength), 0);
+                blocks.emplace_back(type, index - 1, std::string(data + index, data + index + blockLength), 0);
                 index += blockLength;
                 break;
             }
@@ -269,9 +277,113 @@ namespace tape
         }
     }
 
+    static void addPausePulses(uint64_t pauseLength)
+    {
+        pulses.emplace_back((int)((pauseLength * 69888) / 20), 1);
+    }
+
+    static void setDataPulses(uint16_t pulseZeroLength, uint16_t pulseOneLength, uint8_t lastByteBits, uint32_t pauseLength, uint32_t dataStartIndex, uint32_t dataLength)
+    {
+        uint32_t remainingBytes = dataLength;
+        Pulse tapePulse = {0, 0};
+        int bit = 7;
+
+        while (true)
+        {
+            const int tapePulseLength = data[dataStartIndex] & (1 << bit) ? pulseOneLength : pulseZeroLength;
+            if (tapePulse.length == tapePulseLength)
+            {
+                tapePulse.count += 2;
+            }
+            else
+            {
+                if (tapePulse.length)
+                {
+                    pulses.push_back(tapePulse);
+                }
+                tapePulse.length = tapePulseLength;
+                tapePulse.count = 2;
+            }
+
+            if (remainingBytes == 1 && (8 - bit) == lastByteBits)
+            {
+                ++dataStartIndex;
+                break;
+            }
+
+            if (--bit < 0)
+            {
+                bit = 7;
+                --remainingBytes;
+                ++dataStartIndex;
+            }
+        }
+
+        pulses.push_back(tapePulse);
+
+        if (pauseLength)
+        {
+            addPausePulses(pauseLength);
+        }
+    }
+    
+    static void setPilotAndDataPulses(uint16_t pilotPulseLength,
+                                      uint16_t syncPulse1Length,
+                                      uint16_t syncPulse2Length,
+                                      uint16_t pulseZeroLength,
+                                      uint16_t pulseOneLength,
+                                      uint16_t pilotPulseCount,
+                                      uint8_t lastByteBits,
+                                      uint32_t pauseLength,
+                                      uint32_t dataStartIndex,
+                                      uint32_t dataLength)
+    {
+        pulses.emplace_back(pilotPulseLength, pilotPulseCount);
+        pulses.emplace_back(syncPulse1Length, 1);
+        pulses.emplace_back(syncPulse2Length, 1);
+
+        setDataPulses(pulseZeroLength, pulseOneLength, lastByteBits, pauseLength, dataStartIndex, dataLength);
+    }
+
+    static void setTzxPulses(int startDataIndex, int endDataIndex)
+    {
+        while (startDataIndex < endDataIndex)
+        {
+            switch (data[startDataIndex++])
+            {
+
+            case 0x10: // Standard Speed Data Block
+            {
+                const uint16_t pauseLength = data[startDataIndex] | data[startDataIndex + 1] << 8;
+                const uint16_t blockLength = data[startDataIndex + 2] | data[startDataIndex + 3] << 8;
+
+                startDataIndex += 4;
+
+                setPilotAndDataPulses(PILOT_PULSES_LENGTH,
+                                      SYNC_PULSE_1_LENGTH,
+                                      SYNC_PULSE_2_LENGTH,
+                                      PULSE_ZERO_LENGTH,
+                                      PULSE_ONE_LENGTH,
+                                      data[startDataIndex] < 0x80 ? PILOT_PULSES_HEADER_COUNT : PILOT_PULSES_DATA_COUNT,
+                                      8,
+                                      pauseLength,
+                                      startDataIndex,
+                                      blockLength);
+
+                startDataIndex += blockLength;
+
+                break;
+            }
+            
+            }
+        }
+    }
+
     static bool setBlockPulses()
     {
         bool result = false;
+
+        pulses.clear();
 
         if (blockIndex == blocks.size())
         {
@@ -279,16 +391,35 @@ namespace tape
             return false;
         }
 
-        dataIndex = blocks[blockIndex].start;
+        if (blocks[blockIndex].type == 0x2a)
+        {
+            win_app::info("Stop");
+            ++blockIndex %= blocks.size();
+            playing = false;
+            return false;
+        }
 
-        // pulses.clear();
-        // while (_tapeDataIndex < tapeDataLength)
-        // {
-        //     switch (_tapeformat)
-        //     {
-        //     case TapeFormat::tap:
-        //         result = setTapBlockPulses();
-        //         break;
+        while (blockIndex < blocks.size() && blocks[blockIndex].length == 0 && blocks[blockIndex].type != 0x2a)
+        {
+            ++blockIndex;
+        }
+
+        int dataIndexStart = blocks[blockIndex].start;
+        int dataIndexEnd = blockIndex == blocks.size() ? dataLength : blocks[blockIndex + 1].start;
+        
+        win_app::info(std::format("{} {} {}", blockIndex, dataIndexStart, dataIndexEnd).c_str());
+
+        switch (fileFormat)
+        {
+        case TZX:
+            setTzxPulses(dataIndexStart, dataIndexEnd);
+            return true;
+        case TAP:
+            //setTapPulses(dataIndexStart, dataIndexEnd);
+            return true;
+        }
+
+        return false;
     }
 
     static void printBlocks()
@@ -341,6 +472,9 @@ namespace tape
             fileFormat = TZX;
             tzxParseBlocks();
             printBlocks();
+
+            // blockIndex = 10; //!!!!!!!!!!!!!!!!!!
+
             return;
         }
 
@@ -385,15 +519,22 @@ namespace tape
 
     void play()
     {
+        win_app::info("Play");
+
         if (playing)
         {
             return;
         }
 
+        win_app::info(std::format("{}", blockIndex).c_str());
+
         if (!setBlockPulses())
         {
+            win_app::info(std::format("{}", blockIndex).c_str());
             return;
         }
+
+        win_app::info(std::format("{}", blockIndex).c_str());
         
         playing = true;
     }

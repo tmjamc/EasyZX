@@ -81,10 +81,10 @@ namespace main
                     }
                 }
 
-                // if (settings::current.tapeInstantLoading && z80::registers.pc.w == 0x056c)
-                // {
-                //     tape::instantLoad();
-                // }
+                if (!tape::playing && z80::registers.pc.w == 0x056c)
+                {
+                    tape::play();
+                }
 
                 // if (!tape::Started() && z80::registers.pc.w == 0x056c)
                 // {
@@ -184,7 +184,7 @@ namespace main
         // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\summer.trd");
         // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\esprit.trd");
 
-        tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\Movie.tzx");
+        tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\Short Circuit - 48k.tzx");
 
         keyStates = new bool[0x100]{};
         // tape::init();
