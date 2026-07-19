@@ -267,10 +267,10 @@ namespace ula
         uint8_t data = (1 << 7) | (1 << 5) | 0x1f;
 
         // MIC
-        // if (tape::Started())
-        // {
-        //     data |= (tape::TapeBit() & 0x40);
-        // }
+        if (tape::pulseSignal)
+        {
+            data |= 0x40;
+        }
 
         // keyboard
         uint8_t hAddr = (port & 0xff00) >> 8;

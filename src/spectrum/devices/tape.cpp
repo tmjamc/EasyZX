@@ -4,6 +4,7 @@
 #include <ranges>
 
 #include "tape.h"
+#include "ula.h"
 #include "win_app.h"
 
 namespace tape
@@ -45,8 +46,8 @@ namespace tape
 
     std::vector<Pulse> pulses;
     int pulseIndex = 0;
-    Pulse pulse{};
     bool pulseSignal = false;
+    Pulse pulse{};
 
     static std::string getDataInfo(int index, int blockLength, std::string defaultValue)
     {
@@ -347,12 +348,16 @@ namespace tape
 
     static void setTzxPulses(int startDataIndex, int endDataIndex)
     {
+        int tzxLoopCount = 0;
+        int tzxLoopStartDataIndex = 0;
+
         while (startDataIndex < endDataIndex)
         {
             switch (data[startDataIndex++])
             {
 
-            case 0x10: // Standard Speed Data Block
+            // Standard Speed Data Block
+            case 0x10:
             {
                 const uint16_t pauseLength = data[startDataIndex] | data[startDataIndex + 1] << 8;
                 const uint16_t blockLength = data[startDataIndex + 2] | data[startDataIndex + 3] << 8;
@@ -374,6 +379,128 @@ namespace tape
 
                 break;
             }
+
+            // Turbo Speed Data Block
+            case 0x11: 
+            {
+                const uint16_t pilotPulseLength = data[startDataIndex] | data[startDataIndex + 1] << 8;
+                const uint16_t syncPulse1Length = data[startDataIndex + 2] | data[startDataIndex + 3] << 8;
+                const uint16_t syncPulse2Length = data[startDataIndex + 4] | data[startDataIndex + 5] << 8;
+                const uint16_t pulseZeroLength = data[startDataIndex + 6] | data[startDataIndex + 7] << 8;
+                const uint16_t pulseOneLength = data[startDataIndex + 8] | data[startDataIndex + 9] << 8;
+                const uint16_t pilotPulseCount = data[startDataIndex + 10] | data[startDataIndex + 11] << 8;
+                const uint8_t lastByteBits = data[startDataIndex + 12];
+                const uint16_t pauseLength = data[startDataIndex + 13] | data[startDataIndex + 14] << 8;
+                const uint32_t blockLength = data[startDataIndex + 15] | (data[startDataIndex + 16] << 8) | data[startDataIndex + 17] << 16;
+
+                startDataIndex += 18;
+
+                setPilotAndDataPulses(pilotPulseLength,
+                    syncPulse1Length,
+                    syncPulse2Length,
+                    pulseZeroLength,
+                    pulseOneLength,
+                    pilotPulseCount,
+                    lastByteBits,
+                    pauseLength,
+                    startDataIndex,
+                    blockLength);
+
+                startDataIndex += blockLength;
+
+                break;
+            }
+
+            // Pure tone
+            case 0x12:
+            {
+                const uint16_t toneLength = data[startDataIndex] | data[startDataIndex + 1] << 8;
+                const uint16_t toneCount = data[startDataIndex + 2] | data[startDataIndex + 3] << 8;
+                startDataIndex += 4;
+
+                pulses.emplace_back(toneLength, toneCount);
+
+                break;
+            }
+
+            // Pulse sequence
+            case 0x13:
+            {
+                uint8_t count = data[startDataIndex++];
+
+                while (count)
+                {
+                    const uint16_t pulseLength = data[startDataIndex] | data[startDataIndex + 1] << 8;
+                    pulses.emplace_back(pulseLength, 1);
+                    startDataIndex += 2;
+                    count--;
+                }
+
+                break;
+            }
+
+            // Pure Data Block
+            case 0x14:
+            {
+                const uint16_t pulseZeroLength = data[startDataIndex] | data[startDataIndex + 1] << 8;
+                const uint16_t pulseOneLength = data[startDataIndex + 2] | data[startDataIndex + 3] << 8;
+                const uint8_t lastByteBits = data[startDataIndex + 4];
+                const uint16_t pauseLength = data[startDataIndex + 5] | data[startDataIndex + 6] << 8;
+                const uint32_t blockLength = data[startDataIndex + 7] | (data[startDataIndex + 8] << 8) | data[startDataIndex + 9] << 16;
+                startDataIndex += 10;
+
+                setDataPulses(pulseZeroLength, pulseOneLength, lastByteBits, pauseLength, startDataIndex, blockLength);
+
+                startDataIndex += blockLength;
+
+                break;
+            }
+
+            // Pause
+            case 0x20:
+            {
+                const uint16_t pauseLength = data[startDataIndex] | data[startDataIndex + 1] << 8;
+                startDataIndex += 2;
+                addPausePulses(pauseLength);
+                break;
+            }
+
+            // Group start
+            case 0x21:
+            {
+                const uint8_t textLength = data[startDataIndex++];
+                startDataIndex += textLength;
+                break;
+            }
+
+            // Group end
+            case 0x22:
+            {
+                break;
+            }
+
+            // Loop start
+            case 0x24:
+            {
+                tzxLoopCount = data[startDataIndex] | data[startDataIndex + 1] << 8;
+                startDataIndex += 2;
+                tzxLoopStartDataIndex = startDataIndex;
+                break;
+            }
+
+            // Loop end
+            case 0x25:
+            {
+                if (tzxLoopCount--)
+                {
+                    startDataIndex = tzxLoopStartDataIndex;
+                }
+                break;
+            }
+
+            default:
+                win_app::info("not implemented");
+                break;
             
             }
         }
@@ -405,7 +532,7 @@ namespace tape
         }
 
         int dataIndexStart = blocks[blockIndex].start;
-        int dataIndexEnd = blockIndex == blocks.size() ? dataLength : blocks[blockIndex + 1].start;
+        int dataIndexEnd = (blockIndex == blocks.size() - 1) ? dataLength : blocks[blockIndex + 1].start;
         
         win_app::info(std::format("{} {} {}", blockIndex, dataIndexStart, dataIndexEnd).c_str());
 
@@ -413,13 +540,18 @@ namespace tape
         {
         case TZX:
             setTzxPulses(dataIndexStart, dataIndexEnd);
-            return true;
+            break;
         case TAP:
             //setTapPulses(dataIndexStart, dataIndexEnd);
-            return true;
+            break;
+        default:
+            return false;
         }
 
-        return false;
+        pulseIndex = 0;
+        pulse = pulses[0];
+
+        return true;
     }
 
     static void printBlocks()
@@ -472,9 +604,6 @@ namespace tape
             fileFormat = TZX;
             tzxParseBlocks();
             printBlocks();
-
-            // blockIndex = 10; //!!!!!!!!!!!!!!!!!!
-
             return;
         }
 
@@ -536,6 +665,7 @@ namespace tape
 
         win_app::info(std::format("{}", blockIndex).c_str());
         
+        pulseSignal = false;
         playing = true;
     }
 
@@ -544,6 +674,51 @@ namespace tape
         if (!playing)
         {
             return;
+        }
+
+        if (--pulse.length <= 0)
+        {
+            pulseSignal = !pulseSignal;
+            // ++pulseIndex;
+
+            if (--pulse.count > 0)
+            {
+                pulse.length = pulses[pulseIndex].length;
+            }
+            else
+            {
+                if (++pulseIndex >= pulses.size())
+                {
+                    ++blockIndex;
+
+                    if (blockIndex == blocks.size())
+                    {
+                        playing = false;
+                        //stop(true);
+                        blockIndex = 0;
+                    }
+                    else
+                    {
+                        if (true /*!_zx->app->settings->tapeAutoStartStop || _zx->ula->latestPortReadWasTapeLoader()*/)
+                        {
+                            if (!setBlockPulses())
+                            {
+                                playing = false;
+                                // stop(false);
+                            }
+                        }
+                        // else
+                        // {
+                        //     playing = false;
+                        //     // stop(false);
+                        // }
+                    }
+                }
+                else
+                {
+                    pulse = pulses[pulseIndex];
+                }
+            }
         }
     }
 }
