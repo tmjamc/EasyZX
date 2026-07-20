@@ -103,9 +103,10 @@ namespace tape
     {
         blocks.clear();
 
-        int groupIndex;
-        int groupLength;
+        int groupIndex = 0;
+        int groupLength = 0;
         int groupCount = 0;
+        bool inGroup = false;
         std::string groupName;
         int index = 10;
         bool latestBlockWasStandardHeader = false;
@@ -128,7 +129,10 @@ namespace tape
                 }
                 else
                 {
-                    blocks.emplace_back(type, index - 1, getDataInfo(index + 4, blockLength, "Standard Speed Data Block"), blockLength);
+                    if (!inGroup)
+                    {
+                        blocks.emplace_back(type, index - 1, getDataInfo(index + 4, blockLength, "Standard Speed Data Block"), blockLength);
+                    }
                     Block* currentBlock = &blocks[blocks.size() - 1];
                     if (currentBlock->length == 19 && !currentBlock->description.empty())
                     {
@@ -137,6 +141,7 @@ namespace tape
                 }
                 index += 4;
                 index += blockLength;
+                groupLength += blockLength;
                 break;
             }
 
@@ -144,9 +149,13 @@ namespace tape
             case 0x11:
             {
                 const uint32_t blockLength = data[index + 15] | (data[index + 16] << 8) | data[index + 17] << 16;
-                blocks.emplace_back(type, index - 1, getDataInfo(index + 18, blockLength, "Turbo Speed Data Block"), blockLength);
+                if (!inGroup)
+                {
+                    blocks.emplace_back(type, index - 1, getDataInfo(index + 18, blockLength, "Turbo Speed Data Block"), blockLength);
+                }
                 index += 18;
                 index += blockLength;
+                groupLength += blockLength;
                 break;
             }
 
@@ -169,9 +178,9 @@ namespace tape
             case 0x14:
             {
                 const uint32_t blockLength = data[index + 7] | (data[index + 8] << 8) | data[index + 9] << 16;
-                groupLength +=blockLength;
                 index += 10;
                 index += blockLength;
+                groupLength += blockLength;
                 break;
             }
 
@@ -179,13 +188,16 @@ namespace tape
             case 0x20:
             {
                 const uint16_t duration = data[index] | data[index + 1] << 8;
-                if (duration == 0)
+                if (!inGroup)
                 {
-                    blocks.emplace_back(0x2a, index - 1, "Stop the tape", 0);
-                }
-                else
-                {
-                    blocks.emplace_back(type, index - 1, std::format("Pause {}s", duration / 1000), 0);
+                    if (duration == 0)
+                    {
+                        blocks.emplace_back(0x2a, index - 1, "Stop the tape", 0);
+                    }
+                    else
+                    {
+                        blocks.emplace_back(type, index - 1, std::format("Pause {}s", duration / 1000), 0);
+                    }
                 }
                 index += 2;
                 break;
@@ -194,18 +206,21 @@ namespace tape
             // Group start
             case 0x21:
             {
-                groupIndex = index;
+                groupIndex = blocks.size();
                 groupLength = 0;
                 const uint8_t blockLength = data[index++];
                 groupName = std::string(data + index, data + index + blockLength);
+                blocks.emplace_back(type, index - 2, groupName.empty() ? std::format("group {}", ++groupCount) : groupName, 0);
                 index += blockLength;
+                inGroup = true;
                 break;
             }
 
             // Group end
             case 0x22:
             {
-                blocks.emplace_back(0x21, groupIndex - 1, groupName.empty() ? std::format("group {}", ++groupCount) : groupName, groupLength);
+                blocks[groupIndex].length = groupLength;
+                inGroup = false;
                 break;
             }
 
@@ -234,7 +249,10 @@ namespace tape
             case 0x30: 
             {
                 const uint8_t blockLength = data[index++];
-                blocks.emplace_back(type, index - 1, std::string(data + index, data + index + blockLength), 0);
+                if (!inGroup)
+                {
+                    blocks.emplace_back(type, index - 1, std::string(data + index, data + index + blockLength), 0);
+                }
                 index += blockLength;
                 break;
             }
@@ -511,6 +529,7 @@ namespace tape
         bool result = false;
 
         pulses.clear();
+        pulseSignal = false;
 
         if (blockIndex == blocks.size())
         {
@@ -526,7 +545,7 @@ namespace tape
             return false;
         }
 
-        while (blockIndex < blocks.size() && blocks[blockIndex].length == 0 && blocks[blockIndex].type != 0x2a)
+        while (blockIndex < blocks.size() && blocks[blockIndex].type == 0x30)
         {
             ++blockIndex;
         }
@@ -566,13 +585,15 @@ namespace tape
             }
         }
 
-        const std::string fmt = std::format("0x{{:02x}}{{: 6d}} {{:<{}}}{{: 6d}}", max);
-
+        const std::string fmt = std::format("{{:2d}} 0x{{:02x}} {{:5d}} {{:<{}}} {{:5d}}", max);
+        
         win_app::info("");
 
+        int index = 0;
         for (auto block : blocks)
         {
-            win_app::info(std::vformat(fmt, std::make_format_args(block.type, block.start, block.description, block.length)).c_str());
+            win_app::info(std::vformat(fmt, std::make_format_args(index, block.type, block.start, block.description, block.length)).c_str());
+            ++index;
         }
 
         win_app::info("");
@@ -604,6 +625,9 @@ namespace tape
             fileFormat = TZX;
             tzxParseBlocks();
             printBlocks();
+
+            blockIndex = 5;
+
             return;
         }
 
@@ -650,22 +674,12 @@ namespace tape
     {
         win_app::info("Play");
 
-        if (playing)
+        if (playing || !setBlockPulses())
         {
             return;
         }
 
-        win_app::info(std::format("{}", blockIndex).c_str());
-
-        if (!setBlockPulses())
-        {
-            win_app::info(std::format("{}", blockIndex).c_str());
-            return;
-        }
-
-        win_app::info(std::format("{}", blockIndex).c_str());
-        
-        pulseSignal = false;
+        // pulseSignal = false;
         playing = true;
     }
 
