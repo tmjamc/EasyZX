@@ -270,7 +270,7 @@ namespace tape
             case 0x33:
             {
                 const uint16_t blockLength = data[index++] * 3;
-                index += dataLength;
+                index += blockLength;
                 break;
             }
 
@@ -626,7 +626,7 @@ namespace tape
             tzxParseBlocks();
             printBlocks();
 
-            blockIndex = 5;
+            // blockIndex = 5;
 
             return;
         }
