@@ -8,216 +8,218 @@
 #include "settings.h"
 #include "main.h"
 
+#define ERROR_RESULT(msg) \
+cleanUp();                \
+win_app::error(msg);      \
+return false
+
 namespace win_app
 {
-    #define ERROR_RESULT(msg) \
-    cleanUp();                \
-    win_app::error(msg);      \
-    return false
-
-    HINSTANCE hInst;
-
-    constexpr static char WINDOW_CLASSNAME[] = "EasyZXClass";
-    constexpr static char WINDOW_TITLE[] = "EasyZX";
-
-    HWND hWnd = nullptr;
-    HDC hDC = nullptr;
-    HGLRC tmpCtx = nullptr;
-    HGLRC glCtx = nullptr;
-
-    bool running = false;
-    bool consoleEnabled = false;
-
-    static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+    namespace
     {
-        switch (message)
+        constexpr char WINDOW_CLASSNAME[] = "EasyZXClass";
+        constexpr char WINDOW_TITLE[] = "EasyZX";
+        
+        HINSTANCE hInst;
+        HWND hWnd = nullptr;
+        HGLRC tmpCtx = nullptr;
+        bool consoleEnabled = false;
+
+        LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
-
-        case WM_KEYDOWN:
-            main::keyStates[wParam & 0xff] = true;
-            break;
-
-        case WM_KEYUP:
-            main::keyStates[wParam & 0xff] = false;
-            break;
-
-        case WM_DESTROY:
-        {
-            WINDOWPLACEMENT wp = {};
-            wp.length = sizeof(WINDOWPLACEMENT);
-            if (GetWindowPlacement(hWnd, &wp))
+            switch (message)
             {
-                settings::current.windowMainStatus = wp.showCmd;
-                if (settings::current.windowMainStatus == SW_SHOWNORMAL)
+
+            case WM_KEYDOWN:
+                main::keyStates[wParam & 0xff] = true;
+                break;
+
+            case WM_KEYUP:
+                main::keyStates[wParam & 0xff] = false;
+                break;
+
+            case WM_DESTROY:
+            {
+                WINDOWPLACEMENT wp = {};
+                wp.length = sizeof(WINDOWPLACEMENT);
+                if (GetWindowPlacement(hWnd, &wp))
                 {
-                    settings::current.windowMainLeft = wp.rcNormalPosition.left;
-                    settings::current.windowMainTop = wp.rcNormalPosition.top;
-                    settings::current.windowMainWidth = wp.rcNormalPosition.right - wp.rcNormalPosition.left;
-                    settings::current.windowMainHeight = wp.rcNormalPosition.bottom - wp.rcNormalPosition.top;
+                    settings::current.windowMainStatus = wp.showCmd;
+                    if (settings::current.windowMainStatus == SW_SHOWNORMAL)
+                    {
+                        settings::current.windowMainLeft = wp.rcNormalPosition.left;
+                        settings::current.windowMainTop = wp.rcNormalPosition.top;
+                        settings::current.windowMainWidth = wp.rcNormalPosition.right - wp.rcNormalPosition.left;
+                        settings::current.windowMainHeight = wp.rcNormalPosition.bottom - wp.rcNormalPosition.top;
+                    }
                 }
+                PostQuitMessage(0);
+                break;
             }
-            PostQuitMessage(0);
-            break;
+
+            case WM_GETMINMAXINFO:
+            {
+                MINMAXINFO* mmi = (MINMAXINFO*)lParam;
+                mmi->ptMinTrackSize.x = 400;
+                mmi->ptMinTrackSize.y = 260;
+                break;
+            }
+
+            case WM_SIZE:
+                display::setViewport(LOWORD(lParam), HIWORD(lParam));
+                [[fallthrough]];
+
+            default:
+                return DefWindowProc(hWnd, message, wParam, lParam);
+
+            }
+
+            return 0;
         }
 
-        case WM_GETMINMAXINFO:
+        bool registerClass()
         {
-            MINMAXINFO* mmi = (MINMAXINFO*)lParam;
-            mmi->ptMinTrackSize.x = 400;
-            mmi->ptMinTrackSize.y = 260;
-            break;
+            info("Registering main window class");
+
+            WNDCLASSEXA wcex{};
+            wcex.cbSize = sizeof(WNDCLASSEXA);
+            wcex.style = CS_HREDRAW | CS_VREDRAW;
+            wcex.lpfnWndProc = WndProc;
+            wcex.hInstance = hInst;
+            wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
+            wcex.lpszClassName = WINDOW_CLASSNAME;
+
+            if (RegisterClassExA(&wcex) == FALSE)
+            {
+                error("Failed to create window class");
+                return false;
+            }
+
+            return true;
         }
 
-        case WM_SIZE:
-            display::setViewport(LOWORD(lParam), HIWORD(lParam));
-            [[fallthrough]];
-
-        default:
-            return DefWindowProc(hWnd, message, wParam, lParam);
-
-        }
-
-        return 0;
-    }
-
-    static bool registerClass()
-    {
-        info("Registering main window class");
-
-        WNDCLASSEXA wcex{};
-        wcex.cbSize = sizeof(WNDCLASSEXA);
-        wcex.style = CS_HREDRAW | CS_VREDRAW;
-        wcex.lpfnWndProc = WndProc;
-        wcex.hInstance = hInst;
-        wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
-        wcex.lpszClassName = WINDOW_CLASSNAME;
-
-        if (RegisterClassExA(&wcex) == FALSE)
+        bool initInstance()
         {
-            error("Failed to create window class");
-            return false;
+            info("Creating main window instance");
+
+            hWnd = CreateWindowA(WINDOW_CLASSNAME, WINDOW_TITLE, WS_OVERLAPPEDWINDOW, settings::current.windowMainLeft, settings::current.windowMainTop, settings::current.windowMainWidth, settings::current.windowMainHeight, nullptr, nullptr, hInst, nullptr);
+
+            if (!hWnd)
+            {
+                error("Failed to create window instance");
+                return false;
+            }
+
+            return true;
         }
 
-        return true;
-    }
-
-    static bool initInstance()
-    {
-        info("Creating main window instance");
-
-        hWnd = CreateWindowA(WINDOW_CLASSNAME, WINDOW_TITLE, WS_OVERLAPPEDWINDOW, settings::current.windowMainLeft, settings::current.windowMainTop, settings::current.windowMainWidth, settings::current.windowMainHeight, nullptr, nullptr, hInst, nullptr);
-
-        if (!hWnd)
+        void cleanUp()
         {
-            error("Failed to create window instance");
-            return false;
+            info("Cleaning up application");
+
+            if (hDC != nullptr)
+            {
+                wglMakeCurrent(hDC, nullptr);
+            }
+
+            if (tmpCtx != nullptr)
+            {
+                wglDeleteContext(tmpCtx);
+            }
+
+            if (glCtx != nullptr)
+            {
+                wglDeleteContext(glCtx);
+            }
+
+            if (hDC != nullptr)
+            {
+                ReleaseDC(hWnd, hDC);
+            }
+
+            if (hWnd != nullptr)
+            {
+                DestroyWindow(hWnd);
+            }
         }
 
-        return true;
-    }
-
-    static void cleanUp()
-    {
-        info("Cleaning up application");
-
-        if (hDC != nullptr)
+        bool initOpenGL()
         {
+            info("Initializing OpenGL");
+
+            // Get device context
+            hDC = GetDC(hWnd);
+            if (hDC == nullptr)
+            {
+                ERROR_RESULT("Failed to get window's device context");
+            }
+
+            // Set the pixel format
+            PIXELFORMATDESCRIPTOR pfd{};
+            pfd.nSize = sizeof(pfd);
+            pfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
+            pfd.dwFlags = PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW | PFD_DOUBLEBUFFER;
+            pfd.iPixelType = PFD_TYPE_RGBA;
+            pfd.cColorBits = 32;
+            pfd.iLayerType = PFD_MAIN_PLANE;
+
+            int format = ChoosePixelFormat(hDC, &pfd);
+            if (format == 0 || SetPixelFormat(hDC, format, &pfd) == FALSE)
+            {
+                ERROR_RESULT("Failed to set pixel format");
+            }
+
+            // Create and enable a temporary OpenGL context to load WGL extensions
+            tmpCtx = wglCreateContext(hDC);
+            if (tmpCtx == nullptr)
+            {
+                ERROR_RESULT("Failed to create temporary OpenGL context");
+            }
+
+            wglMakeCurrent(hDC, tmpCtx);
+
+            // Load WGL Extensions
+            gladLoaderLoadWGL(hDC);
+
+            // Set the desired OpenGL version
+            int attributes[] =
+            {
+                WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
+                WGL_CONTEXT_MINOR_VERSION_ARB, 3,
+                WGL_CONTEXT_FLAGS_ARB,
+                WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
+                0
+            };
+
+            // Create OpenGL context and delete the temporary one
+            glCtx = wglCreateContextAttribsARB(hDC, nullptr, attributes);
+            if (glCtx == nullptr)
+            {
+                ERROR_RESULT("Failed to create OpenGL context");
+            }
+
             wglMakeCurrent(hDC, nullptr);
-        }
-
-        if (tmpCtx != nullptr)
-        {
             wglDeleteContext(tmpCtx);
-        }
 
-        if (glCtx != nullptr)
-        {
-            wglDeleteContext(glCtx);
-        }
+            // Set OpenGL context
+            wglMakeCurrent(hDC, glCtx);
 
-        if (hDC != nullptr)
-        {
-            ReleaseDC(hWnd, hDC);
-        }
+            // Glad loader
+            if (!gladLoaderLoadGL())
+            {
+                ERROR_RESULT("Glad loader failed");
+            }
 
-        if (hWnd != nullptr)
-        {
-            DestroyWindow(hWnd);
+            // Unbind the OpenGL context for now, it will be re-bound when the rendering thread starts
+            wglMakeCurrent(hDC, nullptr);
+
+            return true;
         }
     }
 
-    static bool initOpenGL()
-    {
-        info("Initializing OpenGL");
-
-        // Get device context
-        hDC = GetDC(hWnd);
-        if (hDC == nullptr)
-        {
-            ERROR_RESULT("Failed to get window's device context");
-        }
-
-        // Set the pixel format
-        PIXELFORMATDESCRIPTOR pfd{};
-        pfd.nSize = sizeof(pfd);
-        pfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
-        pfd.dwFlags = PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW | PFD_DOUBLEBUFFER;
-        pfd.iPixelType = PFD_TYPE_RGBA;
-        pfd.cColorBits = 32;
-        pfd.iLayerType = PFD_MAIN_PLANE;
-
-        int format = ChoosePixelFormat(hDC, &pfd);
-        if (format == 0 || SetPixelFormat(hDC, format, &pfd) == FALSE)
-        {
-            ERROR_RESULT("Failed to set pixel format");
-        }
-
-        // Create and enable a temporary OpenGL context to load WGL extensions
-        tmpCtx = wglCreateContext(hDC);
-        if (tmpCtx == nullptr)
-        {
-            ERROR_RESULT("Failed to create temporary OpenGL context");
-        }
-
-        wglMakeCurrent(hDC, tmpCtx);
-
-        // Load WGL Extensions
-        gladLoaderLoadWGL(hDC);
-
-        // Set the desired OpenGL version
-        int attributes[] =
-        {
-            WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
-            WGL_CONTEXT_MINOR_VERSION_ARB, 3,
-            WGL_CONTEXT_FLAGS_ARB,
-            WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
-            0
-        };
-
-        // Create OpenGL context and delete the temporary one
-        glCtx = wglCreateContextAttribsARB(hDC, nullptr, attributes);
-        if (glCtx == nullptr)
-        {
-            ERROR_RESULT("Failed to create OpenGL context");
-        }
-
-        wglMakeCurrent(hDC, nullptr);
-        wglDeleteContext(tmpCtx);
-
-        // Set OpenGL context
-        wglMakeCurrent(hDC, glCtx);
-
-        // Glad loader
-        if (!gladLoaderLoadGL())
-        {
-            ERROR_RESULT("Glad loader failed");
-        }
-
-        // Unbind the OpenGL context for now, it will be re-bound when the rendering thread starts
-        wglMakeCurrent(hDC, nullptr);
-
-        return true;
-    }
+    HDC hDC = nullptr;
+    HGLRC glCtx = nullptr;
+    bool running = false;
 
     bool init(HINSTANCE hInstance)
     {

@@ -1,5 +1,13 @@
-namespace z80
-{
+#define FLAG_C	0x01
+#define FLAG_N	0x02
+#define FLAG_P	0x04
+#define FLAG_V	FLAG_P
+#define FLAG_3	0x08
+#define FLAG_H	0x10
+#define FLAG_5	0x20
+#define FLAG_Z	0x40
+#define FLAG_S	0x80
+
 #define A registers.af.b.h
 #define F registers.af.b.l
 #define AF registers.af.w
@@ -340,4 +348,3 @@ namespace z80
     r;           \
     r;           \
     r
-}

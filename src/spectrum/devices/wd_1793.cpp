@@ -3,571 +3,558 @@
 #include "wd_1793.h"
 #include "main.h"
 
-namespace wd_1793
-{
-    #define TRACKHEADER 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
-                        0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
-                        0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
-                        0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
-                        0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
-                        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xc2, 0xc2, 0xc2, 0xfc, \
-                        0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
-                        0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
-                        0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
-                        0x4e, 0x4e
+#define TRACKHEADER 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
+                    0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
+                    0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
+                    0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
+                    0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xc2, 0xc2, 0xc2, 0xfc, \
+                    0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
+                    0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
+                    0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
+                    0x4e, 0x4e
 
-    #define SECTORHEADER_PRE 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xa1, 0xa1, 0xa1, 0xfe, 0x00, 0x00
+#define SECTORHEADER_PRE 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xa1, 0xa1, 0xa1, 0xfe, 0x00, 0x00
 
-    #define SECTORHEADER_POST 0x01, 0x00, 0x00, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
-                              0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e
-
-    #define SECTORDATA_PRE 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xa1, 0xa1, 0xa1, 0xfb
-
-    #define SECTORDATA 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
-                       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
-                       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
-                       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
-                       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
-                       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
-                       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
-                       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
-                       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
-                       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
-                       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
-                       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
-                       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
-                       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
-                       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
-                       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
-                       0x00, 0x00
-                    
-    #define SECTORDATA_POST 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
-                            0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
-                            0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
-                            0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
+#define SECTORHEADER_POST 0x01, 0x00, 0x00, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
                             0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e
 
-    #define TRACK_POST 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
-                       0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
-                       0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
-                       0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
-                       0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
-                       0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
-                       0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
-                       0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
-                       0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
-                       0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
-                       0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
-                       0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
-                       0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
-                       0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
-                       0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
-                       0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e
+#define SECTORDATA_PRE 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xa1, 0xa1, 0xa1, 0xfb
 
-    static constexpr uint8_t SYSTEM_34_TRACK[] =
+#define SECTORDATA 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
+                    0x00, 0x00
+                
+#define SECTORDATA_POST 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
+                        0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
+                        0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
+                        0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
+                        0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e
+
+#define TRACK_POST 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
+                    0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
+                    0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
+                    0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
+                    0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
+                    0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
+                    0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
+                    0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
+                    0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
+                    0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
+                    0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
+                    0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
+                    0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
+                    0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
+                    0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
+                    0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e
+
+#define DiskControlRead 0x000
+#define DiskControlSeekUp 0x100
+#define DiskControlSeekDown 0x300
+#define DiskControlWrite 0x400
+
+#define DiskOutStepping 0x40
+#define DiskOutTrack0 0x80
+#define DiskOutIndex 0x20
+
+#define CLK 0x1
+#define DDEN 0x2
+#define Test 0x4
+
+#define RateSelect CLK | DDEN | Test
+
+#define HLD 0x8
+#define HLT 0x10
+#define INTRQ 0x20
+#define Dire 0x40
+#define Writing 0x80
+#define DRQ 0x100
+#define CommandType 0x200
+#define FINTRQ 0x400
+#define ONE 0x800
+#define Power0 0x1000
+#define Power1 0x2000
+#define Power2 0x4000
+#define Power3 0x8000
+#define NotToReady 0x10000
+#define ReadyToNot 0x20000
+#define IndexPulse 0x40000
+#define Inmediate 0x80000
+
+#define StepIdle 0x0
+#define StepWaiting 0x1
+#define StepWaitingMark 0x2
+#define StepReadByte 0x3
+#define StepWriteByte 0x4
+#define StepLastWriteByte 0x5
+#define StepWaitIndex 0x6
+#define StepWriteRaw 0x7
+
+#define None 0x0
+#define SettingHeader 0x1
+#define SettingEnd 0x2
+#define TypeI0 0x3
+#define TypeI1 0x4
+#define TypeICheck 0x5
+#define TypeIUpdate 0x6
+#define TypeISeek 0x7
+#define TypeIEnd 0x8
+#define ReadHeader 0x9
+#define TypeIHeaderReaded 0xA
+#define ReadHeaderBytes 0xB
+#define ReadCRC 0xC
+#define TypeIHeadSet 0xD
+#define TypeIISetHead 0xE
+#define TypeIICommand 0xF
+#define ReadDataFlag 0x10
+#define ReadDataFlag2 0x11
+#define ReadData 0x12
+#define ReadSectorHeader 0x13
+#define ReadAddressWait 0x14
+#define ReadAddressBytes 0x15
+#define WriteDataFlag 0x16
+#define WriteData 0x17
+#define WriteCRC1 0x18
+#define WriteCRC2 0x19
+#define WriteEnd 0x1A
+#define WriteLast 0x1B
+#define ReadAddressDataFlag 0x1C
+#define WriteTrack 0x1D
+#define WriteTrackCRC 0x1E
+#define WriteTrackStart 0x1F
+#define ReadTrackStart 0x20
+#define ReadTrackData 0x21
+
+#define StatusBusy 0x1
+#define StatusIndex 0x2
+#define StatusTrack0 0x4
+#define StatusCRC 0x8
+#define StatusSeek 0x10
+#define StatusHeadLoaded 0x20
+#define StatusProtected 0x40
+#define StatusNotReady 0x80
+
+#define StatusDataRequest 0x2
+#define StatusLostData 0x4
+#define StatusRecordNotFound 0x10
+#define StatusRecordType 0x20
+#define StatusWriteFault 0x20
+
+#define StatusSetWP 0x100
+#define StatusSetTrack0 0x200
+#define StatusSetIndex 0x400
+#define StatusSetHead 0x800
+
+#define HeadBit 0x8
+#define UpdateBit 0x10
+#define VerifyBit 0x4
+#define StepInOut 0x40
+#define TypeI 0x80
+
+#define Mark 0xa1a1a1
+#define IndexMark 0xC2
+#define SectorMark 0xA1
+
+namespace wd_1793
+{
+    namespace
     {
-        TRACKHEADER,
-        SECTORHEADER_PRE, 0x01, SECTORHEADER_POST, SECTORDATA_PRE, SECTORDATA, SECTORDATA_POST,
-        SECTORHEADER_PRE, 0x02, SECTORHEADER_POST, SECTORDATA_PRE, SECTORDATA, SECTORDATA_POST,
-        SECTORHEADER_PRE, 0x03, SECTORHEADER_POST, SECTORDATA_PRE, SECTORDATA, SECTORDATA_POST,
-        SECTORHEADER_PRE, 0x04, SECTORHEADER_POST, SECTORDATA_PRE, SECTORDATA, SECTORDATA_POST,
-        SECTORHEADER_PRE, 0x05, SECTORHEADER_POST, SECTORDATA_PRE, SECTORDATA, SECTORDATA_POST,
-        SECTORHEADER_PRE, 0x06, SECTORHEADER_POST, SECTORDATA_PRE, SECTORDATA, SECTORDATA_POST,
-        SECTORHEADER_PRE, 0x07, SECTORHEADER_POST, SECTORDATA_PRE, SECTORDATA, SECTORDATA_POST,
-        SECTORHEADER_PRE, 0x08, SECTORHEADER_POST, SECTORDATA_PRE, SECTORDATA, SECTORDATA_POST,
-        SECTORHEADER_PRE, 0x09, SECTORHEADER_POST, SECTORDATA_PRE, SECTORDATA, SECTORDATA_POST,
-        SECTORHEADER_PRE, 0x0a, SECTORHEADER_POST, SECTORDATA_PRE, SECTORDATA, SECTORDATA_POST,
-        SECTORHEADER_PRE, 0x0b, SECTORHEADER_POST, SECTORDATA_PRE, SECTORDATA, SECTORDATA_POST,
-        SECTORHEADER_PRE, 0x0c, SECTORHEADER_POST, SECTORDATA_PRE, SECTORDATA, SECTORDATA_POST,
-        SECTORHEADER_PRE, 0x0d, SECTORHEADER_POST, SECTORDATA_PRE, SECTORDATA, SECTORDATA_POST,
-        SECTORHEADER_PRE, 0x0e, SECTORHEADER_POST, SECTORDATA_PRE, SECTORDATA, SECTORDATA_POST,
-        SECTORHEADER_PRE, 0x0f, SECTORHEADER_POST, SECTORDATA_PRE, SECTORDATA, SECTORDATA_POST,
-        SECTORHEADER_PRE, 0x10, SECTORHEADER_POST, SECTORDATA_PRE, SECTORDATA, SECTORDATA_POST,
-        TRACK_POST
-    };
-
-    struct Disk
-    {
-        uint16_t trackCount;
-        uint8_t sideCount;
-        uint8_t byteAtHead;
-        uint8_t signal;
-        uint32_t trackIndex;
-        uint32_t index;
-        uint32_t indexDelay;
-        bool writeProtect;
-        uint8_t sectorBuffer[0x100];
-        uint16_t sectorBufferIndex;
-        uint8_t *data;
-        int dataLength;
-        int dataIndex;
-        bool scl;
-        int sclDataOffset;
-        int track0side1data;
-    };
-
-    static constexpr int WD1793_STEP_TACTS = 112;
-
-    #define DiskControlRead 0x000
-    #define DiskControlSeekUp 0x100
-    #define DiskControlSeekDown 0x300
-    #define DiskControlWrite 0x400
-
-    #define DiskOutStepping 0x40
-    #define DiskOutTrack0 0x80
-    #define DiskOutIndex 0x20
-
-    #define CLK 0x1
-    #define DDEN 0x2
-    #define Test 0x4
-
-    #define RateSelect CLK | DDEN | Test
-
-    #define HLD 0x8
-    #define HLT 0x10
-    #define INTRQ 0x20
-    #define Dire 0x40
-    #define Writing 0x80
-    #define DRQ 0x100
-    #define CommandType 0x200
-    #define FINTRQ 0x400
-    #define ONE 0x800
-    #define Power0 0x1000
-    #define Power1 0x2000
-    #define Power2 0x4000
-    #define Power3 0x8000
-    #define NotToReady 0x10000
-    #define ReadyToNot 0x20000
-    #define IndexPulse 0x40000
-    #define Inmediate 0x80000
-
-    #define StepIdle 0x0
-    #define StepWaiting 0x1
-    #define StepWaitingMark 0x2
-    #define StepReadByte 0x3
-    #define StepWriteByte 0x4
-    #define StepLastWriteByte 0x5
-    #define StepWaitIndex 0x6
-    #define StepWriteRaw 0x7
-
-    #define None 0x0
-    #define SettingHeader 0x1
-    #define SettingEnd 0x2
-    #define TypeI0 0x3
-    #define TypeI1 0x4
-    #define TypeICheck 0x5
-    #define TypeIUpdate 0x6
-    #define TypeISeek 0x7
-    #define TypeIEnd 0x8
-    #define ReadHeader 0x9
-    #define TypeIHeaderReaded 0xA
-    #define ReadHeaderBytes 0xB
-    #define ReadCRC 0xC
-    #define TypeIHeadSet 0xD
-    #define TypeIISetHead 0xE
-    #define TypeIICommand 0xF
-    #define ReadDataFlag 0x10
-    #define ReadDataFlag2 0x11
-    #define ReadData 0x12
-    #define ReadSectorHeader 0x13
-    #define ReadAddressWait 0x14
-    #define ReadAddressBytes 0x15
-    #define WriteDataFlag 0x16
-    #define WriteData 0x17
-    #define WriteCRC1 0x18
-    #define WriteCRC2 0x19
-    #define WriteEnd 0x1A
-    #define WriteLast 0x1B
-    #define ReadAddressDataFlag 0x1C
-    #define WriteTrack 0x1D
-    #define WriteTrackCRC 0x1E
-    #define WriteTrackStart 0x1F
-    #define ReadTrackStart 0x20
-    #define ReadTrackData 0x21
-
-    #define StatusBusy 0x1
-    #define StatusIndex 0x2
-    #define StatusTrack0 0x4
-    #define StatusCRC 0x8
-    #define StatusSeek 0x10
-    #define StatusHeadLoaded 0x20
-    #define StatusProtected 0x40
-    #define StatusNotReady 0x80
-
-    #define StatusDataRequest 0x2
-    #define StatusLostData 0x4
-    #define StatusRecordNotFound 0x10
-    #define StatusRecordType 0x20
-    #define StatusWriteFault 0x20
-
-    #define StatusSetWP 0x100
-    #define StatusSetTrack0 0x200
-    #define StatusSetIndex 0x400
-    #define StatusSetHead 0x800
-
-    #define HeadBit 0x8
-    #define UpdateBit 0x10
-    #define VerifyBit 0x4
-    #define StepInOut 0x40
-    #define TypeI 0x80
-
-    static constexpr uint32_t RATES[8][4] =
-    {
-        {1500, 3000, 5000, 7500},
-        {750, 1500, 2500, 3750},
-        {1500, 3000, 5000, 7500},
-        {750, 1500, 2500, 3750},
-        {92, 95, 99, 104},
-        {46, 47, 49, 52},
-        {92, 95, 99, 104},
-        {46, 47, 49, 52}
-    };
-
-    static constexpr uint16_t SECTOR_DATA_POSITION[16] = {162, 554, 946, 1338, 1730, 2122, 2514, 2906, 3298, 3690, 4082, 4474, 4866, 5258, 5650, 6042};
-
-    #define Mark 0xa1a1a1
-    #define IndexMark 0xC2
-    #define SectorMark 0xA1
-
-    uint32_t state, stepState, nextState;
-    uint32_t control;
-    uint32_t counter;
-
-    uint8_t command;
-    uint8_t track;
-    uint8_t sector;
-    uint8_t data;
-    uint8_t sataSeekRegister;
-    uint16_t status;
-
-    uint8_t header[7];
-    uint8_t headerIndex;
-
-    uint8_t selectedDiskIndex;
-    uint8_t previousDiskIndex;
-
-    uint8_t retries;
-
-    uint64_t markAtHead;
-    uint8_t byteAtHead, byteToWrite;
-
-    uint8_t side;
-
-    Disk *disks[4];
-
-    bool fastMode;
-
-    bool sclConverted;
-    uint8_t track0[2304];
-
-    int writeTrackMark, writeTrackSector;
-
-    uint8_t led;
-
-    static void readDiskData(Disk* disk, uint8_t* buffer, int count)
-    {
-        while (count--)
+        constexpr uint8_t SYSTEM_34_TRACK[] =
         {
-            if (disk->dataIndex >= disk->dataLength)
-            {
-                *buffer++ = 0;
-            }
-            else
-            {
-                *buffer++ = disk->data[disk->dataIndex++];
-            }
-        }
-    }
+            TRACKHEADER,
+            SECTORHEADER_PRE, 0x01, SECTORHEADER_POST, SECTORDATA_PRE, SECTORDATA, SECTORDATA_POST,
+            SECTORHEADER_PRE, 0x02, SECTORHEADER_POST, SECTORDATA_PRE, SECTORDATA, SECTORDATA_POST,
+            SECTORHEADER_PRE, 0x03, SECTORHEADER_POST, SECTORDATA_PRE, SECTORDATA, SECTORDATA_POST,
+            SECTORHEADER_PRE, 0x04, SECTORHEADER_POST, SECTORDATA_PRE, SECTORDATA, SECTORDATA_POST,
+            SECTORHEADER_PRE, 0x05, SECTORHEADER_POST, SECTORDATA_PRE, SECTORDATA, SECTORDATA_POST,
+            SECTORHEADER_PRE, 0x06, SECTORHEADER_POST, SECTORDATA_PRE, SECTORDATA, SECTORDATA_POST,
+            SECTORHEADER_PRE, 0x07, SECTORHEADER_POST, SECTORDATA_PRE, SECTORDATA, SECTORDATA_POST,
+            SECTORHEADER_PRE, 0x08, SECTORHEADER_POST, SECTORDATA_PRE, SECTORDATA, SECTORDATA_POST,
+            SECTORHEADER_PRE, 0x09, SECTORHEADER_POST, SECTORDATA_PRE, SECTORDATA, SECTORDATA_POST,
+            SECTORHEADER_PRE, 0x0a, SECTORHEADER_POST, SECTORDATA_PRE, SECTORDATA, SECTORDATA_POST,
+            SECTORHEADER_PRE, 0x0b, SECTORHEADER_POST, SECTORDATA_PRE, SECTORDATA, SECTORDATA_POST,
+            SECTORHEADER_PRE, 0x0c, SECTORHEADER_POST, SECTORDATA_PRE, SECTORDATA, SECTORDATA_POST,
+            SECTORHEADER_PRE, 0x0d, SECTORHEADER_POST, SECTORDATA_PRE, SECTORDATA, SECTORDATA_POST,
+            SECTORHEADER_PRE, 0x0e, SECTORHEADER_POST, SECTORDATA_PRE, SECTORDATA, SECTORDATA_POST,
+            SECTORHEADER_PRE, 0x0f, SECTORHEADER_POST, SECTORDATA_PRE, SECTORDATA, SECTORDATA_POST,
+            SECTORHEADER_PRE, 0x10, SECTORHEADER_POST, SECTORDATA_PRE, SECTORDATA, SECTORDATA_POST,
+            TRACK_POST
+        };
 
-    static void writeDiskData(Disk* disk, uint8_t* buffer, int count)
-    {
-        while (count--)
+        constexpr int WD1793_STEP_TACTS = 112;
+
+        constexpr uint32_t RATES[8][4] =
         {
-            disk->data[disk->dataIndex++] = *buffer++;
-        }
-    }
+            {1500, 3000, 5000, 7500},
+            {750, 1500, 2500, 3750},
+            {1500, 3000, 5000, 7500},
+            {750, 1500, 2500, 3750},
+            {92, 95, 99, 104},
+            {46, 47, 49, 52},
+            {92, 95, 99, 104},
+            {46, 47, 49, 52}
+        };
 
-    static void SCLtoTRD(Disk* disk, uint8_t* track0)
-    {
-        uint8_t numberOfFiles;
+        constexpr uint16_t SECTOR_DATA_POSITION[16] = {162, 554, 946, 1338, 1730, 2122, 2514, 2906, 3298, 3690, 4082, 4474, 4866, 5258, 5650, 6042};
 
-        memset(track0, 0, 2304);
+        struct Disk
+        {
+            uint16_t trackCount;
+            uint8_t sideCount;
+            uint8_t byteAtHead;
+            uint8_t signal;
+            uint32_t trackIndex;
+            uint32_t index;
+            uint32_t indexDelay;
+            bool writeProtect;
+            uint8_t sectorBuffer[0x100];
+            uint16_t sectorBufferIndex;
+            uint8_t *data;
+            int dataLength;
+            int dataIndex;
+            bool scl;
+            int sclDataOffset;
+            int track0side1data;
+        };
 
-        disk->dataIndex = 8;
-        readDiskData(disk, &numberOfFiles, 1);
+        uint32_t state, stepState, nextState;
+        uint32_t control;
+        uint32_t counter;
 
-        char diskNameArray[9] = "SCL_DISK";
-
-        int startSector = 0;
-        int startTrack = 1;
-
+        uint8_t command;
+        uint8_t track;
+        uint8_t sector;
         uint8_t data;
-        for (int i = 0; i < numberOfFiles; ++i)
-        {
-            int n = i << 4;
+        uint8_t sataSeekRegister;
+        uint16_t status;
 
-            for (int j = 0; j < 13; ++j)
+        uint8_t header[7];
+        uint8_t headerIndex;
+
+        uint8_t selectedDiskIndex;
+        uint8_t previousDiskIndex;
+
+        uint8_t retries;
+
+        uint64_t markAtHead;
+        uint8_t byteAtHead, byteToWrite;
+
+        uint8_t side;
+
+        Disk *disks[4];
+
+        bool fastMode;
+
+        bool sclConverted;
+        uint8_t track0[2304];
+
+        int writeTrackMark, writeTrackSector;
+
+        void readDiskData(Disk* disk, uint8_t* buffer, int count)
+        {
+            while (count--)
             {
-                readDiskData(disk, &data, 1);
-                track0[n + j] = data;
-            }
-
-            readDiskData(disk, &data, 1);
-            track0[n + 13] = data;
-            track0[n + 14] = (uint8_t)startSector;
-            track0[n + 15] = (uint8_t)startTrack;
-
-            int newStartTrack = (startTrack * 16 + startSector + data) / 16;
-            startSector = (startTrack * 16 + startSector + data) - 16 * newStartTrack;
-            startTrack = newStartTrack;
-        }
-
-        track0[2273] = (uint8_t)startSector;
-        track0[2274] = (uint8_t)startTrack;
-        track0[2275] = 22;
-        track0[2276] = (uint8_t)numberOfFiles;
-        uint16_t freeSectors = 2560 - (startTrack << 4) + startSector;
-        track0[2277] = freeSectors & 0x00ff;
-        track0[2278] = freeSectors >> 8;
-        track0[2279] = 0x10;
-
-        for (int i = 0; i < 9; ++i)
-        {
-            track0[2282 + i] = 0x20;
-        }
-
-        for (int i = 0; i < 8; ++i)
-        {
-            track0[2293 + i] = diskNameArray[i];
-        }
-
-        disk->sclDataOffset = (9 + (numberOfFiles * 14)) - 4096;
-    }
-
-    static void diskStepRead()
-    {
-        Disk* disk = disks[selectedDiskIndex];
-
-        disk->byteAtHead = 0;
-
-        disk->signal = disk->trackIndex ? 0 : DiskOutTrack0;
-
-        if (disk->indexDelay)
-        {
-            --disk->indexDelay;
-            disk->signal |= DiskOutIndex;
-            return;
-        }
-
-        if (disk->sectorBufferIndex < 0xff)
-        {
-            ++disk->sectorBufferIndex;
-            ++disk->index;
-            disk->byteAtHead = disk->sectorBuffer[disk->sectorBufferIndex];
-            return;
-        }
-
-        if (disk->index != 0xffffffff && disk->index >= /*6417*/ 6663)
-        {
-            disk->index = 0xffffffff;
-            disk->sectorBufferIndex = 0xff;
-            disk->indexDelay = 25;
-            return;
-        }
-
-        ++disk->index;
-
-        const uint32_t cursect = (disk->index - 146) / 392;
-
-        if (cursect < 16)
-        {
-            if (disk->index == SECTOR_DATA_POSITION[cursect])
-            {
-                disk->byteAtHead = (!disk->trackIndex && side) ? disk->track0side1data : disk->trackIndex;
-                return;
-            }
-
-            if (disk->index == SECTOR_DATA_POSITION[cursect] + 44)
-            {
-                if ((disk->scl) && (!disk->trackIndex) && (!side))
+                if (disk->dataIndex >= disk->dataLength)
                 {
-                    if (!sclConverted)
-                    {
-                        SCLtoTRD(disk, track0);
-                        sclConverted = true;
-                    }
-
-                    if (cursect < 9)
-                    {
-                        memcpy(disk->sectorBuffer, track0 + (cursect << 8), 0x100);
-                    }
-                    else
-                    {
-                        memset(disk->sectorBuffer, 0, 0x100);
-                    }
+                    *buffer++ = 0;
                 }
                 else
                 {
-                    const int seekptr = (disk->trackIndex << (11 + disk->sideCount)) + (side << 12) + (cursect << 8) + disk->sclDataOffset;
-
-                    disk->dataIndex = seekptr;
-                    readDiskData(disk, disk->sectorBuffer, 0x100);
+                    *buffer++ = disk->data[disk->dataIndex++];
                 }
-
-                disk->byteAtHead = disk->sectorBuffer[0];
-                disk->sectorBufferIndex = 0;
-
-                return;
             }
         }
 
-        disk->byteAtHead = SYSTEM_34_TRACK[disk->index];
-    }
-
-    static void diskStepWrite(uint8_t byte)
-    {
-        Disk *disk = disks[selectedDiskIndex];
-
-        disk->byteAtHead = 0;
-
-        disk->signal = disk->trackIndex ? 0 : DiskOutTrack0;
-
-        if (disk->indexDelay)
+        void writeDiskData(Disk* disk, uint8_t* buffer, int count)
         {
-            --disk->indexDelay;
-            disk->signal |= DiskOutIndex;
-            return;
+            while (count--)
+            {
+                disk->data[disk->dataIndex++] = *buffer++;
+            }
         }
 
-        if (disk->sectorBufferIndex < 0xff)
+        void SCLtoTRD(Disk* disk, uint8_t* track0)
         {
-            ++disk->sectorBufferIndex;
+            uint8_t numberOfFiles;
 
-            disk->sectorBuffer[disk->sectorBufferIndex] = byte;
+            memset(track0, 0, 2304);
 
-            if (disk->sectorBufferIndex == 0xff)
+            disk->dataIndex = 8;
+            readDiskData(disk, &numberOfFiles, 1);
+
+            char diskNameArray[9] = "SCL_DISK";
+
+            int startSector = 0;
+            int startTrack = 1;
+
+            uint8_t data;
+            for (int i = 0; i < numberOfFiles; ++i)
             {
-                disk->dataIndex -= 0x100;
-                writeDiskData(disk, disk->sectorBuffer, 0x100);
+                int n = i << 4;
+
+                for (int j = 0; j < 13; ++j)
+                {
+                    readDiskData(disk, &data, 1);
+                    track0[n + j] = data;
+                }
+
+                readDiskData(disk, &data, 1);
+                track0[n + 13] = data;
+                track0[n + 14] = (uint8_t)startSector;
+                track0[n + 15] = (uint8_t)startTrack;
+
+                int newStartTrack = (startTrack * 16 + startSector + data) / 16;
+                startSector = (startTrack * 16 + startSector + data) - 16 * newStartTrack;
+                startTrack = newStartTrack;
+            }
+
+            track0[2273] = (uint8_t)startSector;
+            track0[2274] = (uint8_t)startTrack;
+            track0[2275] = 22;
+            track0[2276] = (uint8_t)numberOfFiles;
+            uint16_t freeSectors = 2560 - (startTrack << 4) + startSector;
+            track0[2277] = freeSectors & 0x00ff;
+            track0[2278] = freeSectors >> 8;
+            track0[2279] = 0x10;
+
+            for (int i = 0; i < 9; ++i)
+            {
+                track0[2282 + i] = 0x20;
+            }
+
+            for (int i = 0; i < 8; ++i)
+            {
+                track0[2293 + i] = diskNameArray[i];
+            }
+
+            disk->sclDataOffset = (9 + (numberOfFiles * 14)) - 4096;
+        }
+
+        void diskStepRead()
+        {
+            Disk* disk = disks[selectedDiskIndex];
+
+            disk->byteAtHead = 0;
+
+            disk->signal = disk->trackIndex ? 0 : DiskOutTrack0;
+
+            if (disk->indexDelay)
+            {
+                --disk->indexDelay;
+                disk->signal |= DiskOutIndex;
+                return;
+            }
+
+            if (disk->sectorBufferIndex < 0xff)
+            {
+                ++disk->sectorBufferIndex;
+                ++disk->index;
+                disk->byteAtHead = disk->sectorBuffer[disk->sectorBufferIndex];
+                return;
+            }
+
+            if (disk->index != 0xffffffff && disk->index >= /*6417*/ 6663)
+            {
+                disk->index = 0xffffffff;
+                disk->sectorBufferIndex = 0xff;
+                disk->indexDelay = 25;
+                return;
             }
 
             ++disk->index;
 
-            return;
-        }
+            const uint32_t cursect = (disk->index - 146) / 392;
 
-        if (disk->index != 0xffffffff && disk->index >= 6663)
-        {
-            disk->index = 0xffffffff;
-            disk->sectorBufferIndex = 0xff;
-            disk->indexDelay = 25;
-            return;
-        }
-
-        ++disk->index;
-
-        const uint32_t cursect = (disk->index - 146) / 392;
-
-        if (cursect < 16)
-        {
-            if (disk->index == SECTOR_DATA_POSITION[cursect] + 44)
+            if (cursect < 16)
             {
-                const int seekptr = (disk->trackIndex << (11 + disk->sideCount)) + (side << 12) + (cursect << 8);
+                if (disk->index == SECTOR_DATA_POSITION[cursect])
+                {
+                    disk->byteAtHead = (!disk->trackIndex && side) ? disk->track0side1data : disk->trackIndex;
+                    return;
+                }
 
-                disk->dataIndex = seekptr;
-                readDiskData(disk, disk->sectorBuffer, 0x100);
+                if (disk->index == SECTOR_DATA_POSITION[cursect] + 44)
+                {
+                    if ((disk->scl) && (!disk->trackIndex) && (!side))
+                    {
+                        if (!sclConverted)
+                        {
+                            SCLtoTRD(disk, track0);
+                            sclConverted = true;
+                        }
 
-                disk->sectorBuffer[0] = byte;
+                        if (cursect < 9)
+                        {
+                            memcpy(disk->sectorBuffer, track0 + (cursect << 8), 0x100);
+                        }
+                        else
+                        {
+                            memset(disk->sectorBuffer, 0, 0x100);
+                        }
+                    }
+                    else
+                    {
+                        const int seekptr = (disk->trackIndex << (11 + disk->sideCount)) + (side << 12) + (cursect << 8) + disk->sclDataOffset;
 
-                disk->sectorBufferIndex = 0;
+                        disk->dataIndex = seekptr;
+                        readDiskData(disk, disk->sectorBuffer, 0x100);
+                    }
+
+                    disk->byteAtHead = disk->sectorBuffer[0];
+                    disk->sectorBufferIndex = 0;
+
+                    return;
+                }
+            }
+
+            disk->byteAtHead = SYSTEM_34_TRACK[disk->index];
+        }
+
+        void diskStepWrite(uint8_t byte)
+        {
+            Disk *disk = disks[selectedDiskIndex];
+
+            disk->byteAtHead = 0;
+
+            disk->signal = disk->trackIndex ? 0 : DiskOutTrack0;
+
+            if (disk->indexDelay)
+            {
+                --disk->indexDelay;
+                disk->signal |= DiskOutIndex;
+                return;
+            }
+
+            if (disk->sectorBufferIndex < 0xff)
+            {
+                ++disk->sectorBufferIndex;
+
+                disk->sectorBuffer[disk->sectorBufferIndex] = byte;
+
+                if (disk->sectorBufferIndex == 0xff)
+                {
+                    disk->dataIndex -= 0x100;
+                    writeDiskData(disk, disk->sectorBuffer, 0x100);
+                }
+
+                ++disk->index;
+
+                return;
+            }
+
+            if (disk->index != 0xffffffff && disk->index >= 6663)
+            {
+                disk->index = 0xffffffff;
+                disk->sectorBufferIndex = 0xff;
+                disk->indexDelay = 25;
+                return;
+            }
+
+            ++disk->index;
+
+            const uint32_t cursect = (disk->index - 146) / 392;
+
+            if (cursect < 16)
+            {
+                if (disk->index == SECTOR_DATA_POSITION[cursect] + 44)
+                {
+                    const int seekptr = (disk->trackIndex << (11 + disk->sideCount)) + (side << 12) + (cursect << 8);
+
+                    disk->dataIndex = seekptr;
+                    readDiskData(disk, disk->sectorBuffer, 0x100);
+
+                    disk->sectorBuffer[0] = byte;
+
+                    disk->sectorBufferIndex = 0;
+                }
             }
         }
-    }
-    
-    static void endProcess()
-    {
-        status &= ~StatusBusy;
-        state = None;
-        stepState = StepIdle;
-        control &= ~(Writing | DRQ);
-        retries = 15;
-        led = 0;
-        control |= INTRQ;
-    }
-
-    static void process()
-    {
-        switch (state)
+        
+        void endProcess()
         {
+            status &= ~StatusBusy;
+            state = None;
+            stepState = StepIdle;
+            control &= ~(Writing | DRQ);
+            retries = 15;
+            led = 0;
+            control |= INTRQ;
+        }
 
-        case SettingHeader:
+        void process()
         {
-            if (control & HLD)
+            switch (state)
             {
+
+            case SettingHeader:
+            {
+                if (control & HLD)
+                {
+                    state = nextState;
+                    process();
+                    return;
+                }
+
+                led = 1;
+
+                control |= HLD;
+                counter = 1;
+                state = SettingEnd;
+                stepState = StepWaiting;
+                return;
+            }
+
+            case SettingEnd:
+            {
+                control |= HLT;
                 state = nextState;
                 process();
                 return;
             }
 
-            led = 1;
-
-            control |= HLD;
-            counter = 1;
-            state = SettingEnd;
-            stepState = StepWaiting;
-            return;
-        }
-
-        case SettingEnd:
-        {
-            control |= HLT;
-            state = nextState;
-            process();
-            return;
-        }
-
-        case TypeI0:
-        {
-            if (command & HeadBit)
+            case TypeI0:
             {
-                nextState = TypeI1;
-                state = SettingHeader;
-            }
-            else
-            {
-                control &= ~HLD | HLT;
-                state = TypeI1;
-            }
-            process();
-            return;
-        }
-
-        case TypeI1:
-        {
-            if (command & StepInOut)
-            {
-                if (command & 0x20)
+                if (command & HeadBit)
                 {
-                    control &= ~Dire;
+                    nextState = TypeI1;
+                    state = SettingHeader;
                 }
                 else
                 {
-                    control |= Dire;
+                    control &= ~HLD | HLT;
+                    state = TypeI1;
                 }
-
-                if (command & UpdateBit)
-                {
-                    state = TypeIUpdate;
-                }
-                else
-                {
-                    state = TypeISeek;
-                }
+                process();
+                return;
             }
-            else
+
+            case TypeI1:
             {
-                if (command & 0x20)
+                if (command & StepInOut)
                 {
+                    if (command & 0x20)
+                    {
+                        control &= ~Dire;
+                    }
+                    else
+                    {
+                        control |= Dire;
+                    }
+
                     if (command & UpdateBit)
                     {
                         state = TypeIUpdate;
@@ -579,302 +566,339 @@ namespace wd_1793
                 }
                 else
                 {
-                    if (!(command & 0x10))
+                    if (command & 0x20)
                     {
-                        track = 0xff;
-                        data = 0;
+                        if (command & UpdateBit)
+                        {
+                            state = TypeIUpdate;
+                        }
+                        else
+                        {
+                            state = TypeISeek;
+                        }
                     }
+                    else
+                    {
+                        if (!(command & 0x10))
+                        {
+                            track = 0xff;
+                            data = 0;
+                        }
 
-                    sataSeekRegister = data;
-                    state = TypeICheck;
+                        sataSeekRegister = data;
+                        state = TypeICheck;
+                    }
                 }
-            }
 
-            process();
-            return;
-        }
-
-        case TypeICheck:
-        {
-            if (track == sataSeekRegister)
-            {
-                state = TypeIEnd;
-            }
-            else
-            {
-                if (sataSeekRegister > track)
-                {
-                    control |= Dire;
-                }
-                else
-                {
-                    control &= ~Dire;
-                }
-                state = TypeIUpdate;
-            }
-            process();
-            return;
-        }
-
-        case TypeIUpdate:
-        {
-            if (control & Dire)
-            {
-                ++track;
-            }
-            else
-            {
-                --track;
-            }
-
-            state = TypeISeek;
-            process();
-            return;
-        }
-
-        case TypeISeek:
-        {
-            if (!(control & Dire) && (disks[selectedDiskIndex]->signal & DiskOutTrack0))
-            {
-                track = 0;
-                state = TypeIEnd;
                 process();
                 return;
             }
-            else
+
+            case TypeICheck:
             {
-                if (control & Dire)
-                {
-                    if (disks[selectedDiskIndex]->trackIndex < disks[selectedDiskIndex]->trackCount)
-                    {
-                        ++disks[selectedDiskIndex]->trackIndex;
-                    }
-                }
-                else
-                {
-                    if (disks[selectedDiskIndex]->trackIndex > 0)
-                    {
-                        --disks[selectedDiskIndex]->trackIndex;
-                    }
-                }
-
-                diskStepRead();
-
-                led = 1;
-
-                counter = (RATES[(control & RateSelect) ^ 0x4][command & 0x3]) >> 3;
-
-                stepState = StepWaiting;
-                if (!(command & 0xe0))
-                {
-                    state = TypeICheck;
-                }
-                else
+                if (track == sataSeekRegister)
                 {
                     state = TypeIEnd;
                 }
-
+                else
+                {
+                    if (sataSeekRegister > track)
+                    {
+                        control |= Dire;
+                    }
+                    else
+                    {
+                        control &= ~Dire;
+                    }
+                    state = TypeIUpdate;
+                }
+                process();
                 return;
             }
-        }
 
-        case TypeIEnd:
-        {
-            if (command & VerifyBit)
+            case TypeIUpdate:
             {
-                if (control & HLD)
+                if (control & Dire)
                 {
-                    nextState = TypeIHeadSet;
-                    state = SettingHeader;
+                    ++track;
                 }
                 else
                 {
-                    retries = 5;
-                    state = ReadHeader;
-                    nextState = TypeIHeaderReaded;
+                    --track;
                 }
 
+                state = TypeISeek;
                 process();
                 return;
             }
-            else
+
+            case TypeISeek:
             {
-                control |= INTRQ;
-                status |= StatusSetHead;
-                status &= ~StatusBusy;
-            }
-            return;
-        }
-
-        case TypeIHeadSet:
-        {
-            retries = 5;
-            state = ReadHeader;
-            nextState = TypeIHeaderReaded;
-            process();
-            return;
-        }
-
-        case ReadHeader:
-        {
-            if (!retries)
-            {
-                status |= StatusSeek;
-                endProcess();
-                return;
-            }
-
-            stepState = StepWaitingMark;
-            markAtHead = Mark;
-
-            headerIndex = 0xff;
-            state = ReadHeaderBytes;
-            return;
-        }
-
-        case ReadAddressWait:
-        {
-            if (!retries)
-            {
-                status |= StatusSeek;
-                endProcess();
-                return;
-            }
-
-            stepState = StepWaitingMark;
-            markAtHead = Mark;
-
-            headerIndex = 0xff;
-            state = ReadAddressDataFlag;
-            return;
-        }
-
-        case ReadAddressDataFlag:
-        {
-            stepState = StepReadByte;
-            state = ReadAddressBytes;
-            return;
-        }
-
-        case ReadAddressBytes:
-        {
-            if (!retries)
-            {
-                status |= StatusSeek;
-                endProcess();
-                return;
-            }
-
-            led = 1;
-
-            if (headerIndex == 0xff)
-            {
-                if (byteAtHead != 0xfe)
+                if (!(control & Dire) && (disks[selectedDiskIndex]->signal & DiskOutTrack0))
                 {
-                    state = ReadAddressWait;
+                    track = 0;
+                    state = TypeIEnd;
                     process();
                     return;
                 }
-            }
-            else
-            {
-                if (headerIndex < 7)
+                else
                 {
-                    header[headerIndex] = byteAtHead;
-                }
+                    if (control & Dire)
+                    {
+                        if (disks[selectedDiskIndex]->trackIndex < disks[selectedDiskIndex]->trackCount)
+                        {
+                            ++disks[selectedDiskIndex]->trackIndex;
+                        }
+                    }
+                    else
+                    {
+                        if (disks[selectedDiskIndex]->trackIndex > 0)
+                        {
+                            --disks[selectedDiskIndex]->trackIndex;
+                        }
+                    }
 
-                data = byteAtHead;
+                    diskStepRead();
 
-                if (control & DRQ)
-                {
-                    status |= StatusLostData;
-                }
-                control |= DRQ;
-            }
+                    led = 1;
 
-            ++headerIndex;
+                    counter = (RATES[(control & RateSelect) ^ 0x4][command & 0x3]) >> 3;
 
-            if (headerIndex == 0x6)
-            {
-                sector = header[0];
-                endProcess();
-                return;
-            }
+                    stepState = StepWaiting;
+                    if (!(command & 0xe0))
+                    {
+                        state = TypeICheck;
+                    }
+                    else
+                    {
+                        state = TypeIEnd;
+                    }
 
-            return;
-        }
-
-        case ReadHeaderBytes:
-        {
-            if (!retries)
-            {
-                status |= StatusSeek;
-                endProcess();
-                return;
-            }
-
-            if (headerIndex != 0xff)
-            {
-                if (headerIndex < 7)
-                {
-                    header[headerIndex] = byteAtHead;
+                    return;
                 }
             }
 
-            ++headerIndex;
-
-            if (headerIndex == 0x7)
+            case TypeIEnd:
             {
-                state = nextState;
-                process();
+                if (command & VerifyBit)
+                {
+                    if (control & HLD)
+                    {
+                        nextState = TypeIHeadSet;
+                        state = SettingHeader;
+                    }
+                    else
+                    {
+                        retries = 5;
+                        state = ReadHeader;
+                        nextState = TypeIHeaderReaded;
+                    }
+
+                    process();
+                    return;
+                }
+                else
+                {
+                    control |= INTRQ;
+                    status |= StatusSetHead;
+                    status &= ~StatusBusy;
+                }
                 return;
             }
 
-            stepState = StepReadByte;
-            return;
-        }
-
-        case TypeIHeaderReaded:
-        {
-            if (!retries)
+            case TypeIHeadSet:
             {
-                status |= StatusSeek;
-                endProcess();
-                return;
-            }
-
-            if (header[0] != 0xfe)
-            {
+                retries = 5;
                 state = ReadHeader;
+                nextState = TypeIHeaderReaded;
                 process();
                 return;
             }
 
-            if (header[1] != track)
+            case ReadHeader:
             {
-                state = ReadHeader;
+                if (!retries)
+                {
+                    status |= StatusSeek;
+                    endProcess();
+                    return;
+                }
+
+                stepState = StepWaitingMark;
+                markAtHead = Mark;
+
+                headerIndex = 0xff;
+                state = ReadHeaderBytes;
+                return;
+            }
+
+            case ReadAddressWait:
+            {
+                if (!retries)
+                {
+                    status |= StatusSeek;
+                    endProcess();
+                    return;
+                }
+
+                stepState = StepWaitingMark;
+                markAtHead = Mark;
+
+                headerIndex = 0xff;
+                state = ReadAddressDataFlag;
+                return;
+            }
+
+            case ReadAddressDataFlag:
+            {
+                stepState = StepReadByte;
+                state = ReadAddressBytes;
+                return;
+            }
+
+            case ReadAddressBytes:
+            {
+                if (!retries)
+                {
+                    status |= StatusSeek;
+                    endProcess();
+                    return;
+                }
+
+                led = 1;
+
+                if (headerIndex == 0xff)
+                {
+                    if (byteAtHead != 0xfe)
+                    {
+                        state = ReadAddressWait;
+                        process();
+                        return;
+                    }
+                }
+                else
+                {
+                    if (headerIndex < 7)
+                    {
+                        header[headerIndex] = byteAtHead;
+                    }
+
+                    data = byteAtHead;
+
+                    if (control & DRQ)
+                    {
+                        status |= StatusLostData;
+                    }
+                    control |= DRQ;
+                }
+
+                ++headerIndex;
+
+                if (headerIndex == 0x6)
+                {
+                    sector = header[0];
+                    endProcess();
+                    return;
+                }
+
+                return;
+            }
+
+            case ReadHeaderBytes:
+            {
+                if (!retries)
+                {
+                    status |= StatusSeek;
+                    endProcess();
+                    return;
+                }
+
+                if (headerIndex != 0xff)
+                {
+                    if (headerIndex < 7)
+                    {
+                        header[headerIndex] = byteAtHead;
+                    }
+                }
+
+                ++headerIndex;
+
+                if (headerIndex == 0x7)
+                {
+                    state = nextState;
+                    process();
+                    return;
+                }
+
+                stepState = StepReadByte;
+                return;
+            }
+
+            case TypeIHeaderReaded:
+            {
+                if (!retries)
+                {
+                    status |= StatusSeek;
+                    endProcess();
+                    return;
+                }
+
+                if (header[0] != 0xfe)
+                {
+                    state = ReadHeader;
+                    process();
+                    return;
+                }
+
+                if (header[1] != track)
+                {
+                    state = ReadHeader;
+                    process();
+                    return;
+                }
+
+                status &= ~StatusCRC;
+                endProcess();
+                return;
+            }
+
+            case TypeIISetHead:
+            {
+                nextState = TypeIICommand;
+                state = SettingHeader;
                 process();
                 return;
             }
 
-            status &= ~StatusCRC;
-            endProcess();
-            return;
-        }
-
-        case TypeIISetHead:
-        {
-            nextState = TypeIICommand;
-            state = SettingHeader;
-            process();
-            return;
-        }
-
-        case TypeIICommand:
-        {
-            if ((command & 0xc0) == 0x80)
+            case TypeIICommand:
             {
-                if (command & 0x20)
+                if ((command & 0xc0) == 0x80)
+                {
+                    if (command & 0x20)
+                    {
+                        if (disks[selectedDiskIndex]->writeProtect)
+                        {
+                            status |= StatusProtected;
+                            endProcess();
+                            return;
+                        }
+                    }
+
+                    retries = 5;
+                    stepState = StepWaitingMark;
+                    markAtHead = Mark;
+
+                    headerIndex = 0xff;
+                    state = ReadHeaderBytes;
+                    nextState = ReadSectorHeader;
+                }
+                else if ((command & 0xf0) == 0xc0)
+                {
+                    retries = 5;
+                    state = ReadAddressWait;
+                    process();
+                }
+                else if ((command & 0xf0) == 0xf0)
                 {
                     if (disks[selectedDiskIndex]->writeProtect)
                     {
@@ -882,424 +906,403 @@ namespace wd_1793
                         endProcess();
                         return;
                     }
+
+                    state = WriteTrackStart;
+                    stepState = StepWaitIndex;
+                    control |= DRQ;
+                    writeTrackMark = 0;
+                }
+                else if ((command & 0xf0) == 0xe0)
+                {
+                    state = ReadTrackStart;
+                    stepState = StepWaitIndex;
                 }
 
-                retries = 5;
+                return;
+            }
+
+            case ReadSectorHeader:
+            {
+                if (header[0] != 0xfe)
+                {
+                    state = ReadHeader;
+                    process();
+                    return;
+                }
+
+                if (header[1] != track)
+                {
+                    state = ReadHeader;
+                    process();
+                    return;
+                }
+
+                if (!fastMode || command & 0x20)
+                {
+                    if (header[3] != sector)
+                    {
+                        state = ReadHeader;
+                        process();
+                        return;
+                    }
+
+                    if ((command & 0x2) && (header[2] & ((command >> 3) & 0x1)))
+                    {
+                        state = ReadHeader;
+                        process();
+                        return;
+                    }
+                }
+                else
+                {
+                    if ((command & 0x2) && (header[2] & ((command >> 3) & 0x1)))
+                    {
+                        state = ReadHeader;
+                        process();
+                        return;
+                    }
+
+                    header[3] = sector;
+                    disks[selectedDiskIndex]->index = SECTOR_DATA_POSITION[sector - 1] + 39;
+                }
+
+                status &= ~StatusCRC;
+
+                counter = 0x100;
+
                 stepState = StepWaitingMark;
                 markAtHead = Mark;
 
-                headerIndex = 0xff;
-                state = ReadHeaderBytes;
-                nextState = ReadSectorHeader;
-            }
-            else if ((command & 0xf0) == 0xc0)
-            {
-                retries = 5;
-                state = ReadAddressWait;
-                process();
-            }
-            else if ((command & 0xf0) == 0xf0)
-            {
-                if (disks[selectedDiskIndex]->writeProtect)
+                if (command & 0x20)
                 {
-                    status |= StatusProtected;
+                    state = WriteDataFlag;
+                    control |= DRQ;
+                }
+                else
+                {
+                    state = ReadDataFlag;
+                }
+
+                return;
+            }
+
+            case ReadDataFlag:
+            {
+                stepState = StepReadByte;
+                state = ReadDataFlag2;
+                return;
+            }
+
+            case WriteDataFlag:
+            {
+                stepState = StepWriteByte;
+                state = WriteData;
+                control |= Writing;
+                byteAtHead = (command & 0x1) ? 0xf8 : 0xfb;
+                return;
+            }
+
+            case WriteData:
+            {
+                if (control & DRQ)
+                {
+                    if (disks[selectedDiskIndex]->sectorBufferIndex < 0xff)
+                    {
+                        disks[selectedDiskIndex]->dataIndex -= 0x100;
+                        writeDiskData(disks[selectedDiskIndex], disks[selectedDiskIndex]->sectorBuffer, disks[selectedDiskIndex]->sectorBufferIndex);
+                    }
+
+                    status |= StatusLostData;
+                    control &= ~Writing;
                     endProcess();
                     return;
                 }
 
-                state = WriteTrackStart;
-                stepState = StepWaitIndex;
-                control |= DRQ;
-                writeTrackMark = 0;
-            }
-            else if ((command & 0xf0) == 0xe0)
-            {
-                state = ReadTrackStart;
-                stepState = StepWaitIndex;
-            }
+                led = 2;
 
-            return;
-        }
+                byteAtHead = data;
+                data = 0;
 
-        case ReadSectorHeader:
-        {
-            if (header[0] != 0xfe)
-            {
-                state = ReadHeader;
-                process();
+                if (--counter)
+                {
+                    control |= DRQ;
+                }
+                else
+                {
+                    state = WriteCRC1;
+                }
                 return;
             }
 
-            if (header[1] != track)
+            case WriteCRC1:
             {
-                state = ReadHeader;
-                process();
+                state = WriteCRC2;
                 return;
             }
 
-            if (!fastMode || command & 0x20)
+            case WriteCRC2:
             {
-                if (header[3] != sector)
-                {
-                    state = ReadHeader;
-                    process();
-                    return;
-                }
-
-                if ((command & 0x2) && (header[2] & ((command >> 3) & 0x1)))
-                {
-                    state = ReadHeader;
-                    process();
-                    return;
-                }
-            }
-            else
-            {
-                if ((command & 0x2) && (header[2] & ((command >> 3) & 0x1)))
-                {
-                    state = ReadHeader;
-                    process();
-                    return;
-                }
-
-                header[3] = sector;
-                disks[selectedDiskIndex]->index = SECTOR_DATA_POSITION[sector - 1] + 39;
+                state = WriteLast;
+                return;
             }
 
-            status &= ~StatusCRC;
-
-            counter = 0x100;
-
-            stepState = StepWaitingMark;
-            markAtHead = Mark;
-
-            if (command & 0x20)
+            case WriteLast:
             {
-                state = WriteDataFlag;
-                control |= DRQ;
-            }
-            else
-            {
-                state = ReadDataFlag;
+                state = WriteEnd;
+                stepState = StepLastWriteByte;
+                return;
             }
 
-            return;
-        }
-
-        case ReadDataFlag:
-        {
-            stepState = StepReadByte;
-            state = ReadDataFlag2;
-            return;
-        }
-
-        case WriteDataFlag:
-        {
-            stepState = StepWriteByte;
-            state = WriteData;
-            control |= Writing;
-            byteAtHead = (command & 0x1) ? 0xf8 : 0xfb;
-            return;
-        }
-
-        case WriteData:
-        {
-            if (control & DRQ)
+            case WriteEnd:
             {
-                if (disks[selectedDiskIndex]->sectorBufferIndex < 0xff)
-                {
-                    disks[selectedDiskIndex]->dataIndex -= 0x100;
-                    writeDiskData(disks[selectedDiskIndex], disks[selectedDiskIndex]->sectorBuffer, disks[selectedDiskIndex]->sectorBufferIndex);
-                }
-
-                status |= StatusLostData;
                 control &= ~Writing;
-                endProcess();
-                return;
-            }
-
-            led = 2;
-
-            byteAtHead = data;
-            data = 0;
-
-            if (--counter)
-            {
-                control |= DRQ;
-            }
-            else
-            {
-                state = WriteCRC1;
-            }
-            return;
-        }
-
-        case WriteCRC1:
-        {
-            state = WriteCRC2;
-            return;
-        }
-
-        case WriteCRC2:
-        {
-            state = WriteLast;
-            return;
-        }
-
-        case WriteLast:
-        {
-            state = WriteEnd;
-            stepState = StepLastWriteByte;
-            return;
-        }
-
-        case WriteEnd:
-        {
-            control &= ~Writing;
-
-            if (command & 0x10)
-            {
-                ++sector;
-                state = TypeIICommand;
-                process();
-            }
-            else
-            {
-                endProcess();
-            }
-            return;
-        }
-
-        case ReadDataFlag2:
-        {
-            if (byteAtHead == 0xf8)
-            {
-                status |= StatusRecordType;
-            }
-            else if (byteAtHead == 0xfb)
-            {
-                status &= ~StatusRecordType;
-            }
-            else
-            {
-                state = TypeIICommand;
-                process();
-                stepState = None;
-                return;
-            }
-            state = ReadData;
-            return;
-        }
-
-        case ReadData:
-        {
-            led = 1;
-
-            data = byteAtHead;
-
-            if (control & DRQ)
-            {
-                status |= StatusLostData;
-            }
-
-            control |= DRQ;
-            if (!--counter)
-            {
-                state = ReadCRC;
-                counter = 2;
-                return;
-            }
-            return;
-        }
-
-        case ReadCRC:
-        {
-            if (!--counter)
-            {
-                status &= ~StatusCRC;
 
                 if (command & 0x10)
                 {
                     ++sector;
-
-                    if (!fastMode || sector > 16)
-                    {
-                        state = TypeIICommand;
-                        process();
-                    }
-                    else
-                    {
-                        header[3] = sector;
-                        disks[selectedDiskIndex]->index = SECTOR_DATA_POSITION[sector - 1] + 39;
-
-                        status &= ~StatusCRC;
-                        counter = 0x100;
-
-                        stepState = StepWaitingMark;
-                        markAtHead = Mark;
-
-                        state = ReadDataFlag;
-                    }
+                    state = TypeIICommand;
+                    process();
                 }
                 else
                 {
                     endProcess();
                 }
-            }
-
-            return;
-        }
-
-        case WriteTrackStart:
-        {
-            if (control & DRQ)
-            {
-                status |= StatusLostData;
-                endProcess();
                 return;
             }
 
-            control |= Writing;
-            state = WriteTrack;
-
-            disks[selectedDiskIndex]->index = 0xffffffff;
-            disks[selectedDiskIndex]->sectorBufferIndex = 0xff;
-            disks[selectedDiskIndex]->indexDelay = 0;
-
-            process();
-            return;
-        }
-
-        case WriteTrack:
-        {
-
-            if (!retries)
+            case ReadDataFlag2:
             {
-                endProcess();
-                return;
-            }
-
-            if (control & DRQ)
-            {
-                if (disks[selectedDiskIndex]->sectorBufferIndex < 0xff)
+                if (byteAtHead == 0xf8)
                 {
-                    disks[selectedDiskIndex]->dataIndex -= 0x100;
-                    writeDiskData(disks[selectedDiskIndex], disks[selectedDiskIndex]->sectorBuffer, disks[selectedDiskIndex]->sectorBufferIndex);
+                    status |= StatusRecordType;
+                }
+                else if (byteAtHead == 0xfb)
+                {
+                    status &= ~StatusRecordType;
+                }
+                else
+                {
+                    state = TypeIICommand;
+                    process();
+                    stepState = None;
+                    return;
+                }
+                state = ReadData;
+                return;
+            }
+
+            case ReadData:
+            {
+                led = 1;
+
+                data = byteAtHead;
+
+                if (control & DRQ)
+                {
+                    status |= StatusLostData;
                 }
 
-                status |= StatusLostData;
-                control &= ~Writing;
-                endProcess();
-                return;
-            }
-
-            led = 2;
-
-            switch (data)
-            {
-
-            case 0xf5:
-            {
-                ++writeTrackMark;
-
-                byteAtHead = SectorMark;
-                stepState = StepWriteByte;
                 control |= DRQ;
-                break;
+                if (!--counter)
+                {
+                    state = ReadCRC;
+                    counter = 2;
+                    return;
+                }
+                return;
             }
 
-            case 0xf7:
+            case ReadCRC:
             {
-                writeTrackMark = 0;
+                if (!--counter)
+                {
+                    status &= ~StatusCRC;
 
-                byteAtHead = 0;
-                stepState = StepWriteByte;
-                state = WriteTrackCRC;
-                break;
-            }
-
-            default:
-            {
-                if (writeTrackMark == 3 && data == 0xfe)
-                {
-                    writeTrackMark = 0b100000000;
-                }
-                else if (writeTrackMark == 3 && data == 0xfb)
-                {
-                    disks[selectedDiskIndex]->index = SECTOR_DATA_POSITION[writeTrackSector - 1] + 41;
-                }
-                else if (writeTrackMark & 0b100000000)
-                {
-                    ++writeTrackMark;
-                    if (writeTrackMark == 0b100000001)
+                    if (command & 0x10)
                     {
-                        if (track == 0 && side == 1)
+                        ++sector;
+
+                        if (!fastMode || sector > 16)
                         {
-                            disks[selectedDiskIndex]->track0side1data = data;
+                            state = TypeIICommand;
+                            process();
+                        }
+                        else
+                        {
+                            header[3] = sector;
+                            disks[selectedDiskIndex]->index = SECTOR_DATA_POSITION[sector - 1] + 39;
+
+                            status &= ~StatusCRC;
+                            counter = 0x100;
+
+                            stepState = StepWaitingMark;
+                            markAtHead = Mark;
+
+                            state = ReadDataFlag;
                         }
                     }
                     else
                     {
-                        if (writeTrackMark == 0b100000011)
-                        {
-                            writeTrackSector = data;
-                            writeTrackMark = 0;
-                        }
+                        endProcess();
                     }
                 }
-                else
-                {
-                    writeTrackMark = 0;
-                }
 
-                byteAtHead = data;
-                stepState = StepWriteByte;
-                control |= DRQ;
-                break;
-            }
-            }
-
-            return;
-        }
-
-        case WriteTrackCRC:
-        {
-            byteAtHead = 0x0;
-            stepState = StepWriteByte;
-            state = WriteTrack;
-            control |= DRQ;
-            return;
-        }
-
-        case ReadTrackStart:
-        {
-            stepState = StepReadByte;
-            state = ReadTrackData;
-            retries = 1;
-            return;
-        }
-
-        case ReadTrackData:
-        {
-            if (!retries)
-            {
-                endProcess();
                 return;
             }
 
-            led = 1;
-
-            if (control & DRQ)
+            case WriteTrackStart:
             {
-                status |= StatusLostData;
+                if (control & DRQ)
+                {
+                    status |= StatusLostData;
+                    endProcess();
+                    return;
+                }
+
+                control |= Writing;
+                state = WriteTrack;
+
+                disks[selectedDiskIndex]->index = 0xffffffff;
+                disks[selectedDiskIndex]->sectorBufferIndex = 0xff;
+                disks[selectedDiskIndex]->indexDelay = 0;
+
+                process();
+                return;
             }
 
-            control |= DRQ;
-            data = byteAtHead;
-            return;
-        }
+            case WriteTrack:
+            {
+
+                if (!retries)
+                {
+                    endProcess();
+                    return;
+                }
+
+                if (control & DRQ)
+                {
+                    if (disks[selectedDiskIndex]->sectorBufferIndex < 0xff)
+                    {
+                        disks[selectedDiskIndex]->dataIndex -= 0x100;
+                        writeDiskData(disks[selectedDiskIndex], disks[selectedDiskIndex]->sectorBuffer, disks[selectedDiskIndex]->sectorBufferIndex);
+                    }
+
+                    status |= StatusLostData;
+                    control &= ~Writing;
+                    endProcess();
+                    return;
+                }
+
+                led = 2;
+
+                switch (data)
+                {
+
+                case 0xf5:
+                {
+                    ++writeTrackMark;
+
+                    byteAtHead = SectorMark;
+                    stepState = StepWriteByte;
+                    control |= DRQ;
+                    break;
+                }
+
+                case 0xf7:
+                {
+                    writeTrackMark = 0;
+
+                    byteAtHead = 0;
+                    stepState = StepWriteByte;
+                    state = WriteTrackCRC;
+                    break;
+                }
+
+                default:
+                {
+                    if (writeTrackMark == 3 && data == 0xfe)
+                    {
+                        writeTrackMark = 0b100000000;
+                    }
+                    else if (writeTrackMark == 3 && data == 0xfb)
+                    {
+                        disks[selectedDiskIndex]->index = SECTOR_DATA_POSITION[writeTrackSector - 1] + 41;
+                    }
+                    else if (writeTrackMark & 0b100000000)
+                    {
+                        ++writeTrackMark;
+                        if (writeTrackMark == 0b100000001)
+                        {
+                            if (track == 0 && side == 1)
+                            {
+                                disks[selectedDiskIndex]->track0side1data = data;
+                            }
+                        }
+                        else
+                        {
+                            if (writeTrackMark == 0b100000011)
+                            {
+                                writeTrackSector = data;
+                                writeTrackMark = 0;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        writeTrackMark = 0;
+                    }
+
+                    byteAtHead = data;
+                    stepState = StepWriteByte;
+                    control |= DRQ;
+                    break;
+                }
+                }
+
+                return;
+            }
+
+            case WriteTrackCRC:
+            {
+                byteAtHead = 0x0;
+                stepState = StepWriteByte;
+                state = WriteTrack;
+                control |= DRQ;
+                return;
+            }
+
+            case ReadTrackStart:
+            {
+                stepState = StepReadByte;
+                state = ReadTrackData;
+                retries = 1;
+                return;
+            }
+
+            case ReadTrackData:
+            {
+                if (!retries)
+                {
+                    endProcess();
+                    return;
+                }
+
+                led = 1;
+
+                if (control & DRQ)
+                {
+                    status |= StatusLostData;
+                }
+
+                control |= DRQ;
+                data = byteAtHead;
+                return;
+            }
+            }
         }
     }
+
+    uint8_t led;
 
     void ioWrite(uint16_t port, uint8_t value)
     {

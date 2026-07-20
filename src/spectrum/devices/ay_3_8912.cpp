@@ -3,83 +3,83 @@
 
 namespace ay_3_8912
 {
-    static constexpr int levels[16] = {
-        0x0000, 0x0385, 0x053d, 0x0770,
-        0x0ad7, 0x0fd5, 0x15b0, 0x230c,
-        0x2b4c, 0x43c1, 0x5a4b, 0x732f,
-        0x9204, 0xaff1, 0xd921, 0xffff};
-
-    static constexpr int MAX_DC_BUFFER_LENGTH = 882;
-
-    static constexpr int ENV_CONT = 8;
-    static constexpr int ENV_ATTACK = 4;
-    static constexpr int ENV_ALT = 2;
-    static constexpr int ENV_HOLD = 1;
-
-    static constexpr int CLOCK_DIVISOR = 16;
-	static constexpr int CLOCK_RATIO = 2;
-
-    bool enabled = false;
-
-	DcAdjustmentFilter filterA(MAX_DC_BUFFER_LENGTH);
-	DcAdjustmentFilter filterB(MAX_DC_BUFFER_LENGTH);
-	DcAdjustmentFilter filterC(MAX_DC_BUFFER_LENGTH);
-
-    uint8_t selectedRegister = 0;
-
-    int chanASample;
-    int chanBSample;
-    int chanCSample;
-
-    uint32_t toneLevels[16];
-    uint32_t toneTick[3];
-    uint32_t toneHigh[3];
-    uint32_t noiseTick;
-    uint32_t toneCycles;
-    uint32_t envCycles;
-    uint32_t envInternalTick;
-    uint32_t envTick;
-    uint32_t tonePeriod[3];
-    uint32_t noisePeriod;
-    uint32_t envPeriod;
-    uint8_t registers[16];
-
-    int32_t envFirst = 1;
-    int32_t envRev = 0;
-    int32_t envCounter = 15;
-    int32_t toneLevel[3];
-    int rng = 1;
-    int noiseToggle = 0;
-    int envshape;
-    int level;
-    int noiseCount = 0;
-    int mixer;
-    int toneCount;
-
-    static void doTone(int level, unsigned int toneCount, int *sample, int chan)
+    namespace
     {
-        *sample = 0;
+        constexpr int levels[16] = {
+            0x0000, 0x0385, 0x053d, 0x0770,
+            0x0ad7, 0x0fd5, 0x15b0, 0x230c,
+            0x2b4c, 0x43c1, 0x5a4b, 0x732f,
+            0x9204, 0xaff1, 0xd921, 0xffff};
 
-        toneTick[chan] += toneCount;
+        constexpr int ENV_CONT = 8;
+        constexpr int ENV_ATTACK = 4;
+        constexpr int ENV_ALT = 2;
+        constexpr int ENV_HOLD = 1;
 
-        if (toneTick[chan] >= tonePeriod[chan])
+        constexpr int CLOCK_DIVISOR = 16;
+        constexpr int CLOCK_RATIO = 2;
+
+        uint8_t selectedRegister = 0;
+
+        int chanASample;
+        int chanBSample;
+        int chanCSample;
+
+        uint32_t toneLevels[16];
+        uint32_t toneTick[3];
+        uint32_t toneHigh[3];
+        uint32_t noiseTick;
+        uint32_t toneCycles;
+        uint32_t envCycles;
+        uint32_t envInternalTick;
+        uint32_t envTick;
+        uint32_t tonePeriod[3];
+        uint32_t noisePeriod;
+        uint32_t envPeriod;
+        uint8_t registers[16];
+
+        int32_t envFirst = 1;
+        int32_t envRev = 0;
+        int32_t envCounter = 15;
+        int32_t toneLevel[3];
+        int rng = 1;
+        int noiseToggle = 0;
+        int envshape;
+        int level;
+        int noiseCount = 0;
+        int mixer;
+        int toneCount;
+
+        void doTone(int level, unsigned int toneCount, int *sample, int chan)
         {
-            toneTick[chan] -= tonePeriod[chan];
-            toneHigh[chan] = !toneHigh[chan];
-        }
+            *sample = 0;
 
-        if (level)
-        {
-            if (toneHigh[chan])
+            toneTick[chan] += toneCount;
+
+            if (toneTick[chan] >= tonePeriod[chan])
             {
-                *sample = level;
+                toneTick[chan] -= tonePeriod[chan];
+                toneHigh[chan] = !toneHigh[chan];
             }
-            else
+
+            if (level)
             {
-                *sample = 0;
+                if (toneHigh[chan])
+                {
+                    *sample = level;
+                }
+                else
+                {
+                    *sample = 0;
+                }
             }
         }
     }
+
+    bool enabled = false;
+    DcAdjustmentFilter filterA;
+    DcAdjustmentFilter filterB;
+    DcAdjustmentFilter filterC;
 
     void setVolume(int volume)
     {

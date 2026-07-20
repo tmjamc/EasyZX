@@ -4,10 +4,9 @@
 
 namespace ay_3_8912
 {
-    static constexpr int MAX_AMPLITUDE = 3000;
+    constexpr int MAX_AMPLITUDE = 3000;
 
     extern bool enabled;
-    
 	extern DcAdjustmentFilter filterA;
 	extern DcAdjustmentFilter filterB;
 	extern DcAdjustmentFilter filterC;

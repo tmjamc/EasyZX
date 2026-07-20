@@ -5,13 +5,13 @@
 
 namespace main
 {
-    constexpr static int DEFAULT_BANK_PAGES_48K[4] = { 0, 0, 1, 2 };
-    constexpr static const char* DEFAULT_ROM_NAMES_48K[1] = { "48.rom" };
+    constexpr int DEFAULT_BANK_PAGES_48K[4] = { 0, 0, 1, 2 };
+    constexpr const char* DEFAULT_ROM_NAMES_48K[1] = { "48.rom" };
 
-    constexpr static int DEFAULT_BANK_PAGES_128K[4] = { 0, 5, 2, 0 };
-    constexpr static const char* DEFAULT_ROM_NAMES_128K[2] = { "128-0.rom", "128-1.rom" };
+    constexpr int DEFAULT_BANK_PAGES_128K[4] = { 0, 5, 2, 0 };
+    constexpr const char* DEFAULT_ROM_NAMES_128K[2] = { "128-0.rom", "128-1.rom" };
 
-    constexpr static const char* DEFAULT_ROM_NAMES_PENTAGON_128K[2] = { "128p-0.rom", "128p-1.rom" };
+    constexpr const char* DEFAULT_ROM_NAMES_PENTAGON_128K[2] = { "128p-0.rom", "128p-1.rom" };
 
     struct Model
     {
@@ -32,7 +32,7 @@ namespace main
         const char* const* romFileNames;
     };
 
-    constexpr static Model SPECTRUM_48K =
+    constexpr Model SPECTRUM_48K =
     {
         .tactsPerFrame = 69888,
         .tactsPerLine = 224,
@@ -50,7 +50,7 @@ namespace main
         .romFileNames = DEFAULT_ROM_NAMES_48K
     };
 
-    constexpr static Model SPECTRUM_128K =
+    constexpr Model SPECTRUM_128K =
     {
         .tactsPerFrame = 70908,
         .tactsPerLine = 228,
@@ -68,7 +68,7 @@ namespace main
         .romFileNames = DEFAULT_ROM_NAMES_128K
     };
 
-    constexpr static Model PENTAGON_128K =
+    constexpr Model PENTAGON_128K =
     {
         .tactsPerFrame = 71680,
         .tactsPerLine = 224,
@@ -88,7 +88,6 @@ namespace main
 
     extern bool emulationThreadReady;
     extern const Model* currentModel;
-    extern uint64_t totalTacts;
     extern int currentTact;
     extern int currentFrame;
   	extern bool* keyStates;

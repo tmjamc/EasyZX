@@ -11,126 +11,122 @@
 
 namespace display
 {
-	uint32_t* displayBuffer;
-
-	bool viewportChanged = true;
-	bool shaderChanged = true;
-	int glWidth;
-	int glHeight;
-	float width;
-	float height;
-
-	uint32_t texture = 0;
-	uint32_t VAO = 0;
-	uint32_t VBO = 0;
-	uint32_t EBO = 0;
-
-    bool renderThreadReady = false;
-	std::thread renderThread;
-
-	bool frameReady = false;
-	std::mutex frameReadyMutex;
-	std::condition_variable frameReadyConditionVariable;
-
-	float vertices[]
+	namespace
 	{
-		-1.0f, -1.0f,   0.0f, 1.0f,
-		-1.0f,  1.0f,   0.0f, 0.0f,
-		1.0f, -1.0f,   1.0f, 1.0f,
-		1.0f,  1.0f,   1.0f, 0.0f,
-	};
+		bool viewportChanged = true;
+		bool shaderChanged = true;
+		int glWidth;
+		int glHeight;
+		float width;
+		float height;
 
-	unsigned int indices[]
-	{
-		0, 1, 3,
-		3, 2, 0
-	};
+		uint32_t texture = 0;
+		uint32_t VAO = 0;
+		uint32_t VBO = 0;
+		uint32_t EBO = 0;
 
-	static void init()
-	{
-		// Set OpenGL context
-		wglMakeCurrent(win_app::hDC, win_app::glCtx);
+		std::thread renderThread;
 
-		glClearColor(settings::current.displayBackgroundColorR, settings::current.displayBackgroundColorG, settings::current.displayBackgroundColorB, 1.0f);
-
-		// Declare vertex arrays and buffers
-		glGenVertexArrays(1, &VAO);
-		glGenBuffers(1, &VBO);
-
-		// Declare elements buffer array for triangle indices
-		glGenBuffers(1, &EBO);
-
-		// Bind the Vertex Array Object
-		glBindVertexArray(VAO);
-		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-		// Bind the elements buffer
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-		// Declare vertices positions attribute for shaders
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
-		glEnableVertexAttribArray(0);
-
-		// Declare uv coordinates attribute for shaders
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
-		glEnableVertexAttribArray(1);
-
-		// Declare and bind texture for screen drawing
-		glGenTextures(1, &texture);
-		glBindTexture(GL_TEXTURE_2D, texture);
-
-		// Set the texture wrapping parameters
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-		// Set texture filtering parameters
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-		// Set texture dimensions
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, GL_DISPLAY_BUFFER_WIDTH, GL_DISPLAY_BUFFER_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-	}
-
-	static void run()
-	{
-		init();
-		
-		renderThreadReady = true;
-
-		while (win_app::running)
+		float vertices[]
 		{
-			// Wait for frame to be ready
-			if (main::emulationThreadReady)
+			-1.0f, -1.0f,   0.0f, 1.0f,
+			-1.0f,  1.0f,   0.0f, 0.0f,
+			1.0f, -1.0f,   1.0f, 1.0f,
+			1.0f,  1.0f,   1.0f, 0.0f,
+		};
+
+		unsigned int indices[]
+		{
+			0, 1, 3,
+			3, 2, 0
+		};
+
+		void init()
+		{
+			// Set OpenGL context
+			wglMakeCurrent(win_app::hDC, win_app::glCtx);
+
+			glClearColor(settings::current.displayBackgroundColorR, settings::current.displayBackgroundColorG, settings::current.displayBackgroundColorB, 1.0f);
+
+			// Declare vertex arrays and buffers
+			glGenVertexArrays(1, &VAO);
+			glGenBuffers(1, &VBO);
+
+			// Declare elements buffer array for triangle indices
+			glGenBuffers(1, &EBO);
+
+			// Bind the Vertex Array Object
+			glBindVertexArray(VAO);
+			glBindBuffer(GL_ARRAY_BUFFER, VBO);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+			// Bind the elements buffer
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+			// Declare vertices positions attribute for shaders
+			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+			glEnableVertexAttribArray(0);
+
+			// Declare uv coordinates attribute for shaders
+			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+			glEnableVertexAttribArray(1);
+
+			// Declare and bind texture for screen drawing
+			glGenTextures(1, &texture);
+			glBindTexture(GL_TEXTURE_2D, texture);
+
+			// Set the texture wrapping parameters
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+			// Set texture filtering parameters
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+			// Set texture dimensions
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, GL_DISPLAY_BUFFER_WIDTH, GL_DISPLAY_BUFFER_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+		}
+
+		void run()
+		{
+			init();
+
+			glClear(GL_COLOR_BUFFER_BIT);
+			SwapBuffers(win_app::hDC);
+
+			while (!main::emulationThreadReady)
 			{
+				Sleep(1);
+			}
+
+			while (win_app::running)
+			{
+				// Wait for frame to be ready
 				std::unique_lock<std::mutex> lock(frameReadyMutex);
 				frameReadyConditionVariable.wait(lock, []
 				{
 					return frameReady;
 				});
 				frameReady = false;
-			}
 
-			if (viewportChanged)
-			{
-				viewportChanged = false;
-				glViewport(0, 0, glWidth, glHeight);
-			}
-			
-			if (shaderChanged)
-			{
-				shaderChanged = false;
-				// TODO: get shader from settings
+				if (viewportChanged)
+				{
+					viewportChanged = false;
+					glViewport(0, 0, glWidth, glHeight);
+				}
+				
+				if (shaderChanged)
+				{
+					shaderChanged = false;
+					// TODO: get shader from settings
 
-				shader::cleanUp();
-				shader::compile(IDR_SHADER_SHARP_VERT, IDR_SHADER_SHARP_FRAG);
-			}
+					shader::cleanUp();
+					shader::compile(IDR_SHADER_SHARP_VERT, IDR_SHADER_SHARP_FRAG);
+				}
 
-			glClear(GL_COLOR_BUFFER_BIT);
+				glClear(GL_COLOR_BUFFER_BIT);
 
-			if (main::emulationThreadReady)
-			{
 				// Upload the framebuffer into the OpenGL texture.
 				// The texture is reused every frame to avoid recreating GPU resources.
 				glBindTexture(GL_TEXTURE_2D, texture);
@@ -198,16 +194,18 @@ namespace display
 				glBindVertexArray(VAO);
 				glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
 				glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+				// Present
+				SwapBuffers(win_app::hDC);
 			}
-
-			// Present
-			SwapBuffers(win_app::hDC);
+			
+			shader::cleanUp();
 		}
-
-		renderThreadReady = false;
-		
-		shader::cleanUp();
 	}
+	uint32_t* displayBuffer;
+	bool frameReady = false;
+	std::mutex frameReadyMutex;
+	std::condition_variable frameReadyConditionVariable;
 
 	void startRenderThread()
 	{

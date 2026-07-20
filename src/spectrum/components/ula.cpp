@@ -4,125 +4,147 @@
 #include "memory.h"
 #include "tape.h"
 
+#define ATTR_GET_FLASH(a) (a & (1<<7)) && ((main::currentFrame % 64) < 32)
+#define ATTR_GET_INK(a) (a & 0x07) | ((a & (1<<6)) >> 3)
+#define ATTR_GET_PAPER(a) ((a >> 3) & 0x07) | ((a & (1<<6)) >> 3)
+#define KEY_PRESSED(vKey, bit) if (main::keyStates[vKey] /*|| _zx->app->display->keyboard->keyStates[vKey]*/) { data &= ~(0x01 << bit); }
+
 namespace ula
 {
-    #define ATTR_GET_FLASH(a) (a & (1<<7)) && ((main::currentFrame % 64) < 32)
-    #define ATTR_GET_INK(a) (a & 0x07) | ((a & (1<<6)) >> 3)
-    #define ATTR_GET_PAPER(a) ((a >> 3) & 0x07) | ((a & (1<<6)) >> 3)
-    #define KEY_PRESSED(vKey, bit) if (main::keyStates[vKey] /*|| _zx->app->display->keyboard->keyStates[vKey]*/) { data &= ~(0x01 << bit); }
-
-    constexpr static uint8_t CONTENDED_MEMORY_PATTERN[8] = { 6, 5, 4, 3, 2, 1, 0, 0 };
-
-    int firstBytePixelTactIndex;
-
-    uint8_t portData = 0xff;
-
-    int16_t* floatingBusAddresses = nullptr;
-    int floatingBusAddressesLength = 0;
-    uint8_t* contendedMemoryTacts = nullptr;
-    int contendedMemoryTactsLength = 0;
-
-    static void buildTables()
+    namespace
     {
-        /*
-        * IMO this is the document with the cleanest explanation for contention and ula timings:
-        * https://github.com/kosarev/zx/blob/master/test/screen_timing/SCREEN_TIMING.md
-        *
-        * The base tick
-        * =============
-        * The first two pixels of the screen area are displayed at CPU tick 64 * 224 + 4 = 14340.
-        *
-        * The 64 is the number of scanlines before the screen area begins (the top border) and 224 is the number of CPU ticks per scanline.
-        *
-        * All ticks are since ~INT becomes active, with the first tick since active ~INT being 0.
-        *
-        * Border timing
-        * =============
-        * The border colour value is latched and the first two pixels of the corresponding 8-pixel border chunk are displayed at every tick that is a multiple of 4.
-        *
-        * Note that Z80 writes ports at T2 of the output cycle. This means to take effect the output cycle shall be started at least one tick ahead of the moment when the new border colour value is supposed to be latched.
-        *
-        * Pixel pattern and colour attribute timing
-        * =========================================
-        * The first two bytes of the screen area at addresses 0x4000 and 0x4001 and the first two bytes of the colour attribute area at addresses 0x5800 and 0x5801 are latched during the first memory contention cycle at ticks 14336-14341.
-        *
-        * Similarly to output cycles, memory write cycles actually write the value at T2, so such cycles too have to come at least one tick ahead of the latching moment.
-        *
-        * The four bytes read are then displayed during ticks 14340-14347 as a chunk of 16 pixels.
-        *
-        * Then at tick 14348 subsequent four bytes are read and another chunk of 16 pixels is displayed on the screen.
-        *
-        * Display, memory contention and ULA reads (floating bus) cycles
-        * ==============================================================
-        *
-        * Tick     Contention         ULA read   Screen area pixels
-        * ======   ================   ========   =================================
-        * 14,336   6 (until 13,342)   -          -
-        * 14,337   5 (until 13,342)   -          -
-        * 14,338   4 (until 13,342)   0x4000     -
-        * 14,339   3 (until 13,342)   0x5800     -
-        * 14,340   2 (until 13,342)   0x4001     0b11000000 from 0x4000 and 0x5800
-        * 14,341   1 (until 13,342)   0x5801     0b00110000 from 0x4000 and 0x5800
-        * 14,342   -                  -          0b00001100 from 0x4000 and 0x5800
-        * 14,343   -                  -          0b00000011 from 0x4000 and 0x5800
-        * 14,344   6 (until 14,350)   -          0b11000000 from 0x4001 and 0x5801
-        * 14,345   5 (until 14,350)   -          0b00110000 from 0x4001 and 0x5801
-        * 14,346   4 (until 14,350)   0x4002     0b00001100 from 0x4001 and 0x5801
-        * 14,347   3 (until 14,350)   0x5802     0b00000011 from 0x4001 and 0x5801
-        * 14,348   2 (until 14,350)   0x4003     0b11000000 from 0x4002 and 0x5802
-        * 14,349   1 (until 14,350)   0x5803     0b00110000 from 0x4002 and 0x5802
-        * 14,350   -                  -          0b00001100 from 0x4002 and 0x5802
-        * 14,351   -                  -          0b00000011 from 0x4002 and 0x5802
-        *
-        */
+        constexpr uint8_t CONTENDED_MEMORY_PATTERN[8] = { 6, 5, 4, 3, 2, 1, 0, 0 };
 
-        cleanUp();
-
-        // Build contention table
-        if (main::currentModel->contendedMemory)
+        constexpr uint32_t PALETTE[16] =
         {
-            contendedMemoryTactsLength = main::currentModel->tactsPerFrame;
-            contendedMemoryTacts = new uint8_t[contendedMemoryTactsLength];
-            std::fill(contendedMemoryTacts, contendedMemoryTacts + contendedMemoryTactsLength, static_cast<uint8_t>(0));
+            0x000000,   // black
+            0x0000c0,   // blue
+            0xc00000,   // red
+            0xc000c0,   // magenta
+            0x00c000,   // green
+            0x00c0c0,   // cyan
+            0xc0c000,   // yellow
+            0xc0c0c0,   // white
+            0x000000,   // bright black
+            0x0000ff,   // bright blue
+            0xff0000,   // bright red
+            0xff00ff,   // bright magenta
+            0x00ff00,   // bright green
+            0x00ffff,   // bright cyan
+            0xffff00,   // bright yellow
+            0xffffff    // bright white
+        };
 
-            int index = 0;
-            int tact = main::currentModel->tactsToFirstScreenByte - 5;
-            while (tact < main::currentModel->tactsToFirstScreenByte - 5 + 192 * main::currentModel->tactsPerLine)
+        int firstBytePixelTactIndex;
+        int16_t* floatingBusAddresses = nullptr;
+        int floatingBusAddressesLength = 0;
+        uint8_t* contendedMemoryTacts = nullptr;
+        int contendedMemoryTactsLength = 0;
+
+        void buildTables()
+        {
+            /*
+            * IMO this is the document with the cleanest explanation for contention and ula timings:
+            * https://github.com/kosarev/zx/blob/master/test/screen_timing/SCREEN_TIMING.md
+            *
+            * The base tick
+            * =============
+            * The first two pixels of the screen area are displayed at CPU tick 64 * 224 + 4 = 14340.
+            *
+            * The 64 is the number of scanlines before the screen area begins (the top border) and 224 is the number of CPU ticks per scanline.
+            *
+            * All ticks are since ~INT becomes active, with the first tick since active ~INT being 0.
+            *
+            * Border timing
+            * =============
+            * The border colour value is latched and the first two pixels of the corresponding 8-pixel border chunk are displayed at every tick that is a multiple of 4.
+            *
+            * Note that Z80 writes ports at T2 of the output cycle. This means to take effect the output cycle shall be started at least one tick ahead of the moment when the new border colour value is supposed to be latched.
+            *
+            * Pixel pattern and colour attribute timing
+            * =========================================
+            * The first two bytes of the screen area at addresses 0x4000 and 0x4001 and the first two bytes of the colour attribute area at addresses 0x5800 and 0x5801 are latched during the first memory contention cycle at ticks 14336-14341.
+            *
+            * Similarly to output cycles, memory write cycles actually write the value at T2, so such cycles too have to come at least one tick ahead of the latching moment.
+            *
+            * The four bytes read are then displayed during ticks 14340-14347 as a chunk of 16 pixels.
+            *
+            * Then at tick 14348 subsequent four bytes are read and another chunk of 16 pixels is displayed on the screen.
+            *
+            * Display, memory contention and ULA reads (floating bus) cycles
+            * ==============================================================
+            *
+            * Tick     Contention         ULA read   Screen area pixels
+            * ======   ================   ========   =================================
+            * 14,336   6 (until 13,342)   -          -
+            * 14,337   5 (until 13,342)   -          -
+            * 14,338   4 (until 13,342)   0x4000     -
+            * 14,339   3 (until 13,342)   0x5800     -
+            * 14,340   2 (until 13,342)   0x4001     0b11000000 from 0x4000 and 0x5800
+            * 14,341   1 (until 13,342)   0x5801     0b00110000 from 0x4000 and 0x5800
+            * 14,342   -                  -          0b00001100 from 0x4000 and 0x5800
+            * 14,343   -                  -          0b00000011 from 0x4000 and 0x5800
+            * 14,344   6 (until 14,350)   -          0b11000000 from 0x4001 and 0x5801
+            * 14,345   5 (until 14,350)   -          0b00110000 from 0x4001 and 0x5801
+            * 14,346   4 (until 14,350)   0x4002     0b00001100 from 0x4001 and 0x5801
+            * 14,347   3 (until 14,350)   0x5802     0b00000011 from 0x4001 and 0x5801
+            * 14,348   2 (until 14,350)   0x4003     0b11000000 from 0x4002 and 0x5802
+            * 14,349   1 (until 14,350)   0x5803     0b00110000 from 0x4002 and 0x5802
+            * 14,350   -                  -          0b00001100 from 0x4002 and 0x5802
+            * 14,351   -                  -          0b00000011 from 0x4002 and 0x5802
+            *
+            */
+
+            cleanUp();
+
+            // Build contention table
+            if (main::currentModel->contendedMemory)
             {
-                contendedMemoryTacts[tact++] = CONTENDED_MEMORY_PATTERN[index % 8];
+                contendedMemoryTactsLength = main::currentModel->tactsPerFrame;
+                contendedMemoryTacts = new uint8_t[contendedMemoryTactsLength];
+                std::fill(contendedMemoryTacts, contendedMemoryTacts + contendedMemoryTactsLength, static_cast<uint8_t>(0));
 
-                if (++index == 128)
+                int index = 0;
+                int tact = main::currentModel->tactsToFirstScreenByte - 5;
+                while (tact < main::currentModel->tactsToFirstScreenByte - 5 + 192 * main::currentModel->tactsPerLine)
                 {
-                    index = 0;
+                    contendedMemoryTacts[tact++] = CONTENDED_MEMORY_PATTERN[index % 8];
+
+                    if (++index == 128)
+                    {
+                        index = 0;
+                        tact += (main::currentModel->tactsPerLine - 128);
+                    }
+                }
+            }
+
+            // Build floating bus table
+            if (main::currentModel->floatingBus)
+            {
+                floatingBusAddressesLength = main::currentModel->tactsPerFrame;
+                floatingBusAddresses = new int16_t[floatingBusAddressesLength];
+                std::fill(floatingBusAddresses, floatingBusAddresses + floatingBusAddressesLength, static_cast<int16_t>(-1));
+                int tact = main::currentModel->tactsToFirstScreenByte - 2;
+                while (tact < main::currentModel->tactsToFirstScreenByte - 2 + 192 * main::currentModel->tactsPerLine)
+                {
+                    const int scrY = (tact + display::GL_MAX_BORDER_SIZE / 2 - main::currentModel->tactsToFirstScreenByte) / main::currentModel->tactsPerLine;
+                    int pixelAddr = ((scrY & 0xc0) << 5) | ((scrY & 0x07) << 8) | ((scrY & 0x38) << 2);
+                    int attrAddr = 0x1800 + ((scrY & ~0x07) << 2);
+                    for (int i = 0; i < 16; ++i)
+                    {
+                        floatingBusAddresses[tact++] = pixelAddr++;
+                        floatingBusAddresses[tact++] = attrAddr++;
+                        floatingBusAddresses[tact++] = pixelAddr++;
+                        floatingBusAddresses[tact++] = attrAddr++;
+                        tact += 4;
+                    }
                     tact += (main::currentModel->tactsPerLine - 128);
                 }
             }
         }
-
-        // Build floating bus table
-        if (main::currentModel->floatingBus)
-        {
-            floatingBusAddressesLength = main::currentModel->tactsPerFrame;
-            floatingBusAddresses = new int16_t[floatingBusAddressesLength];
-            std::fill(floatingBusAddresses, floatingBusAddresses + floatingBusAddressesLength, static_cast<int16_t>(-1));
-            int tact = main::currentModel->tactsToFirstScreenByte - 2;
-            while (tact < main::currentModel->tactsToFirstScreenByte - 2 + 192 * main::currentModel->tactsPerLine)
-            {
-                const int scrY = (tact + display::GL_MAX_BORDER_SIZE / 2 - main::currentModel->tactsToFirstScreenByte) / main::currentModel->tactsPerLine;
-                int pixelAddr = ((scrY & 0xc0) << 5) | ((scrY & 0x07) << 8) | ((scrY & 0x38) << 2);
-                int attrAddr = 0x1800 + ((scrY & ~0x07) << 2);
-                for (int i = 0; i < 16; ++i)
-                {
-                    floatingBusAddresses[tact++] = pixelAddr++;
-                    floatingBusAddresses[tact++] = attrAddr++;
-                    floatingBusAddresses[tact++] = pixelAddr++;
-                    floatingBusAddresses[tact++] = attrAddr++;
-                    tact += 4;
-                }
-                tact += (main::currentModel->tactsPerLine - 128);
-            }
-        }
     }
+
+    uint8_t portData = 0xff;
 
     void init()
     {
