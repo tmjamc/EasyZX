@@ -62,113 +62,6 @@
                     0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
                     0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e
 
-#define DiskControlRead 0x000
-#define DiskControlSeekUp 0x100
-#define DiskControlSeekDown 0x300
-#define DiskControlWrite 0x400
-
-#define DiskOutStepping 0x40
-#define DiskOutTrack0 0x80
-#define DiskOutIndex 0x20
-
-#define CLK 0x1
-#define DDEN 0x2
-#define Test 0x4
-
-#define RateSelect CLK | DDEN | Test
-
-#define HLD 0x8
-#define HLT 0x10
-#define INTRQ 0x20
-#define Dire 0x40
-#define Writing 0x80
-#define DRQ 0x100
-#define CommandType 0x200
-#define FINTRQ 0x400
-#define ONE 0x800
-#define Power0 0x1000
-#define Power1 0x2000
-#define Power2 0x4000
-#define Power3 0x8000
-#define NotToReady 0x10000
-#define ReadyToNot 0x20000
-#define IndexPulse 0x40000
-#define Inmediate 0x80000
-
-#define StepIdle 0x0
-#define StepWaiting 0x1
-#define StepWaitingMark 0x2
-#define StepReadByte 0x3
-#define StepWriteByte 0x4
-#define StepLastWriteByte 0x5
-#define StepWaitIndex 0x6
-#define StepWriteRaw 0x7
-
-#define None 0x0
-#define SettingHeader 0x1
-#define SettingEnd 0x2
-#define TypeI0 0x3
-#define TypeI1 0x4
-#define TypeICheck 0x5
-#define TypeIUpdate 0x6
-#define TypeISeek 0x7
-#define TypeIEnd 0x8
-#define ReadHeader 0x9
-#define TypeIHeaderReaded 0xA
-#define ReadHeaderBytes 0xB
-#define ReadCRC 0xC
-#define TypeIHeadSet 0xD
-#define TypeIISetHead 0xE
-#define TypeIICommand 0xF
-#define ReadDataFlag 0x10
-#define ReadDataFlag2 0x11
-#define ReadData 0x12
-#define ReadSectorHeader 0x13
-#define ReadAddressWait 0x14
-#define ReadAddressBytes 0x15
-#define WriteDataFlag 0x16
-#define WriteData 0x17
-#define WriteCRC1 0x18
-#define WriteCRC2 0x19
-#define WriteEnd 0x1A
-#define WriteLast 0x1B
-#define ReadAddressDataFlag 0x1C
-#define WriteTrack 0x1D
-#define WriteTrackCRC 0x1E
-#define WriteTrackStart 0x1F
-#define ReadTrackStart 0x20
-#define ReadTrackData 0x21
-
-#define StatusBusy 0x1
-#define StatusIndex 0x2
-#define StatusTrack0 0x4
-#define StatusCRC 0x8
-#define StatusSeek 0x10
-#define StatusHeadLoaded 0x20
-#define StatusProtected 0x40
-#define StatusNotReady 0x80
-
-#define StatusDataRequest 0x2
-#define StatusLostData 0x4
-#define StatusRecordNotFound 0x10
-#define StatusRecordType 0x20
-#define StatusWriteFault 0x20
-
-#define StatusSetWP 0x100
-#define StatusSetTrack0 0x200
-#define StatusSetIndex 0x400
-#define StatusSetHead 0x800
-
-#define HeadBit 0x8
-#define UpdateBit 0x10
-#define VerifyBit 0x4
-#define StepInOut 0x40
-#define TypeI 0x80
-
-#define Mark 0xa1a1a1
-#define IndexMark 0xC2
-#define SectorMark 0xA1
-
 namespace wd_1793
 {
     namespace
@@ -210,6 +103,114 @@ namespace wd_1793
         };
 
         constexpr uint16_t SECTOR_DATA_POSITION[16] = {162, 554, 946, 1338, 1730, 2122, 2514, 2906, 3298, 3690, 4082, 4474, 4866, 5258, 5650, 6042};
+
+                
+        constexpr int DiskControlRead = 0x000;
+        constexpr int DiskControlSeekUp = 0x100;
+        constexpr int DiskControlSeekDown = 0x300;
+        constexpr int DiskControlWrite = 0x400;
+
+        constexpr int DiskOutStepping = 0x40;
+        constexpr int DiskOutTrack0 = 0x80;
+        constexpr int DiskOutIndex = 0x20;
+
+        constexpr int CLK = 0x1;
+        constexpr int DDEN = 0x2;
+        constexpr int Test = 0x4;
+
+        constexpr int RateSelect = CLK | DDEN | Test;
+
+        constexpr int HLD = 0x8;
+        constexpr int HLT = 0x10;
+        constexpr int INTRQ = 0x20;
+        constexpr int Dire = 0x40;
+        constexpr int Writing = 0x80;
+        constexpr int DRQ = 0x100;
+        constexpr int CommandType = 0x200;
+        constexpr int FINTRQ = 0x400;
+        constexpr int ONE = 0x800;
+        constexpr int Power0 = 0x1000;
+        constexpr int Power1 = 0x2000;
+        constexpr int Power2 = 0x4000;
+        constexpr int Power3 = 0x8000;
+        constexpr int NotToReady = 0x10000;
+        constexpr int ReadyToNot = 0x20000;
+        constexpr int IndexPulse = 0x40000;
+        constexpr int Inmediate = 0x80000;
+
+        constexpr int StepIdle = 0x0;
+        constexpr int StepWaiting = 0x1;
+        constexpr int StepWaitingMark = 0x2;
+        constexpr int StepReadByte = 0x3;
+        constexpr int StepWriteByte = 0x4;
+        constexpr int StepLastWriteByte = 0x5;
+        constexpr int StepWaitIndex = 0x6;
+        constexpr int StepWriteRaw = 0x7;
+
+        constexpr int None = 0x0;
+        constexpr int SettingHeader = 0x1;
+        constexpr int SettingEnd = 0x2;
+        constexpr int TypeI0 = 0x3;
+        constexpr int TypeI1 = 0x4;
+        constexpr int TypeICheck = 0x5;
+        constexpr int TypeIUpdate = 0x6;
+        constexpr int TypeISeek = 0x7;
+        constexpr int TypeIEnd = 0x8;
+        constexpr int ReadHeader = 0x9;
+        constexpr int TypeIHeaderReaded = 0xa;
+        constexpr int ReadHeaderBytes = 0xb;
+        constexpr int ReadCRC = 0xc;
+        constexpr int TypeIHeadSet = 0xd;
+        constexpr int TypeIISetHead = 0xe;
+        constexpr int TypeIICommand = 0xf;
+        constexpr int ReadDataFlag = 0x10;
+        constexpr int ReadDataFlag2 = 0x11;
+        constexpr int ReadData = 0x12;
+        constexpr int ReadSectorHeader = 0x13;
+        constexpr int ReadAddressWait = 0x14;
+        constexpr int ReadAddressBytes = 0x15;
+        constexpr int WriteDataFlag = 0x16;
+        constexpr int WriteData = 0x17;
+        constexpr int WriteCRC1 = 0x18;
+        constexpr int WriteCRC2 = 0x19;
+        constexpr int WriteEnd = 0x1a;
+        constexpr int WriteLast = 0x1b;
+        constexpr int ReadAddressDataFlag = 0x1c;
+        constexpr int WriteTrack = 0x1d;
+        constexpr int WriteTrackCRC = 0x1e;
+        constexpr int WriteTrackStart = 0x1f;
+        constexpr int ReadTrackStart = 0x20;
+        constexpr int ReadTrackData = 0x21;
+
+        constexpr int StatusBusy = 0x1;
+        constexpr int StatusIndex = 0x2;
+        constexpr int StatusTrack0 = 0x4;
+        constexpr int StatusCRC = 0x8;
+        constexpr int StatusSeek = 0x10;
+        constexpr int StatusHeadLoaded = 0x20;
+        constexpr int StatusProtected = 0x40;
+        constexpr int StatusNotReady = 0x80;
+
+        constexpr int StatusDataRequest = 0x2;
+        constexpr int StatusLostData = 0x4;
+        constexpr int StatusRecordNotFound = 0x10;
+        constexpr int StatusRecordType = 0x20;
+        constexpr int StatusWriteFault = 0x20;
+
+        constexpr int StatusSetWP = 0x100;
+        constexpr int StatusSetTrack0 = 0x200;
+        constexpr int StatusSetIndex = 0x400;
+        constexpr int StatusSetHead = 0x800;
+
+        constexpr int HeadBit = 0x8;
+        constexpr int UpdateBit = 0x10;
+        constexpr int VerifyBit = 0x4;
+        constexpr int StepInOut = 0x40;
+        constexpr int TypeI = 0x80;
+
+        constexpr int Mark = 0xa1a1a1;
+        constexpr int IndexMark = 0xc2;
+        constexpr int SectorMark = 0xa1;
 
         struct Disk
         {
