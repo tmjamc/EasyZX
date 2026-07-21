@@ -15,6 +15,8 @@ namespace main
 
     struct Model
     {
+        const int id;
+        const char* name;
         const int tactsPerFrame;
         const int tactsPerLine;
         const int tactsToFirstScreenByte;
@@ -34,6 +36,8 @@ namespace main
 
     constexpr Model SPECTRUM_48K =
     {
+        .id = 100,
+        .name = "ZX Spectrum 48k",
         .tactsPerFrame = 69888,
         .tactsPerLine = 224,
         .tactsToFirstScreenByte = 14340,
@@ -52,6 +56,8 @@ namespace main
 
     constexpr Model SPECTRUM_128K =
     {
+        .id = 200,
+        .name = "ZX Spectrum 128k",
         .tactsPerFrame = 70908,
         .tactsPerLine = 228,
         .tactsToFirstScreenByte = 14366,
@@ -70,6 +76,8 @@ namespace main
 
     constexpr Model PENTAGON_128K =
     {
+        .id = 300,
+        .name = "Pentagon 128k",
         .tactsPerFrame = 71680,
         .tactsPerLine = 224,
         .tactsToFirstScreenByte = 17987,
@@ -85,6 +93,8 @@ namespace main
         .activeScreenPage = 5,
         .romFileNames = DEFAULT_ROM_NAMES_PENTAGON_128K
     };
+
+    constexpr const Model models[3]= { SPECTRUM_48K, SPECTRUM_128K, PENTAGON_128K };
 
     extern bool emulationThreadReady;
     extern const Model* currentModel;
