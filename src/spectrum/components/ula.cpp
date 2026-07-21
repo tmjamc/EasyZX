@@ -1,3 +1,5 @@
+#include <immintrin.h>
+
 #include "ula.h"
 #include "settings.h"
 #include "display.h"
@@ -40,6 +42,9 @@ namespace ula
         int floatingBusAddressesLength = 0;
         uint8_t* contendedMemoryTacts = nullptr;
         int contendedMemoryTactsLength = 0;
+        uint32_t** displayBuffer = nullptr;
+        int displayBufferIndex = 0;
+        int latestActiveScreenPage = 0;
 
         void buildTables()
         {
@@ -150,6 +155,17 @@ namespace ula
     {
         firstBytePixelTactIndex = main::currentModel->tactsToFirstScreenByte % 4;
         buildTables();
+
+        if (displayBuffer == nullptr)
+        {
+            displayBuffer = new uint32_t*[2];
+
+            displayBuffer[0] = new uint32_t[display::GL_DISPLAY_BUFFER_SIZE];
+            std::fill(displayBuffer[0], displayBuffer[0] + display::GL_DISPLAY_BUFFER_SIZE, 0x00000000);
+
+            displayBuffer[1] = new uint32_t[display::GL_DISPLAY_BUFFER_SIZE];
+            std::fill(displayBuffer[1], displayBuffer[1] + display::GL_DISPLAY_BUFFER_SIZE, 0x00000000);
+        }
     }
 
     void cleanUp()
@@ -168,6 +184,12 @@ namespace ula
             floatingBusAddressesLength = 0;
         }
 
+        if (displayBuffer != nullptr)
+        {
+            delete[display::GL_DISPLAY_BUFFER_SIZE] displayBuffer[0];
+            delete[display::GL_DISPLAY_BUFFER_SIZE] displayBuffer[1];
+            delete[2] displayBuffer;
+        }
     }
 
     void tact()
@@ -179,9 +201,10 @@ namespace ula
         const int y = xTact / main::currentModel->tactsPerLine - main::currentModel->tactsToFirstScreenByte / main::currentModel->tactsPerLine + display::GL_MAX_BORDER_SIZE;
 
         // Check if current coordinates are inside the display buffer
-        if (x >= 0 && x < display::GL_DISPLAY_BUFFER_WIDTH && y >= 0 && y < display::DISPLAY_BUFFER_HEIGHT)
+        if (x >= 0 && x < display::GL_DISPLAY_BUFFER_WIDTH && y >= 0 && y < display::GL_DISPLAY_BUFFER_HEIGHT)
         {
-            uint32_t* scanLine = display::displayBuffer + y * display::GL_DISPLAY_BUFFER_WIDTH;
+            // uint32_t* scanLine = display::displayBuffer + y * display::GL_DISPLAY_BUFFER_WIDTH;
+            uint32_t* scanLine = displayBuffer[displayBufferIndex] + y * display::GL_DISPLAY_BUFFER_WIDTH;
             const int pixIndex = (main::currentTact - firstBytePixelTactIndex) % 4;
 
             // Check if current coordinates are inside the screen
@@ -219,6 +242,26 @@ namespace ula
                 }
             }
         }
+    }
+
+    void updateDisplayBuffer()
+    {
+        if (memory::activeScreenPage == latestActiveScreenPage)
+        {
+            std::memcpy(display::displayBuffer, displayBuffer[displayBufferIndex], display::GL_DISPLAY_BUFFER_SIZE_BYTES);
+        }
+        else
+        {
+            for (int i = 0; i < display::GL_DISPLAY_BUFFER_SIZE; i += 8)
+            {
+                __m256i a = _mm256_loadu_si256((const __m256i*)(displayBuffer[0] + i));
+                __m256i b = _mm256_loadu_si256((const __m256i*)(displayBuffer[1] + i));
+                _mm256_storeu_si256((__m256i*)(display::displayBuffer + i), _mm256_avg_epu8(a, b));
+            }
+        }
+
+        displayBufferIndex = 1 - displayBufferIndex;
+        latestActiveScreenPage = memory::activeScreenPage;
     }
 
     void contendedTacts(uint16_t addr, int tacts, bool force)

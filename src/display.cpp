@@ -209,8 +209,8 @@ namespace display
 
 	void startRenderThread()
 	{
-		displayBuffer = new uint32_t[GL_DISPLAY_BUFFER_WIDTH * GL_DISPLAY_BUFFER_HEIGHT];
-		std::fill(displayBuffer, displayBuffer + GL_DISPLAY_BUFFER_WIDTH * GL_DISPLAY_BUFFER_HEIGHT, 0x00000000);
+		displayBuffer = new uint32_t[GL_DISPLAY_BUFFER_SIZE];
+		std::fill(displayBuffer, displayBuffer + GL_DISPLAY_BUFFER_SIZE, 0x00000000);
 
 		renderThread = std::thread(run);
 	}
@@ -226,7 +226,7 @@ namespace display
 			renderThread.join();
 		}
 
-		delete[GL_DISPLAY_BUFFER_WIDTH * GL_DISPLAY_BUFFER_HEIGHT] displayBuffer;
+		delete[GL_DISPLAY_BUFFER_SIZE] displayBuffer;
 	}
 
 	void setViewport(int width, int height)
