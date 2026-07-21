@@ -28,6 +28,7 @@ namespace win_app
         HINSTANCE hInst;
         HGLRC tmpCtx = nullptr;
         bool consoleEnabled = false;
+        ImGuiContext* imguiContext = nullptr;
 
         LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
@@ -126,7 +127,10 @@ namespace win_app
         {
             info("Cleaning up application");
 
-            ImGui::DestroyContext();
+            if (imguiContext != nullptr)
+            {
+                ImGui::DestroyContext();
+            }
 
             if (hDC != nullptr)
             {
@@ -231,13 +235,15 @@ namespace win_app
         {
             // Setup Dear ImGui context
             IMGUI_CHECKVERSION();
-            ImGui::CreateContext();
+            imguiContext = ImGui::CreateContext();
             ImGuiIO& io = ImGui::GetIO();
             // (void)io;
             io.ConfigFlags &= ~ImGuiConfigFlags_NavEnableGamepad;
             io.ConfigFlags &= ~ImGuiConfigFlags_NavEnableKeyboard;
             io.IniFilename = nullptr;
-            io.MouseDrawCursor = true;
+            // io.MouseDrawCursor = true;
+
+            
         }
     }
 
@@ -268,7 +274,7 @@ namespace win_app
         }
 
         initImGui();
-        
+
         info("Showing main window");
         ShowWindow(hWnd, settings::current.windowMainStatus);
 
