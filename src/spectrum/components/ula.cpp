@@ -44,7 +44,6 @@ namespace ula
         int contendedMemoryTactsLength = 0;
         uint32_t** displayBuffer = nullptr;
         int displayBufferIndex = 0;
-        int latestActiveScreenPage = 0;
 
         void buildTables()
         {
@@ -150,9 +149,11 @@ namespace ula
     }
 
     uint8_t portData = 0xff;
+    bool gigaScreen = false;
 
     void init()
     {
+        gigaScreen = false;
         firstBytePixelTactIndex = main::currentModel->tactsToFirstScreenByte % 4;
         buildTables();
 
@@ -203,7 +204,6 @@ namespace ula
         // Check if current coordinates are inside the display buffer
         if (x >= 0 && x < display::GL_DISPLAY_BUFFER_WIDTH && y >= 0 && y < display::GL_DISPLAY_BUFFER_HEIGHT)
         {
-            // uint32_t* scanLine = display::displayBuffer + y * display::GL_DISPLAY_BUFFER_WIDTH;
             uint32_t* scanLine = displayBuffer[displayBufferIndex] + y * display::GL_DISPLAY_BUFFER_WIDTH;
             const int pixIndex = (main::currentTact - firstBytePixelTactIndex) % 4;
 
@@ -246,11 +246,7 @@ namespace ula
 
     void updateDisplayBuffer()
     {
-        if (memory::activeScreenPage == latestActiveScreenPage)
-        {
-            std::memcpy(display::displayBuffer, displayBuffer[displayBufferIndex], display::GL_DISPLAY_BUFFER_SIZE_BYTES);
-        }
-        else
+        if (gigaScreen)
         {
             for (int i = 0; i < display::GL_DISPLAY_BUFFER_SIZE; i += 8)
             {
@@ -259,9 +255,13 @@ namespace ula
                 _mm256_storeu_si256((__m256i*)(display::displayBuffer + i), _mm256_avg_epu8(a, b));
             }
         }
+        else
+        {
+            std::memcpy(display::displayBuffer, displayBuffer[displayBufferIndex], display::GL_DISPLAY_BUFFER_SIZE_BYTES);
+        }
 
         displayBufferIndex = 1 - displayBufferIndex;
-        latestActiveScreenPage = memory::activeScreenPage;
+        gigaScreen = false;
     }
 
     void contendedTacts(uint16_t addr, int tacts, bool force)

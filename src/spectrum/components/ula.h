@@ -5,6 +5,7 @@
 namespace ula
 {
     extern uint8_t portData;
+    extern bool gigaScreen;
 
     void init();
     void cleanUp();

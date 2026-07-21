@@ -4,6 +4,7 @@
 
 #include "memory.h"
 #include "main.h"
+#include "ula.h"
 #include "win_app.h"
 
 namespace memory
@@ -91,7 +92,6 @@ namespace memory
         }
 
         // Create banks
-        // banksCount = model.banksCount;
         banks = new uint8_t*[main::currentModel->banksCount];
         win_app::info(std::format("MEMORY -> Allocated {} memory banks", main::currentModel->banksCount).c_str());
 
@@ -120,7 +120,12 @@ namespace memory
         activeRomPage = (data & 0x10) >> 4;
         banks[0] = romPages[activeRomPage];
 
+        const int previousActiveScreenPage = activeScreenPage;
         activeScreenPage = ((data & 0x08) == 0) ? 5 : 7;
+        if (previousActiveScreenPage != activeScreenPage)
+        {
+            ula::gigaScreen = true;
+        }
 
         activeRamPage = data & 0x07;
         banks[3] = ramPages[activeRamPage];
