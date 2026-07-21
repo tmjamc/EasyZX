@@ -7,6 +7,7 @@
 #include "settings.h"
 #include "main.h"
 #include "shader.h"
+#include "realtime.h"
 #include "resources/resources.h"
 #include "imgui_impl_win32.h"
 #include "imgui_impl_opengl3.h"
@@ -90,7 +91,7 @@ namespace display
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, GL_DISPLAY_BUFFER_WIDTH, GL_DISPLAY_BUFFER_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 
 			// Initialize ImGui Platform and Renderer backends
-			ImGui_ImplWin32_InitForOpenGL(&win_app::hWnd);
+			ImGui_ImplWin32_InitForOpenGL(win_app::hWnd);
 			ImGui_ImplOpenGL3_Init();
 		}
 
@@ -200,6 +201,18 @@ namespace display
 				glBindVertexArray(VAO);
 				glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
 				glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+				// Start the Dear ImGui frame
+				ImGui_ImplOpenGL3_NewFrame();
+				ImGui_ImplWin32_NewFrame();
+				ImGui::NewFrame();
+
+				// Render UI
+				realtime::render();
+
+				// Render ImGui
+				ImGui::Render();
+		        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 				// Present
 				SwapBuffers(win_app::hDC);

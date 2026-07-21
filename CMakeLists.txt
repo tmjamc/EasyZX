@@ -20,6 +20,7 @@ WIN32
 	src/display.cpp
 	src/shader.cpp
 	src/audio.cpp
+	src/ui/realtime.cpp
 	src/spectrum/main.cpp
 	src/spectrum/components/memory.cpp
 	src/spectrum/components/z80.cpp
@@ -47,6 +48,7 @@ WIN32
 target_include_directories(EasyZX
 PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}/src
+	${CMAKE_CURRENT_SOURCE_DIR}/src/ui
 	${CMAKE_CURRENT_SOURCE_DIR}/src/spectrum
 	${CMAKE_CURRENT_SOURCE_DIR}/src/spectrum/components
 	${CMAKE_CURRENT_SOURCE_DIR}/src/spectrum/devices
