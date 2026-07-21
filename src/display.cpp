@@ -8,6 +8,8 @@
 #include "main.h"
 #include "shader.h"
 #include "resources/resources.h"
+#include "imgui_impl_win32.h"
+#include "imgui_impl_opengl3.h"
 
 namespace display
 {
@@ -86,6 +88,10 @@ namespace display
 
 			// Set texture dimensions
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, GL_DISPLAY_BUFFER_WIDTH, GL_DISPLAY_BUFFER_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+
+			// Initialize ImGui Platform and Renderer backends
+			ImGui_ImplWin32_InitForOpenGL(&win_app::hWnd);
+			ImGui_ImplOpenGL3_Init();
 		}
 
 		void run()
@@ -198,10 +204,14 @@ namespace display
 				// Present
 				SwapBuffers(win_app::hDC);
 			}
+
+			ImGui_ImplOpenGL3_Shutdown();
+            ImGui_ImplWin32_Shutdown();
 			
 			shader::cleanUp();
 		}
 	}
+
 	uint32_t* displayBuffer;
 	bool frameReady = false;
 	std::mutex frameReadyMutex;

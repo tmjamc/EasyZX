@@ -3,6 +3,9 @@
 
 #include "glad/gl.h"
 #include "glad/wgl.h"
+#include "imgui.h"
+#include "imgui_impl_win32.h"
+#include "imgui_impl_opengl3.h"
 #include "win_app.h"
 #include "display.h"
 #include "settings.h"
@@ -13,6 +16,8 @@ cleanUp();                \
 win_app::error(msg);      \
 return false
 
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
 namespace win_app
 {
     namespace
@@ -21,12 +26,16 @@ namespace win_app
         constexpr char WINDOW_TITLE[] = "EasyZX";
         
         HINSTANCE hInst;
-        HWND hWnd = nullptr;
         HGLRC tmpCtx = nullptr;
         bool consoleEnabled = false;
 
         LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
+            if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
+            {
+                return true;
+            }
+
             switch (message)
             {
 
@@ -116,6 +125,8 @@ namespace win_app
         void cleanUp()
         {
             info("Cleaning up application");
+
+            ImGui::DestroyContext();
 
             if (hDC != nullptr)
             {
@@ -215,8 +226,22 @@ namespace win_app
 
             return true;
         }
+    
+        void initImGui()
+        {
+            // Setup Dear ImGui context
+            IMGUI_CHECKVERSION();
+            ImGui::CreateContext();
+            ImGuiIO& io = ImGui::GetIO();
+            // (void)io;
+            io.ConfigFlags &= ~ImGuiConfigFlags_NavEnableGamepad;
+            io.ConfigFlags &= ~ImGuiConfigFlags_NavEnableKeyboard;
+            io.IniFilename = nullptr;
+            io.MouseDrawCursor = true;
+        }
     }
 
+    HWND hWnd = nullptr;
     HDC hDC = nullptr;
     HGLRC glCtx = nullptr;
     bool running = false;
@@ -242,6 +267,8 @@ namespace win_app
             return false;
         }
 
+        initImGui();
+        
         info("Showing main window");
         ShowWindow(hWnd, settings::current.windowMainStatus);
 

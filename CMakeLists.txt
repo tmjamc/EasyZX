@@ -36,6 +36,12 @@ WIN32
 	src/libs/mINI/ini.h
 	src/libs/RtAudio/RtAudio.cpp
 	src/libs/audio_filters/dc_adjustment_filter.cpp
+	src/libs/ImGui/imgui.cpp
+	src/libs/ImGui/imgui_draw.cpp
+	src/libs/ImGui/imgui_tables.cpp
+	src/libs/ImGui/imgui_widgets.cpp
+	src/libs/ImGui/backends/imgui_impl_opengl3.cpp
+	src/libs/ImGui/backends/imgui_impl_win32.cpp
 )
 
 target_include_directories(EasyZX
@@ -48,6 +54,8 @@ PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}/src/libs/glad/include
 	${CMAKE_CURRENT_SOURCE_DIR}/src/libs/RtAudio
 	${CMAKE_CURRENT_SOURCE_DIR}/src/libs/audio_filters
+	${CMAKE_CURRENT_SOURCE_DIR}/src/libs/ImGui
+	${CMAKE_CURRENT_SOURCE_DIR}/src/libs/ImGui/backends
 )
 
 target_link_libraries(EasyZX

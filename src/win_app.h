@@ -6,6 +6,7 @@
 
 namespace win_app
 {
+	extern HWND hWnd;
 	extern HDC hDC;
 	extern HGLRC glCtx;
 	extern bool running;
