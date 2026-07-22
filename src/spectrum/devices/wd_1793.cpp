@@ -2,6 +2,7 @@
 
 #include "wd_1793.h"
 #include "main.h"
+#include "settings.h"
 
 #define TRACKHEADER 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
                     0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, 0x4e, \
@@ -104,7 +105,6 @@ namespace wd_1793
 
         constexpr uint16_t SECTOR_DATA_POSITION[16] = {162, 554, 946, 1338, 1730, 2122, 2514, 2906, 3298, 3690, 4082, 4474, 4866, 5258, 5650, 6042};
 
-                
         constexpr int DiskControlRead = 0x000;
         constexpr int DiskControlSeekUp = 0x100;
         constexpr int DiskControlSeekDown = 0x300;
@@ -1304,6 +1304,7 @@ namespace wd_1793
     }
 
     uint8_t led;
+    bool enabled = false;
 
     void ioWrite(uint16_t port, uint8_t value)
     {
@@ -1696,6 +1697,7 @@ namespace wd_1793
 
     void reset()
     {
+        enabled = settings::current.devicesBetaDisk;
         state = None;
         stepState = StepIdle;
         nextState = None;
@@ -1711,6 +1713,18 @@ namespace wd_1793
         selectedDiskIndex = 0;
         fastMode = false;
         sclConverted = false;
+    }
+
+    void cleanUp()
+    {
+        for (int i = 0; i < 4; ++i)
+        {
+            if (disks[i] != nullptr)
+            {
+                delete[] disks[i]->data;
+                disks[i] = nullptr;
+            }
+        }
     }
 
     bool insertDisk(uint8_t unit, std::string fileName)
@@ -1803,10 +1817,10 @@ namespace wd_1793
 
     void ejectDisk(uint8_t unit)
     {
-        if (disks[unit] != NULL)
+        if (disks[unit] != nullptr)
         {
             delete[] disks[unit]->data;
-            disks[unit] = NULL;
+            disks[unit] = nullptr;
 
             if (selectedDiskIndex == unit)
             {

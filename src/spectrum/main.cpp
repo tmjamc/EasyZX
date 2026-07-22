@@ -44,11 +44,11 @@ namespace main
             beeper::reset();
             tape::reset();
             beta_disk::reset();
+            wd_1793::reset();
 
             
-        // // // TODO: take beta disk coinfig from settings
         // // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\across_the_edge_by_demarche_fix_0.trd");
-        // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\InColor(Pentagon).trd");
+        wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\InColor(Pentagon).trd");
         // // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\OldSkoolCodingOldSchoolStyle.trd");
         // // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\summer.trd");
         // // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\esprit.trd");
@@ -214,15 +214,16 @@ namespace main
         // beeper::cleanUp();
         tape::cleanUp();
         beta_disk::cleanUp();
+        wd_1793::cleanUp();
         // ay_3_8912::cleanUp();
     }
 
     void tact()
     {
-        // if (beta_disk::enabled)
-        // {
-        //     wd_1793::tact();
-        // }
+        if (wd_1793::enabled)
+        {
+            wd_1793::tact();
+        }
 
         tape::tact();
 
