@@ -37,9 +37,11 @@ namespace main
                 }
             }
 
+            audio::reset();
             z80::reset();
             memory::reset();
             ula::reset();
+            beeper::reset();
 
             
         // // // TODO: take beta disk coinfig from settings
@@ -51,9 +53,7 @@ namespace main
         // // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\esprit.trd");
 
         // tape::init();
-        // beeper::init();
         // ay_3_8912::init();
-        // audio::init();
 
         // tape::load("C:\\Users\\jam\\Documents\\Projects\\tapes\\Skool Daze.tzx");
 
@@ -207,15 +207,15 @@ namespace main
         display::stopRenderThread();
         delete[] keyStates;
 
+        audio::cleanUp();
         z80::cleanUp();
         memory::cleanUp();
         ula::cleanUp();
+        // beeper::cleanUp();
 
         // beta_disk::cleanUp();
         // tape::cleanUp();
-        // beeper::cleanUp();
         // ay_3_8912::cleanUp();
-        // audio::cleanUp();
     }
 
     void tact()
@@ -227,30 +227,30 @@ namespace main
 
         // tape::tact();
 
-        // beeper::tact();
+        beeper::tact();
 
-        // if (ay_3_8912::enabled)
-        // {
-        //     ay_3_8912::tact();
-        // }
+        if (ay_3_8912::enabled)
+        {
+            ay_3_8912::tact();
+        }
 
-        // if (audio::tact())
-        // {
-        //     int16_t sample = tape::filter.getSample() - tape::MAX_AMPLITUDE / 2;
+        if (audio::tact())
+        {
+            // int16_t sample = tape::filter.getSample() - tape::MAX_AMPLITUDE / 2;
 
-        //     sample += beeper::filter.getSample() - beeper::MAX_AMPLITUDE / 2;
+            int16_t sample = beeper::filter.getSample();
 
-        //     if (ay_3_8912::enabled)
-        //     {
-        //         sample += ay_3_8912::filterA.getSample() - ay_3_8912::MAX_AMPLITUDE / 2;
-        //         sample += ay_3_8912::filterB.getSample() - ay_3_8912::MAX_AMPLITUDE / 2;
-        //         sample += ay_3_8912::filterC.getSample() - ay_3_8912::MAX_AMPLITUDE / 2;
-        //     }
+            if (ay_3_8912::enabled)
+            {
+                sample += ay_3_8912::filterA.getSample() - ay_3_8912::MAX_AMPLITUDE / 2;
+                sample += ay_3_8912::filterB.getSample() - ay_3_8912::MAX_AMPLITUDE / 2;
+                sample += ay_3_8912::filterC.getSample() - ay_3_8912::MAX_AMPLITUDE / 2;
+            }
 
-        //     // Twice for left and right channels
-        //     audio::addSample(sample);
-        //     audio::addSample(sample);
-        // }
+            // Twice for left and right channels
+            audio::addSample(sample);
+            audio::addSample(sample);
+        }
 
         if (++currentTact == currentModel->tactsPerFrame)
         {

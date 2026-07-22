@@ -9,8 +9,8 @@ namespace beeper
     constexpr int MAX_AMPLITUDE = 5000;
     
     extern DcAdjustmentFilter filter;
+    extern int volume;
 
-    void init();
-    void cleanUp();
+    void reset();
     void tact();
 }

@@ -121,8 +121,10 @@ namespace audio
         }
     }
 
-    void init()
+    void reset()
     {
+        cleanUp();
+        
         std::cout << "API Name: " << rtAudio.getApiDisplayName(rtAudio.getCurrentApi()) << std::endl;   
 
         period = (double)main::currentModel->tactsPerFrame / (double)SAMPLES_PER_FRAME;

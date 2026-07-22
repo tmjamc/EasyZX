@@ -1,6 +1,6 @@
 #include "beeper.h"
 #include "ula.h"
-#include "tape.h"
+#include "settings.h"
 
 namespace beeper
 {
@@ -11,18 +11,16 @@ namespace beeper
     }
     
     DcAdjustmentFilter filter;
+    int volume = 0;
 
-    void init()
+    void reset()
     {
         filter.setBufferPercentLength(50);
-    }
-
-    void cleanUp()
-    {
+        volume = settings::current.audioBeeperVolume * MAX_AMPLITUDE / 200;
     }
 
     void tact()
     {
-        filter.add((ula::portData & 0x10) ? MAX_AMPLITUDE : 0);
+        filter.add((ula::portData & 0x10) ? volume : -volume);
     }
 }

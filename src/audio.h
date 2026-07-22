@@ -2,7 +2,7 @@
 
 namespace audio
 {
-    void init();
+    void reset();
     void cleanUp();
     void addSample(int16_t sample);
     bool tact();
