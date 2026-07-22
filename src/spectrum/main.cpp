@@ -42,18 +42,18 @@ namespace main
             memory::reset();
             ula::reset();
             beeper::reset();
+            ay_3_8912::reset();
             tape::reset();
             beta_disk::reset();
             wd_1793::reset();
 
             
-        // // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\across_the_edge_by_demarche_fix_0.trd");
-        wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\InColor(Pentagon).trd");
+        wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\across_the_edge_by_demarche_fix_0.trd");
+        // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\InColor(Pentagon).trd");
         // // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\OldSkoolCodingOldSchoolStyle.trd");
         // // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\summer.trd");
         // // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\esprit.trd");
 
-        // ay_3_8912::init();
 
         tape::load("C:\\Users\\jam\\Documents\\Projects\\tapes\\Skool Daze.tzx");
 
@@ -212,10 +212,10 @@ namespace main
         memory::cleanUp();
         ula::cleanUp();
         // beeper::cleanUp();
+        // ay_3_8912::cleanUp();
         tape::cleanUp();
         beta_disk::cleanUp();
         wd_1793::cleanUp();
-        // ay_3_8912::cleanUp();
     }
 
     void tact()

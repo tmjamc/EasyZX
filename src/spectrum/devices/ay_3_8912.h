@@ -11,7 +11,7 @@ namespace ay_3_8912
 	extern DcAdjustmentFilter filterB;
 	extern DcAdjustmentFilter filterC;
 
-    void init();
+    void reset();
     void cleanUp();
     void setRegister(uint8_t reg);
     void setRegisterValue(uint8_t val);

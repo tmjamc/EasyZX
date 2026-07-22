@@ -1,15 +1,18 @@
 #include "ay_3_8912.h"
 #include "main.h"
+#include "settings.h"
 
 namespace ay_3_8912
 {
     namespace
     {
-        constexpr int levels[16] = {
+        constexpr int levels[16] =
+        {
             0x0000, 0x0385, 0x053d, 0x0770,
             0x0ad7, 0x0fd5, 0x15b0, 0x230c,
             0x2b4c, 0x43c1, 0x5a4b, 0x732f,
-            0x9204, 0xaff1, 0xd921, 0xffff};
+            0x9204, 0xaff1, 0xd921, 0xffff
+        };
 
         constexpr int ENV_CONT = 8;
         constexpr int ENV_ATTACK = 4;
@@ -85,16 +88,18 @@ namespace ay_3_8912
     {
         for (int i = 0; i < 16; ++i)
         {
-            toneLevels[i] = (levels[i] * ((volume * MAX_AMPLITUDE) / 100) /* - 0x8000*/) / 0xffff;
+            toneLevels[i] = (levels[i] * ((volume * MAX_AMPLITUDE) / 100) - 0x8000) / 0xffff;
         }
     }
 
-    void reset(int volume, int bufferPercentLength)
+    void reset()
     {
-        setVolume(volume);
-        filterA.setBufferPercentLength(bufferPercentLength);
-        filterB.setBufferPercentLength(bufferPercentLength);
-        filterC.setBufferPercentLength(bufferPercentLength);
+        enabled = settings::current.devicesAY;
+
+        filterA.setBufferPercentLength(settings::current.audioAyDcAdjustBufferLength);
+        filterB.setBufferPercentLength(settings::current.audioAyDcAdjustBufferLength);
+        filterC.setBufferPercentLength(settings::current.audioAyDcAdjustBufferLength);
+        setVolume(settings::current.audioAyVolume);
 
         noiseTick = 0;
         noisePeriod = 0;
@@ -124,17 +129,6 @@ namespace ay_3_8912
 
         toneCycles = 0;
         envCycles = 0;
-    }
-
-    void init()
-    {
-        reset(100, 10);
-
-        enabled = true;
-    }
-
-    void cleanUp()
-    {
     }
 
     void setRegister(uint8_t reg)
