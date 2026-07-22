@@ -6,6 +6,7 @@
 #include "tape.h"
 #include "ula.h"
 #include "win_app.h"
+#include "settings.h"
 
 namespace tape
 {
@@ -21,7 +22,7 @@ namespace tape
         constexpr int BLOCK_PAUSE_CYCLES = 69888 * 50;
 
         int dataLength;
-        uint8_t* data;
+        uint8_t* data = nullptr;
 
         enum Format { TAP, TZX };
         Format fileFormat;
@@ -36,7 +37,6 @@ namespace tape
 
         std::vector<Block> blocks;
 
-        // bool playing = false;
         int blockIndex = 0;
 
         struct Pulse
@@ -48,7 +48,6 @@ namespace tape
 
         std::vector<Pulse> pulses;
         int pulseIndex = 0;
-        // bool pulseSignal = false;
         Pulse pulse{};
 
         std::string getDataInfo(int index, int blockLength, std::string defaultValue)
@@ -605,28 +604,27 @@ namespace tape
     bool playing = false;
     bool pulseSignal = false;
     DcAdjustmentFilter filter;
+    int volume;
 
-    void init()
+    void reset()
     {
-        filter.setBufferPercentLength(80);
+        filter.setBufferPercentLength(settings::current.audioTapeDcAdjustBufferLength);
+        volume = (MAX_AMPLITUDE * settings::current.audioTapeVolume) / 200;
+
+        playing = false;
+        blockIndex = 0;
+        pulses.clear();
+        pulseIndex = 0;
+        pulseSignal = false;
     }
 
     void cleanUp()
     {
-        // stop(false);
-
-        if (dataLength)
+        if (data != nullptr)
         {
             delete[] data;
             data = nullptr;
         }
-
-        // _tapeDataIndex = 0;
-        // tapeBlockIndex = 0;
-        // tapeDataLength = 0;
-        // info.clear();
-        // blockIndexesList.clear();
-        // blocksList.clear();
     }
     
     void load(const char *fileName)
@@ -696,7 +694,7 @@ namespace tape
 
     void tact()
     {
-        filter.add(pulseSignal ? MAX_AMPLITUDE : 0);
+        filter.add(pulseSignal ? volume : -volume);
 
         if (!playing)
         {

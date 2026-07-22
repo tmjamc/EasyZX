@@ -9,8 +9,9 @@ namespace tape
     extern bool playing ;
     extern bool pulseSignal;
     extern DcAdjustmentFilter filter;
+    extern int volume;
 
-    void init();
+    void reset();
     void cleanUp();
     void load(const char* fileName);
     void play();

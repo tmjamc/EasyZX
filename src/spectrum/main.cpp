@@ -42,6 +42,7 @@ namespace main
             memory::reset();
             ula::reset();
             beeper::reset();
+            tape::reset();
 
             
         // // // TODO: take beta disk coinfig from settings
@@ -52,10 +53,9 @@ namespace main
         // // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\summer.trd");
         // // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\esprit.trd");
 
-        // tape::init();
         // ay_3_8912::init();
 
-        // tape::load("C:\\Users\\jam\\Documents\\Projects\\tapes\\Skool Daze.tzx");
+        tape::load("C:\\Users\\jam\\Documents\\Projects\\tapes\\Skool Daze.tzx");
 
         }
 
@@ -212,9 +212,9 @@ namespace main
         memory::cleanUp();
         ula::cleanUp();
         // beeper::cleanUp();
+        tape::cleanUp();
 
         // beta_disk::cleanUp();
-        // tape::cleanUp();
         // ay_3_8912::cleanUp();
     }
 
@@ -225,7 +225,7 @@ namespace main
         //     wd_1793::tact();
         // }
 
-        // tape::tact();
+        tape::tact();
 
         beeper::tact();
 
@@ -236,9 +236,9 @@ namespace main
 
         if (audio::tact())
         {
-            // int16_t sample = tape::filter.getSample() - tape::MAX_AMPLITUDE / 2;
+            int16_t sample = tape::filter.getSample() - tape::MAX_AMPLITUDE / 2;
 
-            int16_t sample = beeper::filter.getSample();
+            sample += beeper::filter.getSample();
 
             if (ay_3_8912::enabled)
             {
