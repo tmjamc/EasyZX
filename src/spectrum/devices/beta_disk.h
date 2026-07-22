@@ -7,6 +7,6 @@ namespace beta_disk
     extern bool romEnabled;
     extern uint8_t* rom;
 
-    void init();
+    void reset();
     void cleanUp();
 }

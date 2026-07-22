@@ -2,37 +2,39 @@
 #include <fstream>
 
 #include "beta_disk.h"
-#include "wd_1793.h"
+#include "settings.h"
 
 namespace beta_disk
 {
     bool enabled = false;
     bool romEnabled = false;
-    uint8_t* rom;
+    uint8_t* rom = nullptr;
 
-    void init()
+    void reset()
     {
-        rom = new uint8_t[0x4000];
+        cleanUp();
 
-        std::ifstream file("./roms/trdos.rom", std::ios::in | std::ios::binary);
-        if (file.is_open())
+        if (settings::current.devicesBetaDisk && rom == nullptr)
         {
-            file.read(reinterpret_cast<char*>(rom), 0x4000);
-            file.close();
+            rom = new uint8_t[0x4000];
+
+            std::ifstream file("./roms/trdos.rom", std::ios::in | std::ios::binary);
+            if (file.is_open())
+            {
+                file.read(reinterpret_cast<char*>(rom), 0x4000);
+                file.close();
+            }
         }
 
-        wd_1793::reset();
-
-        enabled = true;
+        enabled = settings::current.devicesBetaDisk;
+        romEnabled = false;
     }
 
     void cleanUp()
     {
-        if (enabled)
+        if (rom != nullptr)
         {
             delete[] rom;
         }
-
-        enabled = false;
     }
 }
