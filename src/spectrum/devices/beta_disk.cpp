@@ -30,7 +30,7 @@ namespace beta_disk
     {
         if (enabled)
         {
-            delete[0x4000] rom;
+            delete[] rom;
         }
 
         enabled = false;

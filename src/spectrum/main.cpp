@@ -26,20 +26,43 @@ namespace main
         LARGE_INTEGER frameDueTime{};
         std::chrono::steady_clock::time_point currentFrameTime;
 
-        void init()
+        void reset()
         {
-            // Create Waitable Timer for better accuracy
-            frameTimer = CreateWaitableTimerEx(nullptr, nullptr, CREATE_WAITABLE_TIMER_HIGH_RESOLUTION, TIMER_ALL_ACCESS);
-        }
+            for (const Model &model : models)
+            {
+                if (model.id == settings::current.modelId)
+                {
+                    currentModel = &model;
+                    break;
+                }
+            }
 
-        void cleanUp()
-        {
-            CloseHandle(frameTimer);
+            z80::reset();
+            memory::reset();
+            ula::reset();
+
+            
+        // // // TODO: take beta disk coinfig from settings
+        // beta_disk::init();
+        // // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\across_the_edge_by_demarche_fix_0.trd");
+        // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\InColor(Pentagon).trd");
+        // // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\OldSkoolCodingOldSchoolStyle.trd");
+        // // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\summer.trd");
+        // // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\esprit.trd");
+
+        // tape::init();
+        // beeper::init();
+        // ay_3_8912::init();
+        // audio::init();
+
+        // tape::load("C:\\Users\\jam\\Documents\\Projects\\tapes\\Skool Daze.tzx");
+
         }
 
         void run()
         {
-            init();
+            // Create Waitable Timer for better accuracy
+            frameTimer = CreateWaitableTimerEx(nullptr, nullptr, CREATE_WAITABLE_TIMER_HIGH_RESOLUTION, TIMER_ALL_ACCESS);
             
             emulationThreadReady = true;
 
@@ -90,7 +113,7 @@ namespace main
 
             emulationThreadReady = false;
 
-            cleanUp();
+            CloseHandle(frameTimer);
         }
 
         void startEmulationThread()
@@ -170,32 +193,10 @@ namespace main
 	bool* keyStates;
 
     void start()
-    {        
-        // TODO: take model from settings
-        // currentModel = &SPECTRUM_48K;
-        // currentModel = &SPECTRUM_128K;
-        currentModel = &PENTAGON_128K;
-
-        // TODO: take beta disk coinfig from settings
-        beta_disk::init();
-        // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\across_the_edge_by_demarche_fix_0.trd");
-        wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\InColor(Pentagon).trd");
-        // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\OldSkoolCodingOldSchoolStyle.trd");
-        // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\summer.trd");
-        // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\esprit.trd");
-
+    {
+        reset();
         
         keyStates = new bool[0x100]{};
-        tape::init();
-        memory::init();
-        ula::init();
-        z80::init();
-        beeper::init();
-        ay_3_8912::init();
-        audio::init();
-
-        tape::load("C:\\Users\\jam\\Documents\\Projects\\tapes\\Skool Daze.tzx");
-
         display::startRenderThread();
         startEmulationThread();
     }
@@ -204,64 +205,52 @@ namespace main
     {
         stopEmulationThread();
         display::stopRenderThread();
+        delete[] keyStates;
 
-        delete[0x100] keyStates;
-        beta_disk::cleanUp();
-        tape::cleanUp();
-        memory::cleanUp();
-        ula::cleanUp();
         z80::cleanUp();
-        beeper::cleanUp();
-        ay_3_8912::cleanUp();
-        audio::cleanUp();
-    }
-
-    void reset(const Model* model)
-    {
         memory::cleanUp();
         ula::cleanUp();
 
-        currentModel = model;
-
-        memory::init();
-        ula::init();
-
-        z80::reset();
+        // beta_disk::cleanUp();
+        // tape::cleanUp();
+        // beeper::cleanUp();
+        // ay_3_8912::cleanUp();
+        // audio::cleanUp();
     }
 
     void tact()
     {
-        if (beta_disk::enabled)
-        {
-            wd_1793::tact();
-        }
+        // if (beta_disk::enabled)
+        // {
+        //     wd_1793::tact();
+        // }
 
-        tape::tact();
+        // tape::tact();
 
-        beeper::tact();
+        // beeper::tact();
 
-        if (ay_3_8912::enabled)
-        {
-            ay_3_8912::tact();
-        }
+        // if (ay_3_8912::enabled)
+        // {
+        //     ay_3_8912::tact();
+        // }
 
-        if (audio::tact())
-        {
-            int16_t sample = tape::filter.getSample() - tape::MAX_AMPLITUDE / 2;
+        // if (audio::tact())
+        // {
+        //     int16_t sample = tape::filter.getSample() - tape::MAX_AMPLITUDE / 2;
 
-            sample += beeper::filter.getSample() - beeper::MAX_AMPLITUDE / 2;
+        //     sample += beeper::filter.getSample() - beeper::MAX_AMPLITUDE / 2;
 
-            if (ay_3_8912::enabled)
-            {
-                sample += ay_3_8912::filterA.getSample() - ay_3_8912::MAX_AMPLITUDE / 2;
-                sample += ay_3_8912::filterB.getSample() - ay_3_8912::MAX_AMPLITUDE / 2;
-                sample += ay_3_8912::filterC.getSample() - ay_3_8912::MAX_AMPLITUDE / 2;
-            }
+        //     if (ay_3_8912::enabled)
+        //     {
+        //         sample += ay_3_8912::filterA.getSample() - ay_3_8912::MAX_AMPLITUDE / 2;
+        //         sample += ay_3_8912::filterB.getSample() - ay_3_8912::MAX_AMPLITUDE / 2;
+        //         sample += ay_3_8912::filterC.getSample() - ay_3_8912::MAX_AMPLITUDE / 2;
+        //     }
 
-            // Twice for left and right channels
-            audio::addSample(sample);
-            audio::addSample(sample);
-        }
+        //     // Twice for left and right channels
+        //     audio::addSample(sample);
+        //     audio::addSample(sample);
+        // }
 
         if (++currentTact == currentModel->tactsPerFrame)
         {
@@ -272,5 +261,4 @@ namespace main
             ++currentFrame;
         }
     }
-
 }

@@ -21,16 +21,18 @@ namespace io
             if (port & 0x0001)
             {
                 // AY-3-8912
-                if ((port & 0xc007) == 0xc005)
+                if (ay_3_8912::enabled)
                 {
-                    ay_3_8912::setRegister(data);
-                    return;
-                }
-
-                if ((port & 0xc007) == 0x8005)
-                {
-                    ay_3_8912::setRegisterValue(data);
-                    return;
+                    if ((port & 0xc007) == 0xc005)
+                    {
+                        ay_3_8912::setRegister(data);
+                        return;
+                    }
+                    if ((port & 0xc007) == 0x8005)
+                    {
+                        ay_3_8912::setRegisterValue(data);
+                        return;
+                    }
                 }
 
                 // BetaDisk
@@ -61,7 +63,8 @@ namespace io
             if (port & 0x0001)
             {
                 // AY-3-8912
-                if ((port & 0xc007) == 0xc005)
+
+                if (ay_3_8912::enabled && (port & 0xc007) == 0xc005)
                 {
                     return ay_3_8912::getRegisterValue();
                 }

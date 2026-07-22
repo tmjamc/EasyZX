@@ -20,7 +20,7 @@ WIN32
 	src/display.cpp
 	src/shader.cpp
 	src/audio.cpp
-	src/ui/realtime.cpp
+	src/ui/realtime_monitor.cpp
 	src/spectrum/main.cpp
 	src/spectrum/components/memory.cpp
 	src/spectrum/components/z80.cpp

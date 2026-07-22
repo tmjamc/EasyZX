@@ -617,7 +617,7 @@ namespace tape
 
         if (dataLength)
         {
-            delete[dataLength] data;
+            delete[] data;
             data = nullptr;
         }
 

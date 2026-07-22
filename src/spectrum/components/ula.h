@@ -7,8 +7,8 @@ namespace ula
     extern uint8_t portData;
     extern bool gigaScreen;
 
-    void init();
-    void cleanUp();
+    void reset();
+    void cleanUp(bool fullCleanUp = true);
     void tact();
     void updateDisplayBuffer();
     void contendedTacts(uint16_t addr, int tacts, bool force = false);

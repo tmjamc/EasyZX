@@ -99,8 +99,6 @@ namespace ula
             *
             */
 
-            cleanUp();
-
             // Build contention table
             if (main::currentModel->contendedMemory)
             {
@@ -151,8 +149,10 @@ namespace ula
     uint8_t portData = 0xff;
     bool gigaScreen = false;
 
-    void init()
+    void reset()
     {
+        cleanUp(false);
+
         gigaScreen = false;
         firstBytePixelTactIndex = main::currentModel->tactsToFirstScreenByte % 4;
         buildTables();
@@ -169,27 +169,28 @@ namespace ula
         }
     }
 
-    void cleanUp()
+    void cleanUp(bool fullCleanUp)
     {
         if (contendedMemoryTactsLength > 0)
         {
-            delete[contendedMemoryTactsLength] contendedMemoryTacts;
+            delete[] contendedMemoryTacts;
             contendedMemoryTacts = nullptr;
             contendedMemoryTactsLength = 0;
         }
 
         if (floatingBusAddressesLength > 0)
         {
-            delete[floatingBusAddressesLength] floatingBusAddresses;
+            delete[] floatingBusAddresses;
             floatingBusAddresses = nullptr;
             floatingBusAddressesLength = 0;
         }
 
-        if (displayBuffer != nullptr)
+        if (fullCleanUp && displayBuffer != nullptr)
         {
-            delete[display::GL_DISPLAY_BUFFER_SIZE] displayBuffer[0];
-            delete[display::GL_DISPLAY_BUFFER_SIZE] displayBuffer[1];
-            delete[2] displayBuffer;
+            delete[] displayBuffer[0];
+            delete[] displayBuffer[1];
+            delete[] displayBuffer;
+            displayBuffer = nullptr;
         }
     }
 

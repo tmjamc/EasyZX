@@ -46,7 +46,7 @@ void DcAdjustmentFilter::cleanUp()
 {
     if (_buffer != nullptr)
     {
-        delete[_bufferLength] _buffer;
+        delete[] _buffer;
         _buffer = nullptr;
     }
 }

@@ -92,7 +92,7 @@ case 0xcb: /* shift DDFDCB      */
 
     switch (opcode3)
     {
-#include "z80ops_ddfd_cb.cpp"
+#include "z80_ops_ddfd_cb.h"
     }
 }
 break;

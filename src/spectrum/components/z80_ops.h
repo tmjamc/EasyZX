@@ -209,7 +209,7 @@ case 0xcb:
     opcode2 = memory::read(PC++);
     R++;
     switch(opcode2) {
-#include "z80ops_cb.cpp"
+#include "z80_ops_cb.h"
     }
 }
 break;
@@ -242,7 +242,7 @@ case 0xdd:
 #define REGL IXL
 #define REGH IXH
     switch(opcode2) {
-#include "z80ops_ddfd.cpp"
+#include "z80_ops_ddfd.h"
     default:   /* Instruction did not involve H or L, so backtrack one instruction and parse again */
         --PC;
         --R;
@@ -278,7 +278,7 @@ case 0xed:
     opcode2 = memory::read(PC++);
     R++;
     switch(opcode2) {
-#include "z80ops_ed.cpp"
+#include "z80_ops_ed.h"
     }
 }
 break;
@@ -309,7 +309,7 @@ case 0xfd:
 #define REGL IYL
 #define REGH IYH
     switch(opcode2) {
-#include "z80ops_ddfd.cpp"
+#include "z80_ops_ddfd.h"
     default:   /* Instruction did not involve H or L, so backtrack one instruction and parse again */
         --PC;
         --R;

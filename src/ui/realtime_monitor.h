@@ -1,6 +1,6 @@
 #pragma once
 
-namespace realtime
+namespace realtime_monitor
 {
     extern bool opened;
 

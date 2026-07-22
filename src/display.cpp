@@ -7,7 +7,7 @@
 #include "settings.h"
 #include "main.h"
 #include "shader.h"
-#include "realtime.h"
+#include "realtime_monitor.h"
 #include "resources/resources.h"
 #include "imgui_impl_win32.h"
 #include "imgui_impl_opengl3.h"
@@ -208,7 +208,7 @@ namespace display
 				ImGui::NewFrame();
 
 				// Render UI
-				realtime::render();
+				realtime_monitor::render();
 
 				// Render ImGui
 				ImGui::Render();
@@ -249,7 +249,7 @@ namespace display
 			renderThread.join();
 		}
 
-		delete[GL_DISPLAY_BUFFER_SIZE] displayBuffer;
+		delete[] displayBuffer;
 	}
 
 	void setViewport(int width, int height)

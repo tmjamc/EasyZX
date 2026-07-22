@@ -17,9 +17,9 @@ namespace z80
         const uint8_t overflowAdd[8] = { 0, 0, 0, FLAG_V, FLAG_V, 0, 0, 0 };
         const uint8_t overflowSub[8] = { 0, FLAG_V, 0, 0, 0, 0, FLAG_V, 0 };
 
-        uint8_t* sz53 = new uint8_t[0x100]{};
-        uint8_t* sz53p = new uint8_t[0x100]{};
-        uint8_t* parity = new uint8_t[0x100]{};
+        uint8_t* sz53 = nullptr;
+        uint8_t* sz53p = nullptr;
+        uint8_t* parity = nullptr;
 
         uint8_t contendRead(uint16_t addr)
         {
@@ -38,6 +38,33 @@ namespace z80
 
     void reset()
     {
+        if (sz53 == nullptr)
+        {
+            sz53 = new uint8_t[0x100]{};
+            sz53p = new uint8_t[0x100]{};
+            parity = new uint8_t[0x100]{};
+
+            for (int i = 0; i < 0x100; ++i)
+            {
+                sz53[i] = i & (FLAG_3 | FLAG_5 | FLAG_S);
+
+                int j = i;
+                int p = 0;
+                for (int k = 0; k < 8; k++)
+                {
+                    p ^= (j & 1);
+                    j >>= 1;
+                }
+
+                parity[i] = (p > 0 ? 0 : FLAG_P);
+
+                sz53p[i] = sz53[i] | parity[i];
+            }
+
+            sz53[0] |= FLAG_Z;
+            sz53p[0] |= FLAG_Z;
+        }
+
         AF = AF_= 0xffff;
         I = R = R7 = 0;
         PC = 0;
@@ -53,36 +80,11 @@ namespace z80
         MP = 0;
     }
 
-    void init()
-    {
-        for (int i = 0; i < 0x100; ++i)
-        {
-            sz53[i] = i & (FLAG_3 | FLAG_5 | FLAG_S);
-
-            int j = i;
-            int p = 0;
-            for (int k = 0; k < 8; k++)
-            {
-                p ^= (j & 1);
-                j >>= 1;
-            }
-
-            parity[i] = (p > 0 ? 0 : FLAG_P);
-
-            sz53p[i] = sz53[i] | parity[i];
-        }
-
-        sz53[0] |= FLAG_Z;
-        sz53p[0] |= FLAG_Z;
-
-        reset();
-    }
-
     void cleanUp()
     {
-        delete[0x100] sz53;
-        delete[0x100] sz53p;
-        delete[0x100] parity;
+        delete[] sz53;
+        delete[] sz53p;
+        delete[] parity;
     }
 
     void executeInstruction()
@@ -105,7 +107,7 @@ namespace z80
         switch (opcode)
         {          
  
-#include "z80ops.cpp"
+#include "z80_ops.h"
 
         }
     }

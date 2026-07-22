@@ -104,6 +104,5 @@ namespace main
 
     void start();
     void stop();
-    void reset(const Model* model);
     void tact();
 }

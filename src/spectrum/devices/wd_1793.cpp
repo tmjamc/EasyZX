@@ -1805,7 +1805,7 @@ namespace wd_1793
     {
         if (disks[unit] != NULL)
         {
-            delete[disks[unit]->dataLength] disks[unit]->data;
+            delete[] disks[unit]->data;
             disks[unit] = NULL;
 
             if (selectedDiskIndex == unit)

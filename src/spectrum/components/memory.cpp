@@ -20,44 +20,10 @@ namespace memory
     int activeScreenPage = 0;
 	bool pagingEnabled = false;
 
-    void cleanUp()
+    void reset()
     {
-        if (ramPages != nullptr && main::currentModel->ramPagesCount > 0)
-	    {
-            for (int i = 0; i < main::currentModel->ramPagesCount; ++i)
-            {
-                delete[0x4000] ramPages[i];
-                win_app::info(std::format("MEMORY -> Deallocated 0x4000 bytes from RAM page {}", i).c_str());
-                ramPages[i] = nullptr;
-            }
-            delete[main::currentModel->ramPagesCount] ramPages;
-            win_app::info(std::format("MEMORY -> Deallocated {} RAM pages", main::currentModel->ramPagesCount).c_str());
-            ramPages = nullptr;
-        }
-
-	    if (romPages != nullptr && main::currentModel->romPagesCount > 0)
-	    {
-            for (int i = 0; i < main::currentModel->romPagesCount; ++i)
-            {
-                delete[0x4000] romPages[i];
-                win_app::info(std::format("MEMORY -> Deallocated 0x4000 bytes from ROM page {}", i).c_str());
-                romPages[i] = nullptr;
-            }
-            delete[main::currentModel->romPagesCount] romPages;
-            win_app::info(std::format("MEMORY -> Deallocated {} ROM pages", main::currentModel->romPagesCount).c_str());
-            romPages = nullptr;
-        }
-
-        if (banks != nullptr && main::currentModel->banksCount > 0)
-        {
-            delete[main::currentModel->banksCount] banks;
-            win_app::info(std::format("MEMORY -> Deallocated {} memory banks", main::currentModel->banksCount).c_str());
-            banks = nullptr;
-        }
-    }
-
-    void init()
-    {
+        cleanUp();
+        
         // Create RAM pages
         ramPages = new uint8_t*[main::currentModel->ramPagesCount];
         win_app::info(std::format("MEMORY -> Allocated {} RAM pages", main::currentModel->ramPagesCount).c_str());
@@ -108,6 +74,37 @@ namespace memory
 
         pagingEnabled = main::currentModel->pagingEnabled;
         activeScreenPage = main::currentModel->activeScreenPage;
+    }
+
+    void cleanUp()
+    {
+        if (ramPages != nullptr && main::currentModel->ramPagesCount > 0)
+	    {
+            for (int i = 0; i < main::currentModel->ramPagesCount; ++i)
+            {
+                delete[] ramPages[i];
+                ramPages[i] = nullptr;
+            }
+            delete[] ramPages;
+            ramPages = nullptr;
+        }
+
+	    if (romPages != nullptr && main::currentModel->romPagesCount > 0)
+	    {
+            for (int i = 0; i < main::currentModel->romPagesCount; ++i)
+            {
+                delete[] romPages[i];
+                romPages[i] = nullptr;
+            }
+            delete[] romPages;
+            romPages = nullptr;
+        }
+
+        if (banks != nullptr && main::currentModel->banksCount > 0)
+        {
+            delete[] banks;
+            banks = nullptr;
+        }
     }
 
     void setPaging(uint8_t data)
