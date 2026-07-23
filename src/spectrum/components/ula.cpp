@@ -153,6 +153,7 @@ namespace ula
     {
         cleanUp(false);
 
+        portData = 0xff;
         gigaScreen = false;
         firstBytePixelTactIndex = main::currentModel->tactsToFirstScreenByte % 4;
         buildTables();
