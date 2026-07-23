@@ -101,6 +101,7 @@ namespace main
     extern int currentTact;
     extern int currentFrame;
   	extern bool* keyStates;
+    extern bool resetRequested;
 
     void start();
     void stop();

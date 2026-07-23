@@ -35,6 +35,7 @@ namespace beta_disk
         if (rom != nullptr)
         {
             delete[] rom;
+            rom = nullptr;
         }
     }
 }

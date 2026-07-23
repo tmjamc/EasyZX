@@ -12,6 +12,13 @@ namespace memory
     // As in Sinclair wiki documentation, the term "bank" refers to CPU address space ranges,
     // and the term "page" refers to RAM/ROM memory areas
 
+    namespace
+    {
+        int banksCount = 0;
+        int ramPagesCount = 0;
+        int romPagesCount = 0;
+    }
+
     uint8_t** banks = nullptr;
 	uint8_t** ramPages = nullptr;
 	uint8_t** romPages = nullptr;
@@ -25,9 +32,10 @@ namespace memory
         cleanUp();
         
         // Create RAM pages
-        ramPages = new uint8_t*[main::currentModel->ramPagesCount];
-        win_app::info(std::format("MEMORY -> Allocated {} RAM pages", main::currentModel->ramPagesCount).c_str());
-        for (int i = 0; i < main::currentModel->ramPagesCount; ++i)
+        ramPagesCount = main::currentModel->ramPagesCount;
+        ramPages = new uint8_t*[ramPagesCount];
+        win_app::info(std::format("MEMORY -> Allocated {} RAM pages", ramPagesCount).c_str());
+        for (int i = 0; i < ramPagesCount; ++i)
         {
             ramPages[i] = new uint8_t[0x4000];
             win_app::info(std::format("MEMORY -> Allocated 0x4000 bytes for RAM page {}", i).c_str());
@@ -40,9 +48,10 @@ namespace memory
         }
 
         // Create ROM pages
-        romPages = new uint8_t*[main::currentModel->romPagesCount];
-        win_app::info(std::format("MEMORY -> Allocated {} ROM pages", main::currentModel->romPagesCount).c_str());
-        for (int i = 0; i < main::currentModel->romPagesCount; ++i)
+        romPagesCount = main::currentModel->romPagesCount;
+        romPages = new uint8_t*[romPagesCount];
+        win_app::info(std::format("MEMORY -> Allocated {} ROM pages", romPagesCount).c_str());
+        for (int i = 0; i < romPagesCount; ++i)
         {
             romPages[i] = new uint8_t[0x4000];
             win_app::info(std::format("MEMORY -> Allocated 0x4000 bytes for ROM page {}", i).c_str());
@@ -58,16 +67,17 @@ namespace memory
         }
 
         // Create banks
-        banks = new uint8_t*[main::currentModel->banksCount];
-        win_app::info(std::format("MEMORY -> Allocated {} memory banks", main::currentModel->banksCount).c_str());
+        banksCount = main::currentModel->banksCount;
+        banks = new uint8_t*[banksCount];
+        win_app::info(std::format("MEMORY -> Allocated {} memory banks", banksCount).c_str());
 
         // Set default ROM bank
         activeRomPage = main::currentModel->defaultBankPages[0];
         banks[0] = romPages[activeRomPage];
 
         // Set default RAM banks
-        activeRamPage = main::currentModel->defaultBankPages[main::currentModel->banksCount - 1];
-        for (int i = 1; i < main::currentModel->banksCount; ++i)
+        activeRamPage = main::currentModel->defaultBankPages[banksCount - 1];
+        for (int i = 1; i < banksCount; ++i)
         {
             banks[i] = ramPages[main::currentModel->defaultBankPages[i]];
         }
@@ -78,9 +88,9 @@ namespace memory
 
     void cleanUp()
     {
-        if (ramPages != nullptr && main::currentModel->ramPagesCount > 0)
+        if (ramPages != nullptr && ramPagesCount > 0)
 	    {
-            for (int i = 0; i < main::currentModel->ramPagesCount; ++i)
+            for (int i = 0; i < ramPagesCount; ++i)
             {
                 delete[] ramPages[i];
                 ramPages[i] = nullptr;
@@ -89,9 +99,9 @@ namespace memory
             ramPages = nullptr;
         }
 
-	    if (romPages != nullptr && main::currentModel->romPagesCount > 0)
+	    if (romPages != nullptr && romPagesCount > 0)
 	    {
-            for (int i = 0; i < main::currentModel->romPagesCount; ++i)
+            for (int i = 0; i < romPagesCount; ++i)
             {
                 delete[] romPages[i];
                 romPages[i] = nullptr;
@@ -100,7 +110,7 @@ namespace memory
             romPages = nullptr;
         }
 
-        if (banks != nullptr && main::currentModel->banksCount > 0)
+        if (banks != nullptr && banksCount > 0)
         {
             delete[] banks;
             banks = nullptr;

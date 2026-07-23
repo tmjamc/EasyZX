@@ -48,11 +48,11 @@ namespace main
             wd_1793::reset();
 
             
-        wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\across_the_edge_by_demarche_fix_0.trd");
+        // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\across_the_edge_by_demarche_fix_0.trd");
         // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\InColor(Pentagon).trd");
-        // // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\OldSkoolCodingOldSchoolStyle.trd");
-        // // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\summer.trd");
-        // // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\esprit.trd");
+        wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\OldSkoolCodingOldSchoolStyle.trd");
+        // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\summer.trd");
+        // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\esprit.trd");
 
 
         tape::load("C:\\Users\\jam\\Documents\\Projects\\tapes\\Skool Daze.tzx");
@@ -69,6 +69,12 @@ namespace main
             bool interruptRequested = false;
             while (win_app::running)
             {
+                if (resetRequested)
+                {
+                    resetRequested = false;
+                    reset();
+                }
+
                 interruptRequested = false;
                 if (currentTact < currentModel->interruptSignalTacts)
                 {
@@ -191,6 +197,7 @@ namespace main
     int currentTact = 0;
     int currentFrame = 0;
 	bool* keyStates;
+    bool resetRequested = false;
 
     void start()
     {
