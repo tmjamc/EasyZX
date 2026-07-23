@@ -1,6 +1,7 @@
 #include <cstdint>
 #include <vector>
 #include <mutex>
+#include <format>
 
 #include "RtAudio.h"
 #include "audio.h"
@@ -125,14 +126,14 @@ namespace audio
     {
         cleanUp();
         
-        std::cout << "API Name: " << rtAudio.getApiDisplayName(rtAudio.getCurrentApi()) << std::endl;   
+        win_app::info(std::format("AUDIO -> API Name: {}", rtAudio.getApiDisplayName(rtAudio.getCurrentApi())).c_str());
 
         period = (double)main::currentModel->tactsPerFrame / (double)SAMPLES_PER_FRAME;
 
         std::vector<unsigned int> deviceIds = rtAudio.getDeviceIds();
         if (deviceIds.size() < 1)
         {
-            std::cout << "\nNo audio devices found!\n";
+            win_app::error("AUDIO -> No audio devices found!");
             exit(0);
         }
 
@@ -160,7 +161,7 @@ namespace audio
         if (!parameters.deviceId)
         {
             parameters.deviceId = rtAudio.getDefaultOutputDevice();
-            // settings::current.audioDeviceId = parameters.deviceId;
+            win_app::info("AUDIO -> Selecting default device");
         }
 
         parameters.nChannels = 2;
@@ -192,11 +193,13 @@ namespace audio
         if (rtAudio.isStreamRunning())
         {
             rtAudio.stopStream();
+            win_app::info("AUDIO -> stopStream()");
         }
-
+        
         if (rtAudio.isStreamOpen())
         {
             rtAudio.closeStream();
+            win_app::info("AUDIO -> closeStream()");
         }
     }
 

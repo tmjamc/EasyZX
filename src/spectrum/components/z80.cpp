@@ -1,3 +1,4 @@
+#include "win_app.h"
 #include "z80.h"
 #include "memory.h"
 #include "ula.h"
@@ -78,6 +79,8 @@ namespace z80
         BC_= DE_= HL_= 0;
         IX = IY = 0;
         MP = 0;
+
+        win_app::info("Z80 -> reset()");
     }
 
     void cleanUp()

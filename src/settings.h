@@ -20,7 +20,7 @@ namespace settings
         bool displayShowRefreshRatePopup = true;
 
         // Model settings
-        int modelId = 0;
+        int modelId = 100;
 
         // Tape settings
         bool tapeAutoStartStop = true;
@@ -31,10 +31,10 @@ namespace settings
         int audioDeviceId = -1;
         int audioAyVolume = 90;
         int audioBeeperVolume = 90;
-        int audioTapeVolume = 40;
+        int audioTapeVolume = 70;
         int audioAyDcAdjustBufferLength = 20;
         int audioBeeperDcAdjustBufferLength = 40;
-        int audioTapeDcAdjustBufferLength = 80;
+        int audioTapeDcAdjustBufferLength = 40;
         
         // Main window settings
         int windowMainWidth = 972;
