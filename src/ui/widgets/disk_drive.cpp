@@ -8,14 +8,14 @@ namespace widgets
     {
         if (!wd_1793::enabled)
         {
-            // Begin disabled
+            ImGui::BeginDisabled();
         }
-
-        ImGui::AlignTextToFramePadding();
 
         for (int index = 0; index < 4; ++index)
         {
             const bool empty = wd_1793::disks[index] == nullptr;
+
+            ImGui::AlignTextToFramePadding();
 
             ImGui::Text("Unit %d:", index);
 
@@ -32,7 +32,7 @@ namespace widgets
             }
 
             ImGui::SameLine();
-            if (empty)
+            if (empty && wd_1793::enabled)
             {
                 ImGui::BeginDisabled();
             }
@@ -40,10 +40,16 @@ namespace widgets
             {
                 wd_1793::ejectDisk(index);
             }
-            if (empty)
+            if (empty && wd_1793::enabled)
             {
                 ImGui::EndDisabled();
             }
         }
+
+        if (!wd_1793::enabled)
+        {
+            ImGui::EndDisabled();
+        }
+
     }
 }

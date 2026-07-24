@@ -43,7 +43,7 @@ namespace memory
         	// Simulate dirty RAM memory
             for (uint16_t addr = 0x0000; addr < 0x4000; ++addr)
             {
-                ramPages[i][addr] = ((rand() % 5) == 0) ? rand() & 0xff : ((i % 8) < 4) ? 0x00 : 0xff;
+                ramPages[i][addr] = ((rand() % 5) == 0) ? rand() & 0xff : ((addr % 8) < 4) ? 0x00 : 0xff;
             }
         }
 
