@@ -10,6 +10,7 @@
 #include "display.h"
 #include "settings.h"
 #include "main.h"
+#include "zx_theme.h"
 
 #define ERROR_RESULT(msg) \
 cleanUp();                \
@@ -243,7 +244,7 @@ namespace win_app
             io.IniFilename = nullptr;
             // io.MouseDrawCursor = true;
 
-            
+            ImGui::ZXTheme();
         }
     }
 
