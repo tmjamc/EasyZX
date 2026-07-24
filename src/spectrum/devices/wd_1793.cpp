@@ -212,26 +212,6 @@ namespace wd_1793
         constexpr int IndexMark = 0xc2;
         constexpr int SectorMark = 0xa1;
 
-        struct Disk
-        {
-            uint16_t trackCount;
-            uint8_t sideCount;
-            uint8_t byteAtHead;
-            uint8_t signal;
-            uint32_t trackIndex;
-            uint32_t index;
-            uint32_t indexDelay;
-            bool writeProtect;
-            uint8_t sectorBuffer[0x100];
-            uint16_t sectorBufferIndex;
-            uint8_t *data;
-            int dataLength;
-            int dataIndex;
-            bool scl;
-            int sclDataOffset;
-            int track0side1data;
-        };
-
         uint32_t state, stepState, nextState;
         uint32_t control;
         uint32_t counter;
@@ -255,8 +235,6 @@ namespace wd_1793
         uint8_t byteAtHead, byteToWrite;
 
         uint8_t side;
-
-        Disk *disks[4];
 
         bool fastMode;
 
@@ -492,7 +470,7 @@ namespace wd_1793
             stepState = StepIdle;
             control &= ~(Writing | DRQ);
             retries = 15;
-            led = 0;
+            led[selectedDiskIndex] = 0;
             control |= INTRQ;
         }
 
@@ -510,7 +488,7 @@ namespace wd_1793
                     return;
                 }
 
-                led = 1;
+                led[selectedDiskIndex] = 1;
 
                 control |= HLD;
                 counter = 1;
@@ -661,7 +639,7 @@ namespace wd_1793
 
                     diskStepRead();
 
-                    led = 1;
+                    led[selectedDiskIndex] = 1;
 
                     counter = (RATES[(control & RateSelect) ^ 0x4][command & 0x3]) >> 3;
 
@@ -766,7 +744,7 @@ namespace wd_1793
                     return;
                 }
 
-                led = 1;
+                led[selectedDiskIndex] = 1;
 
                 if (headerIndex == 0xff)
                 {
@@ -1019,7 +997,7 @@ namespace wd_1793
                     return;
                 }
 
-                led = 2;
+                led[selectedDiskIndex] = 2;
 
                 byteAtHead = data;
                 data = 0;
@@ -1094,7 +1072,7 @@ namespace wd_1793
 
             case ReadData:
             {
-                led = 1;
+                led[selectedDiskIndex] = 1;
 
                 data = byteAtHead;
 
@@ -1194,7 +1172,7 @@ namespace wd_1793
                     return;
                 }
 
-                led = 2;
+                led[selectedDiskIndex] = 2;
 
                 switch (data)
                 {
@@ -1288,7 +1266,7 @@ namespace wd_1793
                     return;
                 }
 
-                led = 1;
+                led[selectedDiskIndex] = 1;
 
                 if (control & DRQ)
                 {
@@ -1303,8 +1281,9 @@ namespace wd_1793
         }
     }
 
-    uint8_t led;
+    uint8_t led[4]{};
     bool enabled = false;
+    Disk *disks[4];
 
     void ioWrite(uint16_t port, uint8_t value)
     {
@@ -1322,7 +1301,7 @@ namespace wd_1793
                     stepState = StepIdle;
                     control &= ~(Writing | DRQ);
                     retries = 15;
-                    led = 0;
+                    led[selectedDiskIndex] = 0;
                 }
                 else
                 {
@@ -1697,6 +1676,11 @@ namespace wd_1793
 
     void reset()
     {
+        for (int i = 0; i < 4; ++i)
+        {
+            led[i] = 0;
+        }
+
         enabled = settings::current.devicesBetaDisk;
         state = None;
         stepState = StepIdle;
@@ -1711,7 +1695,7 @@ namespace wd_1793
         retries = 0;
         side = 0;
         selectedDiskIndex = 0;
-        fastMode = false;
+        fastMode = true;
         sclConverted = false;
     }
 
@@ -1741,16 +1725,17 @@ namespace wd_1793
 
         file.seekg(0, std::ios::end);
         std::streampos fileSize = file.tellg();
-        disks[unit]->dataLength = (int)fileSize;
+        disks[unit]->dataLength = static_cast<int>(fileSize);
         disks[unit]->data = new uint8_t[disks[unit]->dataLength];
+        disks[unit]->fileName = fileName;
 
         file.seekg(0, std::ios::beg);
-        file.read((char *)disks[unit]->data, fileSize);
+        file.read(reinterpret_cast<char*>(disks[unit]->data), fileSize);
         file.close();
 
         uint8_t diskType;
 
-        std::string magic = std::string((char *)(disks[unit]->data), 8);
+        std::string magic = std::string(reinterpret_cast<char*>(disks[unit]->data), 8);
 
         if (magic == "SINCLAIR")
         {
