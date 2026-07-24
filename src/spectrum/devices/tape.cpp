@@ -288,10 +288,28 @@ namespace tape
             blocks.clear();
 
             int index = 0;
+            bool latestBlockWasStandardHeader = false;
             while (index < dataLength)
             {
                 const uint16_t blockLength = data[index] | data[index + 1] << 8;
-                blocks.emplace_back(0x10, index, getDataInfo(index + 2, blockLength, "Standard block"), blockLength);
+
+                if (latestBlockWasStandardHeader)
+                {                    
+                    Block* latestBlock = &blocks[blocks.size() - 1];
+                    latestBlock->length = blockLength;
+                    latestBlockWasStandardHeader = false;
+                }
+                else
+                {
+                    blocks.emplace_back(0x10, index, getDataInfo(index + 2, blockLength, "Standard Speed Data Block"), blockLength);
+
+                    Block* currentBlock = &blocks[blocks.size() - 1];
+                    if (currentBlock->length == 19 && !currentBlock->description.empty())
+                    {
+                        latestBlockWasStandardHeader = true;
+                    }
+                }
+
                 index += 2;
                 index += blockLength;
             }
@@ -348,21 +366,46 @@ namespace tape
         }
         
         void setPilotAndDataPulses(uint16_t pilotPulseLength,
-                                        uint16_t syncPulse1Length,
-                                        uint16_t syncPulse2Length,
-                                        uint16_t pulseZeroLength,
-                                        uint16_t pulseOneLength,
-                                        uint16_t pilotPulseCount,
-                                        uint8_t lastByteBits,
-                                        uint32_t pauseLength,
-                                        uint32_t dataStartIndex,
-                                        uint32_t dataLength)
+                                   uint16_t syncPulse1Length,
+                                   uint16_t syncPulse2Length,
+                                   uint16_t pulseZeroLength,
+                                   uint16_t pulseOneLength,
+                                   uint16_t pilotPulseCount,
+                                   uint8_t lastByteBits,
+                                   uint32_t pauseLength,
+                                   uint32_t dataStartIndex,
+                                   uint32_t dataLength)
         {
             pulses.emplace_back(pilotPulseLength, pilotPulseCount);
             pulses.emplace_back(syncPulse1Length, 1);
             pulses.emplace_back(syncPulse2Length, 1);
 
             setDataPulses(pulseZeroLength, pulseOneLength, lastByteBits, pauseLength, dataStartIndex, dataLength);
+        }
+
+        void setTapPulses(int startDataIndex, int endDataIndex)
+        {
+            while (startDataIndex < endDataIndex)
+            {
+                const uint16_t blockLength = data[startDataIndex] | data[startDataIndex + 1] << 8;
+
+                startDataIndex += 2;
+
+                const bool isHeader = data[startDataIndex] < 0x80;
+
+                setPilotAndDataPulses(PILOT_PULSES_LENGTH,
+                                      SYNC_PULSE_1_LENGTH,
+                                      SYNC_PULSE_2_LENGTH,
+                                      PULSE_ZERO_LENGTH,
+                                      PULSE_ONE_LENGTH,
+                                      isHeader ? PILOT_PULSES_HEADER_COUNT : PILOT_PULSES_DATA_COUNT,
+                                      8,
+                                      1000,
+                                      startDataIndex,
+                                      blockLength);
+
+                startDataIndex += blockLength;
+            }
         }
 
         void setTzxPulses(int startDataIndex, int endDataIndex)
@@ -384,15 +427,15 @@ namespace tape
                     startDataIndex += 4;
 
                     setPilotAndDataPulses(PILOT_PULSES_LENGTH,
-                                        SYNC_PULSE_1_LENGTH,
-                                        SYNC_PULSE_2_LENGTH,
-                                        PULSE_ZERO_LENGTH,
-                                        PULSE_ONE_LENGTH,
-                                        data[startDataIndex] < 0x80 ? PILOT_PULSES_HEADER_COUNT : PILOT_PULSES_DATA_COUNT,
-                                        8,
-                                        pauseLength,
-                                        startDataIndex,
-                                        blockLength);
+                                          SYNC_PULSE_1_LENGTH,
+                                          SYNC_PULSE_2_LENGTH,
+                                          PULSE_ZERO_LENGTH,
+                                          PULSE_ONE_LENGTH,
+                                          data[startDataIndex] < 0x80 ? PILOT_PULSES_HEADER_COUNT : PILOT_PULSES_DATA_COUNT,
+                                          8,
+                                          pauseLength,
+                                          startDataIndex,
+                                          blockLength);
 
                     startDataIndex += blockLength;
 
@@ -562,7 +605,7 @@ namespace tape
                 setTzxPulses(dataIndexStart, dataIndexEnd);
                 break;
             case TAP:
-                //setTapPulses(dataIndexStart, dataIndexEnd);
+                setTapPulses(dataIndexStart, dataIndexEnd);
                 break;
             default:
                 return false;
