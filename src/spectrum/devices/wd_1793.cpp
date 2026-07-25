@@ -236,8 +236,6 @@ namespace wd_1793
 
         uint8_t side;
 
-        bool fastMode;
-
         bool sclConverted;
         uint8_t track0[2304];
 
@@ -916,33 +914,18 @@ namespace wd_1793
                     return;
                 }
 
-                if (!fastMode || command & 0x20)
+                if (header[3] != sector)
                 {
-                    if (header[3] != sector)
-                    {
-                        state = ReadHeader;
-                        process();
-                        return;
-                    }
-
-                    if ((command & 0x2) && (header[2] & ((command >> 3) & 0x1)))
-                    {
-                        state = ReadHeader;
-                        process();
-                        return;
-                    }
+                    state = ReadHeader;
+                    process();
+                    return;
                 }
-                else
-                {
-                    if ((command & 0x2) && (header[2] & ((command >> 3) & 0x1)))
-                    {
-                        state = ReadHeader;
-                        process();
-                        return;
-                    }
 
-                    header[3] = sector;
-                    disks[selectedDiskIndex]->index = SECTOR_DATA_POSITION[sector - 1] + 39;
+                if ((command & 0x2) && (header[2] & ((command >> 3) & 0x1)))
+                {
+                    state = ReadHeader;
+                    process();
+                    return;
                 }
 
                 status &= ~StatusCRC;
@@ -1100,25 +1083,8 @@ namespace wd_1793
                     if (command & 0x10)
                     {
                         ++sector;
-
-                        if (!fastMode || sector > 16)
-                        {
-                            state = TypeIICommand;
-                            process();
-                        }
-                        else
-                        {
-                            header[3] = sector;
-                            disks[selectedDiskIndex]->index = SECTOR_DATA_POSITION[sector - 1] + 39;
-
-                            status &= ~StatusCRC;
-                            counter = 0x100;
-
-                            stepState = StepWaitingMark;
-                            markAtHead = Mark;
-
-                            state = ReadDataFlag;
-                        }
+                        state = TypeIICommand;
+                        process();
                     }
                     else
                     {
@@ -1564,12 +1530,7 @@ namespace wd_1793
 
         case StepWaiting:
         {
-            if (fastMode)
-            {
-                counter = 0;
-                process();
-            }
-            else if (!(--counter))
+            if (!(--counter))
             {
                 process();
             }
@@ -1695,7 +1656,6 @@ namespace wd_1793
         retries = 0;
         side = 0;
         selectedDiskIndex = 0;
-        fastMode = true;
         sclConverted = false;
     }
 
