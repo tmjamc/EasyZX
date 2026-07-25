@@ -52,7 +52,7 @@ namespace widgets
                 ImGui::SameLine();
                 if (ImGui::Button("Insert", ImVec2(60.0f, 0.0f)))
                 {
-                    // Show disk browse dialog
+                    // TODO: Show disk browse dialog
                 }
 
                 ImGui::SameLine();

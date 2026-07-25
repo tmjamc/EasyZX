@@ -1059,7 +1059,6 @@ namespace ImGui
         {
             windowPos = ImGui::GetWindowPos();
             windowPos.x -= 16.0f;
-            // windowPos.y -= 1.0f;
 
             windowSize = ImGui::GetWindowSize();
             drawList = ImGui::GetWindowDrawList();
@@ -1086,20 +1085,22 @@ namespace ImGui
 
     bool ZXCollapsingHeader(const char* name, bool &collapsed)
     {
-        drawList = ImGui::GetWindowDrawList();
-
         ImVec2 posMin = ImGui::GetCursorScreenPos();
         posMin.x -= 20.0f;
         const ImVec2 posMax = ImVec2(posMin.x + ImGui::GetContentRegionAvail().x + 40.0f, posMin.y + 30.0f);
+        
         const bool isMouseHovering = IsMouseHoveringRect(posMin, posMax);
+        drawList = ImGui::GetWindowDrawList();
         drawList->AddRectFilled(posMin, posMax, isMouseHovering ? ImGui::GetColorU32(ImGuiCol_TitleBgActive) : ImGui::GetColorU32(ImGuiCol_TitleBg));
-        // ImGui::SetCursorPosX(8.0f);
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 6.0f);
+
         ImGui::TextUnformatted(collapsed ? "+" : "-");
         ImGui::SameLine();
         ImGui::SetCursorPosX(32.0f);
         ImGui::TextUnformatted(name);
+
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 6.0f);
+        ImGui::Dummy(ImVec2(0.0f, 0.0f));
 
         if (isMouseHovering && ImGui::IsMouseClicked(ImGuiMouseButton_Left, false))
         {
