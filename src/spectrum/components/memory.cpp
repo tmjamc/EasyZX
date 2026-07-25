@@ -6,6 +6,7 @@
 #include "main.h"
 #include "ula.h"
 #include "win_app.h"
+#include "settings.h"
 
 namespace memory
 {
@@ -127,12 +128,12 @@ namespace memory
         activeRomPage = (data & 0x10) >> 4;
         banks[0] = romPages[activeRomPage];
 
-        const int previousActiveScreenPage = activeScreenPage;
-        activeScreenPage = ((data & 0x08) == 0) ? 5 : 7;
-        if (previousActiveScreenPage != activeScreenPage)
+        const int screenPage = ((data & 0x08) == 0) ? 5 : 7;
+        if (!main::throttle && settings::current.displayGigaScreenMode == 2 && screenPage != activeScreenPage)
         {
             ula::gigaScreen = true;
         }
+        activeScreenPage = screenPage;
 
         activeRamPage = data & 0x07;
         banks[3] = ramPages[activeRamPage];

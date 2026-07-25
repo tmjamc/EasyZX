@@ -263,7 +263,6 @@ namespace ula
         }
 
         displayBufferIndex = 1 - displayBufferIndex;
-        gigaScreen = false;
     }
 
     void contendedTacts(uint16_t addr, int tacts, bool force)

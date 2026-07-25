@@ -102,6 +102,7 @@ namespace main
     extern int currentFrame;
   	extern bool* keyStates;
     extern bool resetRequested;
+    extern bool throttle;
 
     void start();
     void stop();

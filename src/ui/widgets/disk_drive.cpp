@@ -16,8 +16,6 @@ namespace widgets
 
         ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
-
-
         for (int index = 0; index < 4; ++index)
         {
             const bool empty = wd_1793::disks[index] == nullptr;

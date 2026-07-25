@@ -48,11 +48,12 @@ namespace main
             wd_1793::reset();
 
             
-        wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\breakspace.trd");
+        // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\RRJ-RAAT.SCL");
         // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\InColor(Pentagon).trd");
         // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\OldSkoolCodingOldSchoolStyle.trd");
         // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\summer.trd");
-        // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\esprit.trd");
+        // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\tiratok_final_by_demarche_version_for_pentagon.trd");
+        wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\nogfx.trd");
 
 
         tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\music\\beeper\\thevocoders.tap");
@@ -137,9 +138,12 @@ namespace main
 
         void waitForNextFrame()
         {
+            throttle = keyStates[VK_F9];
+
             // Do not throttle the frame rate
-            if (keyStates[VK_F9])
+            if (throttle)
             {
+                ula::gigaScreen = false;
                 const uint64_t frameTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - currentFrameTime).count();
                 if (frameTime < 20)
                 {
@@ -198,6 +202,7 @@ namespace main
     int currentFrame = 0;
 	bool* keyStates;
     bool resetRequested = false;
+    bool throttle = false;
 
     void start()
     {
@@ -227,6 +232,11 @@ namespace main
 
     void tact()
     {
+        if (currentTact == 0)
+        {
+            ula::gigaScreen = settings::current.displayGigaScreenMode == 1 ? true :false;
+        }
+
         if (wd_1793::enabled)
         {
             wd_1793::tact();
