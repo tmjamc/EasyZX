@@ -1,4 +1,4 @@
-#include "imgui.h"
+#include "zx_theme.h"
 #include "main.h"
 #include "model_selection.h"
 #include "settings.h"
@@ -17,10 +17,10 @@ namespace widgets
             selectedModel = main::currentModel;
         }
 
-        ImGui::AlignTextToFramePadding();
-        ImGui::TextUnformatted("Model:");
+        ImGui::ZXLabel("Model:");
 
         ImGui::SameLine();
+        ImGui::SetNextItemWidth(-1.0f);
         if (ImGui::BeginCombo("##model", selectedModel->name))
         {
             for (const main::Model &model : main::models)

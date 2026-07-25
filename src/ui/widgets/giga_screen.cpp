@@ -1,4 +1,4 @@
-#include "imgui.h"
+#include "zx_theme.h"
 #include "settings.h"
 #include "giga_screen.h"
 
@@ -11,10 +11,10 @@ namespace widgets
 
     void renderGigaScreen()
     {
-        ImGui::AlignTextToFramePadding();
-        ImGui::TextUnformatted("Giga screen:");
+        ImGui::ZXLabel("Giga screen:");
 
         ImGui::SameLine();
+        ImGui::SetNextItemWidth(-1.0f);
         if (ImGui::BeginCombo("##giga_screen", GIGA_SCREEN_MODE[settings::current.displayGigaScreenMode]))
         {
             for (int index = 0; index < 3; ++index)
