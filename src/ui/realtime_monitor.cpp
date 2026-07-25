@@ -19,7 +19,7 @@ namespace realtime_monitor
         // }
 
         ImGui::SetNextWindowSize(ImVec2(500, 300), ImGuiCond_Once);
-        if (ImGui::ZXBegin("Realtime monitor", &opened, ImGuiWindowFlags_NoCollapse))
+        if (ImGui::ZXBegin("Realtime monitor", ImGuiWindowFlags_NoCollapse))
         {
             widgets::renderModelSelection();
             widgets::renderGigaScreen();

@@ -1,3 +1,4 @@
+#include "imgui_internal.h"
 #include "zx_theme.h"
 
 namespace ImGui
@@ -929,9 +930,15 @@ namespace ImGui
         ImVec2 windowSize;
         ImDrawList* drawList;
 
-        void addSpectrumBar(ImU32 col)
+        void addSpectrumBar(ImU32 col, ImU32 colHover)
         {
-            drawList->AddQuadFilled(ImVec2(windowPos.x + windowSize.x - SPECTRUM_BAR_WIDTH * 2, windowPos.y + SPECTRUM_BAR_HEIGHT), ImVec2(windowPos.x + windowSize.x - SPECTRUM_BAR_WIDTH, windowPos.y), ImVec2(windowPos.x + windowSize.x, windowPos.y), ImVec2(windowPos.x + windowSize.x - SPECTRUM_BAR_WIDTH, windowPos.y + SPECTRUM_BAR_HEIGHT), col);
+            const ImVec2 a = ImVec2(windowPos.x + windowSize.x - SPECTRUM_BAR_WIDTH * 2, windowPos.y + SPECTRUM_BAR_HEIGHT);
+            const ImVec2 b = ImVec2(windowPos.x + windowSize.x - SPECTRUM_BAR_WIDTH, windowPos.y);
+            const ImVec2 c = ImVec2(windowPos.x + windowSize.x, windowPos.y);
+            const ImVec2 d = ImVec2(windowPos.x + windowSize.x - SPECTRUM_BAR_WIDTH, windowPos.y + SPECTRUM_BAR_HEIGHT);
+            const ImVec2 p = ImGui::GetMousePos();
+            const bool mouseInBar = ImTriangleContainsPoint(a, b, d, p) || ImTriangleContainsPoint(b, c, d, p);
+            drawList->AddQuadFilled(a, b, c, d, mouseInBar ? colHover : col);
             windowPos.x -= SPECTRUM_BAR_WIDTH - 0.5f;
         }
     }
@@ -1044,40 +1051,61 @@ namespace ImGui
         io.FontDefault = font;
     }
 
-    bool ZXBegin(const char* name, bool* p_open, ImGuiWindowFlags flags)
+    bool ZXBegin(const char* name, ImGuiWindowFlags flags)
     {
-        // ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32_WHITE);
-        // ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(6.0f, 6.0f));
-        const bool result = ImGui::Begin(name, p_open, flags);
-        // ImGui::PopStyleVar();
-        // ImGui::PopStyleColor();
+        const bool result = ImGui::Begin(name, nullptr, flags);
 
         if (result)
         {
             windowPos = ImGui::GetWindowPos();
-            windowPos.x -= 32.0f;
+            windowPos.x -= 16.0f;
             // windowPos.y -= 1.0f;
 
             windowSize = ImGui::GetWindowSize();
             drawList = ImGui::GetWindowDrawList();
 
             drawList->PushClipRectFullScreen();
-            addSpectrumBar(0xffffff00);
-            addSpectrumBar(0xff00ff00);
-            addSpectrumBar(0xff00ffff);
-            addSpectrumBar(0xff0000ff);
+            addSpectrumBar(0xffc0c000, 0xffffff00);
+            addSpectrumBar(0xff00c000, 0xff00ff00);
+            addSpectrumBar(0xff00c0c0, 0xff00ffff);
+            addSpectrumBar(0xff0000c0, 0xff0000ff);
             drawList->PopClipRect();
         }
 
         return result;
     }
 
-    void ZXLabel(const char *name, float width)
+    void ZXLabel(const char* name, float width)
     {
         ImGui::AlignTextToFramePadding();
         ImGui::SetNextItemWidth(width);
         ImGui::Indent(-10.0f);
         ImGui::LabelText("", name);
         ImGui::Unindent(-10.0f);
+    }
+
+    bool ZXCollapsingHeader(const char* name, bool &collapsed)
+    {
+        drawList = ImGui::GetWindowDrawList();
+
+        ImVec2 posMin = ImGui::GetCursorScreenPos();
+        posMin.x -= 20.0f;
+        const ImVec2 posMax = ImVec2(posMin.x + ImGui::GetContentRegionAvail().x + 40.0f, posMin.y + 30.0f);
+        const bool isMouseHovering = IsMouseHoveringRect(posMin, posMax);
+        drawList->AddRectFilled(posMin, posMax, isMouseHovering ? ImGui::GetColorU32(ImGuiCol_TitleBgActive) : ImGui::GetColorU32(ImGuiCol_TitleBg));
+        // ImGui::SetCursorPosX(8.0f);
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 6.0f);
+        ImGui::TextUnformatted(collapsed ? "+" : "-");
+        ImGui::SameLine();
+        ImGui::SetCursorPosX(32.0f);
+        ImGui::TextUnformatted(name);
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 6.0f);
+
+        if (isMouseHovering && ImGui::IsMouseClicked(ImGuiMouseButton_Left, false))
+        {
+            collapsed = !collapsed;
+        }
+
+        return !collapsed;
     }
 }
