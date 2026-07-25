@@ -57,7 +57,32 @@ namespace widgets
             {
                 ImGui::EndDisabled();
             }
-        }
 
+            ImGui::ZXLabel("Current block:");
+
+            ImGui::SameLine();
+            ImGui::SetNextItemWidth(-1.0f);
+            if (ImGui::BeginCombo("##block", tape::blocks[tape::blockIndex].getInfo().c_str()))
+            {
+                for (int index = 0; index < tape::blocks.size(); ++index)
+                {
+                    const bool is_selected = (index == tape::blockIndex);
+                    if (ImGui::Selectable(tape::blocks[index].getInfo().c_str(), is_selected))
+                    {
+                        if (index != tape::blockIndex)
+                        {
+                            tape::playing = 0;
+                            tape::blockIndex = index;
+                        }
+                    }
+                    if (is_selected)
+                    {
+                        ImGui::SetItemDefaultFocus();
+                    }
+                }
+
+                ImGui::EndCombo();
+            }
+        }
     }
 }

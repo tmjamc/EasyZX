@@ -6,15 +6,27 @@ namespace tape
 {
     constexpr int MAX_AMPLITUDE = 3000;
 
+    struct Block
+    {
+        uint8_t type;
+        int start;
+        std::string description;
+        int length;
+        std::string getInfo();
+    };
+
     extern bool playing ;
     extern bool pulseSignal;
     extern DcAdjustmentFilter filter;
     extern int volume;
     extern const char *fileName;
+    extern std::vector<Block> blocks;
+    extern int blockIndex;
 
     void reset();
     void cleanUp();
     void load(const char* fileName);
     void play();
     void tact();
+    std::string getCurrentBlockInfo();
 }

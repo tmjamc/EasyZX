@@ -190,6 +190,10 @@ namespace audio
 
     void cleanUp()
     {
+        mutex.lock();
+        audioBuffer.clear();
+        mutex.unlock();
+
         if (rtAudio.isStreamRunning())
         {
             rtAudio.stopStream();

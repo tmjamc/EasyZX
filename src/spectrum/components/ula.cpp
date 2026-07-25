@@ -232,11 +232,13 @@ namespace ula
 
     uint8_t portData = 0xff;
     bool gigaScreen = false;
+    bool tapeLoaderActive = false;
 
     void reset()
     {
         cleanUp(false);
 
+        tapeLoaderActive = false;
         portData = 0xff;
         gigaScreen = false;
         firstBytePixelTactIndex = main::currentModel->tactsToFirstScreenByte % 4;
@@ -506,9 +508,9 @@ namespace ula
         }
 
         // Check if a tape loader is reading the port
-        if (!tape::playing && detectTapeLoader(z80::registers.pc.w))
+        if (!tape::playing)
         {
-            tape::play();
+            tapeLoaderActive = detectTapeLoader(z80::registers.pc.w);
         }
 
         return data;

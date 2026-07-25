@@ -6,6 +6,7 @@ namespace ula
 {
     extern uint8_t portData;
     extern bool gigaScreen;
+    extern bool tapeLoaderActive;
 
     void reset();
     void cleanUp(bool fullCleanUp = true);

@@ -25,6 +25,7 @@ namespace main
         HANDLE frameTimer;
         LARGE_INTEGER frameDueTime{};
         std::chrono::steady_clock::time_point currentFrameTime;
+        int tapeRequestCount = 0;
 
         void reset()
         {
@@ -36,6 +37,8 @@ namespace main
                     break;
                 }
             }
+
+            tapeRequestCount = 0;
 
             audio::reset();
             z80::reset();
@@ -56,7 +59,7 @@ namespace main
         // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\nogfx.trd");
 
 
-        tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\128k\\viewerVele.tap");
+        tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\Renegade - Side 2 (Erbe).tzx");
         // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\music\\beeper\\thevocoders.tap");
 
         }
@@ -104,16 +107,6 @@ namespace main
                             }
                         }
                     }
-
-                    // if (!tape::playing && z80::registers.pc.w == 0x056c)
-                    // {
-                    //     tape::play();
-                    // }
-
-                    // if (!tape::Started() && z80::registers.pc.w == 0x056c)
-                    // {
-                    //     tape::StartTape();
-                    // }
 
                     z80::executeInstruction();
                 }
@@ -273,6 +266,22 @@ namespace main
         if (++currentTact == currentModel->tactsPerFrame)
         {
             ula::updateDisplayBuffer();
+
+            if (!tape::playing)
+            {
+                if (ula::tapeLoaderActive)
+                {
+                    if (++tapeRequestCount == 50)
+                    {
+                        win_app::info("Tape load request from main");
+                        tape::play();
+                    }
+                }
+                else
+                {
+                    tapeRequestCount = 0;
+                }
+            }
 
             currentTact = 0;
             waitForNextFrame();

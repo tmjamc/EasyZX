@@ -27,18 +27,6 @@ namespace tape
         enum Format { TAP, TZX };
         Format fileFormat;
 
-        struct Block
-        {
-            uint8_t type;
-            int start;
-            std::string description;
-            int length;
-        };
-
-        std::vector<Block> blocks;
-
-        int blockIndex = 0;
-
         struct Pulse
         {
             int length; // pulse length in z80 cycles
@@ -596,7 +584,7 @@ namespace tape
 
             int dataIndexStart = blocks[blockIndex].start;
             int dataIndexEnd = (blockIndex == blocks.size() - 1) ? dataLength : blocks[blockIndex + 1].start;
-            
+
             win_app::info(std::format("{} {} {}", blockIndex, dataIndexStart, dataIndexEnd).c_str());
 
             switch (fileFormat)
@@ -649,6 +637,8 @@ namespace tape
     DcAdjustmentFilter filter;
     int volume;
     const char *fileName = nullptr;
+    std::vector<Block> blocks;
+    int blockIndex = 0;
 
     void reset()
     {
@@ -767,26 +757,29 @@ namespace tape
                     if (blockIndex == blocks.size())
                     {
                         playing = false;
+                        win_app::info("End of tape");
+
                         //stop(true);
                         blockIndex = 0;
                     }
                     else
                     {
-                        playing = false;
-
-                        // if (true /*!_zx->app->settings->tapeAutoStartStop || _zx->ula->latestPortReadWasTapeLoader()*/)
-                        // {
-                        //     if (!setBlockPulses())
-                        //     {
-                        //         playing = false;
-                        //         // stop(false);
-                        //     }
-                        // }
-                        // else
-                        // {
-                        //     playing = false;
-                        //     // stop(false);
-                        // }
+                        if (/*!_zx->app->settings->tapeAutoStartStop ||*/ ula::tapeLoaderActive)
+                        {
+                            win_app::info("Tape load request from tape");
+                            if (!setBlockPulses())
+                            {
+                                playing = false;
+                                win_app::info("No more blocks!");
+                                // stop(false);
+                            }
+                        }
+                        else
+                        {
+                            playing = false;
+                            win_app::info("Stop from tape");
+                            // stop(false);
+                        }
                     }
                 }
                 else
@@ -795,5 +788,15 @@ namespace tape
                 }
             }
         }
+    }
+
+    std::string Block::getInfo()
+    {
+        if (length == 0)
+        {
+            return description;
+        }
+
+        return std::format("{} ({}) bytes", description, length);
     }
 }
