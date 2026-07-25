@@ -38,6 +38,7 @@ WIN32
 	src/ui/widgets/model_selection.cpp
 	src/ui/widgets/giga_screen.cpp
 	src/ui/widgets/disk_drive.cpp
+	src/ui/widgets/tape_manager.cpp
 	src/spectrum/main.cpp
 	src/spectrum/components/memory.cpp
 	src/spectrum/components/z80.cpp

@@ -5,6 +5,7 @@
 #include "display.h"
 #include "memory.h"
 #include "tape.h"
+#include "z80.h"
 
 #define ATTR_GET_FLASH(a) (a & (1<<7)) && ((main::currentFrame % 64) < 32)
 #define ATTR_GET_INK(a) (a & 0x07) | ((a & (1<<6)) >> 3)
@@ -143,6 +144,89 @@ namespace ula
                     tact += (main::currentModel->tactsPerLine - 128);
                 }
             }
+        }
+
+        bool detectTapeLoader(uint16_t addr)
+        {
+            // Smart turbo loader detector:
+            // Common points:
+            // 
+            // - loop stars with INC B or DEC B
+            // - loop ends jumping to start address with a Z condition: JR Z or JP Z
+            // - max 32 bytes from the start address to the end address
+            // - inside the loop, the following instructions must be present:
+            //   - one occurence of XOR C
+            //   - one occurence of IN A,(FE)
+            //   - one occurence of (RRA and AND 20) or (AND 40)
+            //   - one or two occurences of RETZ
+
+            // Get loop start and end address
+            uint16_t loopEnd = 0;
+            uint16_t loopStart = 0;
+            for (int i = 0; i < 6; ++i, ++addr)
+            {
+                if (memory::read(addr) == 0xca) // JP Z
+                {
+                    loopEnd = addr;
+                    loopStart = memory::read(addr + 1) | (memory::read(addr + 2) << 8);
+                    break;
+                }
+                if (memory::read(addr) == 0x28) // JR Z
+                {
+                    loopEnd = addr;
+                    loopStart = addr - 0xfe + memory::read(addr + 1);
+                    break;
+                }
+            }
+
+            if (!loopEnd || !loopStart || loopEnd - loopStart > 32)
+            {
+                return false;
+            }
+
+            bool incbFound = false;
+            bool decbFound = false;
+            int rraCount = 0;
+            int and20Count = false;
+            int and40Count = false;
+            int retzCount = 0;
+            int xorcCount = 0;
+
+            for (addr = loopStart; addr < loopEnd; ++addr)
+            {
+                switch (memory::read(addr))
+                {
+                case 0x04:
+                    incbFound = (addr == loopStart);
+                    break;
+                case 0x05:
+                    decbFound = (addr == loopStart);
+                    break;
+                case 0x1f:
+                    ++rraCount;
+                    break;
+                case 0x20:
+                    if ((memory::read(addr - 1) == 0xe6))
+                    {
+                        ++and20Count;
+                    }
+                    break;
+                case 0x40:
+                    if ((memory::read(addr - 1) == 0xe6))
+                    {
+                        ++and40Count;
+                    }
+                    break;
+                case 0xc8:
+                    ++retzCount;
+                    break;
+                case 0xa9:
+                    ++xorcCount;
+                    break;
+                }
+            }
+
+            return (incbFound || decbFound) && ((rraCount == 1 && and20Count == 1) || and40Count == 1) && retzCount && retzCount <= 2 && xorcCount;
         }
     }
 
@@ -421,8 +505,11 @@ namespace ula
             KEY_PRESSED('B', 4)
         }
 
-        // Store PC address to check if a tape loader is reading the port
-        // _latestPortReadPCAddress = _zx->z80->registers.pc.w;
+        // Check if a tape loader is reading the port
+        if (!tape::playing && detectTapeLoader(z80::registers.pc.w))
+        {
+            tape::play();
+        }
 
         return data;
     }

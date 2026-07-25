@@ -10,6 +10,7 @@ namespace tape
     extern bool pulseSignal;
     extern DcAdjustmentFilter filter;
     extern int volume;
+    extern const char *fileName;
 
     void reset();
     void cleanUp();

@@ -1089,7 +1089,9 @@ namespace ImGui
         posMin.x -= 20.0f;
         const ImVec2 posMax = ImVec2(posMin.x + ImGui::GetContentRegionAvail().x + 40.0f, posMin.y + 30.0f);
         
-        const bool isMouseHovering = IsMouseHoveringRect(posMin, posMax);
+        ImGuiContext& g = *GImGui;
+        ImGuiWindow* window = g.CurrentWindow;
+        const bool isMouseHovering = IsWindowContentHoverable(window) && IsMouseHoveringRect(posMin, posMax);
         drawList = ImGui::GetWindowDrawList();
         drawList->AddRectFilled(posMin, posMax, isMouseHovering ? ImGui::GetColorU32(ImGuiCol_TitleBgActive) : ImGui::GetColorU32(ImGuiCol_TitleBg));
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 6.0f);
@@ -1099,12 +1101,16 @@ namespace ImGui
         ImGui::SetCursorPosX(32.0f);
         ImGui::TextUnformatted(name);
 
-        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 6.0f);
-        ImGui::Dummy(ImVec2(0.0f, 0.0f));
-
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 4.0f);
+        
         if (isMouseHovering && ImGui::IsMouseClicked(ImGuiMouseButton_Left, false))
         {
             collapsed = !collapsed;
+        }
+
+        if (!collapsed)
+        {
+            ImGui::Dummy(ImVec2(0.0f, 0.0f));
         }
 
         return !collapsed;

@@ -19,7 +19,7 @@ namespace widgets
             ImGui::BeginDisabled();
         }
 
-        if (ImGui::ZXCollapsingHeader(" Disk drives", collapsed))
+        if (ImGui::ZXCollapsingHeader("Disk drives", collapsed))
         {
             ImDrawList* drawList = ImGui::GetWindowDrawList();
 

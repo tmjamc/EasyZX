@@ -105,10 +105,10 @@ namespace main
                         }
                     }
 
-                    if (!tape::playing && z80::registers.pc.w == 0x056c)
-                    {
-                        tape::play();
-                    }
+                    // if (!tape::playing && z80::registers.pc.w == 0x056c)
+                    // {
+                    //     tape::play();
+                    // }
 
                     // if (!tape::Started() && z80::registers.pc.w == 0x056c)
                     // {

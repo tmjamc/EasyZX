@@ -6,6 +6,7 @@
 #include "model_selection.h"
 #include "giga_screen.h"
 #include "disk_drive.h"
+#include "tape_manager.h"
 
 namespace realtime_monitor
 {
@@ -23,7 +24,11 @@ namespace realtime_monitor
         {
             widgets::renderModelSelection();
             widgets::renderGigaScreen();
+            widgets::renderTape();
             widgets::renderDiskDrive();
+
+            ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 10.0f);
+            ImGui::Dummy(ImVec2(0.0f, 0.0f));
         }
         ImGui::End();
     }

@@ -648,6 +648,7 @@ namespace tape
     bool pulseSignal = false;
     DcAdjustmentFilter filter;
     int volume;
+    const char *fileName = nullptr;
 
     void reset()
     {
@@ -668,6 +669,8 @@ namespace tape
             delete[] data;
             data = nullptr;
         }
+
+        fileName = nullptr;
     }
     
     void load(const char *fileName)
@@ -695,6 +698,7 @@ namespace tape
         {
             fileFormat = TZX;
             tzxParseBlocks();
+            tape::fileName = fileName;
             printBlocks();
 
             // blockIndex = 5;
@@ -714,6 +718,7 @@ namespace tape
             {
                 fileFormat = TAP;
                 tapParseBlocks();
+                tape::fileName = fileName;
                 printBlocks();
                 return;
             }
@@ -767,14 +772,16 @@ namespace tape
                     }
                     else
                     {
-                        if (true /*!_zx->app->settings->tapeAutoStartStop || _zx->ula->latestPortReadWasTapeLoader()*/)
-                        {
-                            if (!setBlockPulses())
-                            {
-                                playing = false;
-                                // stop(false);
-                            }
-                        }
+                        playing = false;
+
+                        // if (true /*!_zx->app->settings->tapeAutoStartStop || _zx->ula->latestPortReadWasTapeLoader()*/)
+                        // {
+                        //     if (!setBlockPulses())
+                        //     {
+                        //         playing = false;
+                        //         // stop(false);
+                        //     }
+                        // }
                         // else
                         // {
                         //     playing = false;
