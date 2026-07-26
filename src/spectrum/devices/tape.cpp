@@ -746,8 +746,15 @@ namespace tape
     {
         win_app::info("Play");
 
-        if (playing || !setBlockPulses())
+        if (playing)
         {
+            win_app::info("Already playing");
+            return;
+        }
+
+        if (!setBlockPulses())
+        {
+            win_app::info("No more blocks!");
             return;
         }
 
@@ -788,9 +795,40 @@ namespace tape
                     }
                     else
                     {
+                        if (settings::current.tapeAutoStartStop)
+                        {
+                            bool tapeHasStop = false;
+                            int index = blockIndex;
+                            while (index < blocks.size())
+                            {
+                                if (blocks[index].type == 0x2a)
+                                {
+                                    win_app::info("Tape has incoming stop block, continuing play");
+                                    tapeHasStop = true;
+                                    break;
+                                }
+                                index++;
+                            }
+
+                            if (!tapeHasStop)
+                            {
+                                win_app::info("Tape has no incoming stop block, stopping");
+                                playing = false;
+                            }
+                        }
+                        
+                        if (playing)
+                        {
+                            if (!setBlockPulses())
+                            {
+                                playing = false;
+                                win_app::info("No more blocks!");
+                            }
+                        }
+
                         // if (!settings::current.tapeAutoStartStop || ula::tapeLoaderActive)
                         // {
-                        //     win_app::info("Tape load request from tape");
+                        //     win_app::info("Continue loading");
                         //     if (!setBlockPulses())
                         //     {
                         //         playing = false;
@@ -800,9 +838,9 @@ namespace tape
                         // }
                         // else
                         // {
-                            playing = false;
-                            win_app::info("Stop from tape");
-                            // stop(false);
+                        //     playing = false;
+                        //     win_app::info("Stop from tape");
+                        //     // stop(false);
                         // }
                     }
                 }

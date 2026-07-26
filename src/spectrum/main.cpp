@@ -60,9 +60,10 @@ namespace main
 
 
         // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\Basil The Great Mouse Detective.tzx");
+        tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\Pyjamarama - v1.tzx");
         // tape::load("C:\\Users\\jam\\Documents\\Projects\\tapes\\Shadow Dancer - Side 1.tzx");
         // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\music\\beeper\\thevocoders.tap");
-        tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\music\\beeper\\Beeper_Cafe_Album_PRESS_ENTER_FOR_NEXT_TRACK.tap");
+        // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\music\\beeper\\Beeper_Cafe_Album_PRESS_ENTER_FOR_NEXT_TRACK.tap");
 
         }
 
