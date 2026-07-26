@@ -83,6 +83,10 @@ namespace widgets
 
                 ImGui::EndCombo();
             }
+
+            ImGui::Indent(151.0f);
+            ImGui::ProgressBar(tape::getBlockProgress(), ImVec2(ImGui::GetContentRegionAvail().x - 1.0f, 6.0f), "");
+            ImGui::Unindent(151.0f);
         }
     }
 }

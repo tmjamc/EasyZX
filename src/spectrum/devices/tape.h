@@ -28,5 +28,6 @@ namespace tape
     void load(const char* fileName);
     void play();
     void tact();
+    float getBlockProgress();
     std::string getCurrentBlockInfo();
 }

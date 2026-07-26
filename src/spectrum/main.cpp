@@ -59,7 +59,7 @@ namespace main
         // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\nogfx.trd");
 
 
-        tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\Renegade - Side 2 (Erbe).tzx");
+        tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\Basil The Great Mouse Detective.tzx");
         // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\music\\beeper\\thevocoders.tap");
 
         }

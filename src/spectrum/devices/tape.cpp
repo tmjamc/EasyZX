@@ -38,6 +38,9 @@ namespace tape
         int pulseIndex = 0;
         Pulse pulse{};
 
+        int blockPulsesCount = 0;
+        int blockPulsesIndex = 0;
+
         std::string getDataInfo(int index, int blockLength, std::string defaultValue)
         {
             char fileName[11]{};
@@ -240,7 +243,7 @@ namespace tape
                     const uint8_t blockLength = data[index++];
                     if (!inGroup)
                     {
-                        blocks.emplace_back(type, index - 1, std::string(data + index, data + index + blockLength), 0);
+                        blocks.emplace_back(type, index - 2, std::string(data + index, data + index + blockLength), 0);
                     }
                     index += blockLength;
                     break;
@@ -549,7 +552,7 @@ namespace tape
                 }
 
                 default:
-                    win_app::info("not implemented");
+                    win_app::info("tape block type not implemented");
                     break;
                 
                 }
@@ -561,7 +564,6 @@ namespace tape
             bool result = false;
 
             pulses.clear();
-            pulseSignal = false;
 
             if (blockIndex == blocks.size())
             {
@@ -582,8 +584,18 @@ namespace tape
                 ++blockIndex;
             }
 
+            if (blockIndex == blocks.size())
+            {
+                blockIndex = 0;
+                return false;
+            }
+
             int dataIndexStart = blocks[blockIndex].start;
             int dataIndexEnd = (blockIndex == blocks.size() - 1) ? dataLength : blocks[blockIndex + 1].start;
+            if (blocks[blockIndex].type != 0x20)
+            {
+                pulseSignal = false;
+            }
 
             win_app::info(std::format("{} {} {}", blockIndex, dataIndexStart, dataIndexEnd).c_str());
 
@@ -601,6 +613,16 @@ namespace tape
 
             pulseIndex = 0;
             pulse = pulses[0];
+
+            blockPulsesCount = 0;
+            blockPulsesIndex = 0;
+            for (const Pulse &pulse : pulses)
+            {
+                if (pulse.count > 0)
+                {
+                    blockPulsesCount += pulse.count;
+                }
+            }
 
             return true;
         }
@@ -650,6 +672,8 @@ namespace tape
         pulses.clear();
         pulseIndex = 0;
         pulseSignal = false;
+        blockPulsesCount = 0;
+        blockPulsesIndex = 0;
     }
 
     void cleanUp()
@@ -742,7 +766,7 @@ namespace tape
         if (--pulse.length <= 0)
         {
             pulseSignal = !pulseSignal;
-            // ++pulseIndex;
+            ++blockPulsesIndex;
 
             if (--pulse.count > 0)
             {
@@ -788,6 +812,11 @@ namespace tape
                 }
             }
         }
+    }
+
+    float getBlockProgress()
+    {
+        return blockPulsesCount && playing ? (float)blockPulsesIndex / (float)blockPulsesCount : 0;
     }
 
     std::string Block::getInfo()
