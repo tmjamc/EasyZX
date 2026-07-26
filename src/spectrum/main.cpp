@@ -52,17 +52,33 @@ namespace main
 
             
         // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\RRJ-RAAT.SCL");
-        wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\InColor(Pentagon).trd");
+        // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\InColor(Pentagon).trd");
         // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\OldSkoolCodingOldSchoolStyle.trd");
+        wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\across_the_edge_by_demarche_fix_0.trd");
         // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\summer.trd");
         // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\tiratok_final_by_demarche_version_for_pentagon.trd");
         // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\nogfx.trd");
 
 
-        // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\Basil The Great Mouse Detective.tzx");
+        tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\Basil The Great Mouse Detective.tzx");
+        // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\Rescate Atlantida - Side 1.tzx");
+        // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\Cobra.tzx");
+        // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\Chase HQ (Erbe - Serie 5 Estrellas) - Side A.tzx");
+        // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\Pyjamarama - v1.tzx");
+        // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\Movie.tzx");
+        // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\Astro Marine Corps - Side 1.tzx");
+        // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\Renegade - Side 2 (Erbe).tzx");
+        // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\The Trapdoor.tzx");
+        // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\Samurai Warrior (MCM).tzx");
+        // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\Road Runner - Side A.tzx");
+        // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\Renegade 2 - Target Renegade - Side 1 (Erbe).tzx");
+        // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\Three Weeks In Paradise (Erbe).tzx");
+        // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\Short Circuit - 48k.tzx");
+        // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\modern\\MRKF.tzx");
+        // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\El Lingote.tzx");
         // tape::load("C:\\Users\\jam\\Documents\\Projects\\tapes\\Shadow Dancer - Side 1.tzx");
         // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\music\\beeper\\thevocoders.tap");
-        tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\music\\beeper\\Beeper_Cafe_Album_PRESS_ENTER_FOR_NEXT_TRACK.tap");
+        // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\music\\beeper\\Beeper_Cafe_Album_PRESS_ENTER_FOR_NEXT_TRACK.tap");
 
         }
 
@@ -271,25 +287,38 @@ namespace main
 
             if (settings::current.tapeAutoStartStop)
             {
-                if (tape::playing)
+                if (!tape::playing && ula::tapeLoaderActive)
                 {
-                    tapeRequestCount = 0;
+                    // if (++tapeRequestCount == 50)
+                    // {
+                        win_app::info("Tape load request from main");
+                        tape::play();
+                        tapeRequestCount = 0;
+                    // }
                 }
                 else
                 {
-                    if (ula::tapeLoaderActive)
-                    {
-                        if (++tapeRequestCount == 50)
-                        {
-                            win_app::info("Tape load request from main");
-                            tape::play();
-                        }
-                    }
-                    else
-                    {
-                        tapeRequestCount = 0;
-                    }
+                    tapeRequestCount = 0;
                 }
+                // if (tape::playing)
+                // {
+                //     tapeRequestCount = 0;
+                // }
+                // else
+                // {
+                //     if (ula::tapeLoaderActive)
+                //     {
+                //         if (++tapeRequestCount == 50)
+                //         {
+                //             win_app::info("Tape load request from main");
+                //             tape::play();
+                //         }
+                //     }
+                //     else
+                //     {
+                //         tapeRequestCount = 0;
+                //     }
+                // }
             }
 
             currentTact = 0;

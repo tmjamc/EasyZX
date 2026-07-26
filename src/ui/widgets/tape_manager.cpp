@@ -60,12 +60,13 @@ namespace widgets
                 for (int index = 0; index < tape::blocks.size(); ++index)
                 {
                     const bool is_selected = (index == tape::blockIndex);
-                    if (ImGui::Selectable(tape::blocks[index].getInfo().c_str(), is_selected))
+                    if (ImGui::Selectable(std::format("{}###{}", tape::blocks[index].getInfo(), index).c_str(), is_selected))
                     {
                         if (index != tape::blockIndex)
                         {
                             tape::playing = 0;
                             tape::blockIndex = index;
+                            tape::endOfTape = false;
                         }
                     }
                     if (is_selected)

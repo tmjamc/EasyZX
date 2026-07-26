@@ -15,7 +15,8 @@ namespace tape
         std::string getInfo();
     };
 
-    extern bool playing ;
+    extern bool playing;
+    extern bool endOfTape;
     extern bool pulseSignal;
     extern DcAdjustmentFilter filter;
     extern int volume;

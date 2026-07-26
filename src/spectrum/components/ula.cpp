@@ -508,7 +508,7 @@ namespace ula
         }
 
         // Check if a tape loader is reading the port
-        if (settings::current.tapeAutoStartStop && !tape::playing)
+        if (settings::current.tapeAutoStartStop && !tape::playing && !tape::endOfTape)
         {
             tapeLoaderActive = detectTapeLoader(z80::registers.pc.w);
         }
