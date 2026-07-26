@@ -59,8 +59,10 @@ namespace main
         // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\nogfx.trd");
 
 
-        tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\Basil The Great Mouse Detective.tzx");
+        // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\Basil The Great Mouse Detective.tzx");
+        // tape::load("C:\\Users\\jam\\Documents\\Projects\\tapes\\Shadow Dancer - Side 1.tzx");
         // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\music\\beeper\\thevocoders.tap");
+        tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\music\\beeper\\Beeper_Cafe_Album_PRESS_ENTER_FOR_NEXT_TRACK.tap");
 
         }
 
@@ -267,19 +269,26 @@ namespace main
         {
             ula::updateDisplayBuffer();
 
-            if (!tape::playing)
+            if (settings::current.tapeAutoStartStop)
             {
-                if (ula::tapeLoaderActive)
+                if (tape::playing)
                 {
-                    if (++tapeRequestCount == 50)
-                    {
-                        win_app::info("Tape load request from main");
-                        tape::play();
-                    }
+                    tapeRequestCount = 0;
                 }
                 else
                 {
-                    tapeRequestCount = 0;
+                    if (ula::tapeLoaderActive)
+                    {
+                        if (++tapeRequestCount == 50)
+                        {
+                            win_app::info("Tape load request from main");
+                            tape::play();
+                        }
+                    }
+                    else
+                    {
+                        tapeRequestCount = 0;
+                    }
                 }
             }
 

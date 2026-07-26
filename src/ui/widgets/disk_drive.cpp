@@ -14,13 +14,11 @@ namespace widgets
 
     void renderDiskDrive()
     {
-        if (!wd_1793::enabled)
-        {
-            ImGui::BeginDisabled();
-        }
-
+        
         if (ImGui::ZXCollapsingHeader("Disk drives", collapsed))
         {
+            ImGui::BeginDisabled(!wd_1793::enabled);
+
             ImDrawList* drawList = ImGui::GetWindowDrawList();
 
             for (int index = 0; index < 4; ++index)
@@ -56,24 +54,15 @@ namespace widgets
                 }
 
                 ImGui::SameLine();
-                if (empty && wd_1793::enabled)
-                {
-                    ImGui::BeginDisabled();
-                }
+                ImGui::BeginDisabled(empty && wd_1793::enabled);
                 if (ImGui::Button("Eject", ImVec2(60.0f, 0.0f)))
                 {
                     wd_1793::ejectDisk(index);
                 }
-                if (empty && wd_1793::enabled)
-                {
-                    ImGui::EndDisabled();
-                }
-            }
-
-            if (!wd_1793::enabled)
-            {
                 ImGui::EndDisabled();
             }
+
+            ImGui::EndDisabled();
         }
     }
 }

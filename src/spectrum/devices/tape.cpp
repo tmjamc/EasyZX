@@ -788,22 +788,22 @@ namespace tape
                     }
                     else
                     {
-                        if (/*!_zx->app->settings->tapeAutoStartStop ||*/ ula::tapeLoaderActive)
-                        {
-                            win_app::info("Tape load request from tape");
-                            if (!setBlockPulses())
-                            {
-                                playing = false;
-                                win_app::info("No more blocks!");
-                                // stop(false);
-                            }
-                        }
-                        else
-                        {
+                        // if (!settings::current.tapeAutoStartStop || ula::tapeLoaderActive)
+                        // {
+                        //     win_app::info("Tape load request from tape");
+                        //     if (!setBlockPulses())
+                        //     {
+                        //         playing = false;
+                        //         win_app::info("No more blocks!");
+                        //         // stop(false);
+                        //     }
+                        // }
+                        // else
+                        // {
                             playing = false;
                             win_app::info("Stop from tape");
                             // stop(false);
-                        }
+                        // }
                     }
                 }
                 else

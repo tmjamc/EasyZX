@@ -1078,9 +1078,8 @@ namespace ImGui
     {
         ImGui::AlignTextToFramePadding();
         ImGui::SetNextItemWidth(width);
-        ImGui::Indent(-10.0f);
+        ImGui::SetCursorPosX(ImGui::GetCursorPosX() - 10.0f);
         ImGui::LabelText("", name);
-        ImGui::Unindent(-10.0f);
     }
 
     bool ZXCollapsingHeader(const char* name, bool &collapsed)

@@ -3,11 +3,14 @@
 #include "tape_manager.h"
 #include "tape.h"
 #include "zx_theme.h"
+#include "settings.h"
 
 namespace widgets
 {
     namespace
     {
+        constexpr const char* TAPE_SPEED[3] = { "Normal speed", "Throttle", "Instant"};
+
         bool collapsed = true;
     }
     
@@ -16,16 +19,6 @@ namespace widgets
         if (ImGui::ZXCollapsingHeader("Tape", collapsed))
         {
             const bool empty = tape::fileName == nullptr;
-
-            // ImGui::Dummy(ImVec2(0.0f, 0.0f));
-            // ImDrawList* drawList = ImGui::GetWindowDrawList();
-            // ImVec2 posMin = ImGui::GetCursorScreenPos();
-            // const ImVec2 posMax = ImVec2(posMin.x + 30.0f, posMin.y + 12.0f);
-            // drawList->AddRectFilled(posMin, posMax, 0xff00ff00, 3.0f);
-            ImGui::AlignTextToFramePadding();
-
-            // ImGui::SameLine();
-            // ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 30.0f);
 
             const float width = ImGui::GetContentRegionAvail().x - 131.0f;
             if (empty)
@@ -84,9 +77,66 @@ namespace widgets
                 ImGui::EndCombo();
             }
 
-            ImGui::Indent(151.0f);
+            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 151.0f);
             ImGui::ProgressBar(tape::getBlockProgress(), ImVec2(ImGui::GetContentRegionAvail().x - 1.0f, 6.0f), "");
-            ImGui::Unindent(151.0f);
+
+            ImGui::ZXLabel("Auto play / stop:");
+
+            ImGui::SameLine();
+            ImGui::Checkbox("", &settings::current.tapeAutoStartStop);
+
+            ImGui::SameLine();
+            ImGui::BeginDisabled(tape::playing);
+            if (ImGui::Button("Play", ImVec2(60.0f, 0.0f)))
+            {
+                settings::current.tapeAutoStartStop = false;
+                tape::play();
+            }
+            ImGui::EndDisabled();
+            
+            ImGui::SameLine();
+            ImGui::BeginDisabled(!tape::playing);
+            if (ImGui::Button("Stop", ImVec2(60.0f, 0.0f)))
+            {
+                settings::current.tapeAutoStartStop = false;
+                tape::playing = 0;
+            }
+            ImGui::EndDisabled();
+
+            ImGui::SameLine();
+            ImGui::SetNextItemWidth(-1.0f);
+            const int selectedIndex = settings::current.tapeThrottleLoading ? 1 : (settings::current.tapeInstantLoading ? 2 : 0);
+            if (ImGui::BeginCombo("##speed", TAPE_SPEED[selectedIndex]))
+            {
+                for (int index = 0; index < 3; ++index)
+                {
+                    const bool is_selected = (index == selectedIndex);
+                    if (ImGui::Selectable(TAPE_SPEED[index], is_selected))
+                    {
+                        switch (index)
+                        {
+                        case 0:
+                            settings::current.tapeThrottleLoading = false;
+                            settings::current.tapeInstantLoading = false;
+                            break;
+                        case 1:
+                            settings::current.tapeThrottleLoading = true;
+                            settings::current.tapeInstantLoading = false;
+                            break;
+                        case 2:
+                            settings::current.tapeThrottleLoading = false;
+                            settings::current.tapeInstantLoading = true;
+                            break;
+                        }
+                    }
+                    if (is_selected)
+                    {
+                        ImGui::SetItemDefaultFocus();
+                    }
+                }
+
+                ImGui::EndCombo();
+            }
         }
     }
 }
