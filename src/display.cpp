@@ -11,6 +11,7 @@
 #include "resources/resources.h"
 #include "imgui_impl_win32.h"
 #include "imgui_impl_opengl3.h"
+#include "widgets_window.h"
 
 namespace display
 {
@@ -208,7 +209,8 @@ namespace display
 				ImGui::NewFrame();
 
 				// Render UI
-				realtime_monitor::render();
+				// realtime_monitor::render();
+				widgets_window::render();
 
 				// Render ImGui
 				ImGui::Render();

@@ -2,5 +2,5 @@
 
 namespace widgets
 {
-    void renderTapeManager();
+    void renderFrameTime();
 }

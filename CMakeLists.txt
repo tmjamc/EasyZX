@@ -35,10 +35,12 @@ WIN32
 	src/audio.cpp
 	src/ui/realtime_monitor.cpp
 	src/ui/zx_theme.cpp
+	src/ui/widgets_window.cpp
 	src/ui/widgets/model_selection.cpp
 	src/ui/widgets/giga_screen.cpp
-	src/ui/widgets/disk_drive.cpp
+	src/ui/widgets/disk_manager.cpp
 	src/ui/widgets/tape_manager.cpp
+	src/ui/widgets/frame_time.cpp
 	src/spectrum/main.cpp
 	src/spectrum/components/memory.cpp
 	src/spectrum/components/z80.cpp

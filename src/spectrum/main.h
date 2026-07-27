@@ -103,6 +103,7 @@ namespace main
   	extern bool* keyStates;
     extern bool resetRequested;
     extern bool throttle;
+    extern uint64_t frameTime;
 
     void start();
     void stop();

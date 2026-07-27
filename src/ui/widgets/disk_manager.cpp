@@ -2,21 +2,20 @@
 #include <filesystem>
 
 #include "zx_theme.h"
-#include "disk_drive.h"
+#include "disk_manager.h"
 #include "wd_1793.h"
 
 namespace widgets
 {
-    namespace
-    {
-        bool collapsed = true;
-    }
+    // namespace
+    // {
+    //     bool collapsed = true;
+    // }
 
-    void renderDiskDrive()
-    {
-        
-        if (ImGui::ZXCollapsingHeader("Disk drives", collapsed))
-        {
+    void renderDiskManager()
+    {        
+        // if (ImGui::ZXCollapsingHeader("Disk drives", collapsed))
+        // {
             ImGui::BeginDisabled(!wd_1793::enabled);
 
             ImDrawList* drawList = ImGui::GetWindowDrawList();
@@ -63,6 +62,6 @@ namespace widgets
             }
 
             ImGui::EndDisabled();
-        }
+        // }
     }
 }

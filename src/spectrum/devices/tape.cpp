@@ -292,9 +292,7 @@ namespace tape
                 }
                 else
                 {
-                    blocks.emplace_back(0x10, index, getDataInfo(index + 2, blockLength, "Standard Speed Data Block"), blockLength);
-
-                    Block* currentBlock = &blocks[blocks.size() - 1];
+                    Block* currentBlock = &(blocks.emplace_back(0x10, index, getDataInfo(index + 2, blockLength, "Standard Speed Data Block"), blockLength));
                     if (currentBlock->length == 19 && !currentBlock->description.empty())
                     {
                         latestBlockWasStandardHeader = true;
@@ -575,7 +573,7 @@ namespace tape
             {
                 win_app::info("Stop");
                 ++blockIndex %= blocks.size();
-                playing = false;
+                stop();
                 return false;
             }
 
@@ -668,7 +666,7 @@ namespace tape
         filter.setBufferPercentLength(settings::current.audioTapeDcAdjustBufferLength);
         volume = (MAX_AMPLITUDE * settings::current.audioTapeVolume) / 200;
 
-        playing = false;
+        stop();
         endOfTape = false;
         blockIndex = 0;
         pulses.clear();
@@ -763,6 +761,12 @@ namespace tape
         playing = true;
     }
 
+    void stop()
+    {
+        playing = false;
+        ula::tapeLoaderActive = false;
+    }
+
     void tact()
     {
         filter.add(pulseSignal ? volume : -volume);
@@ -788,9 +792,8 @@ namespace tape
                     if (++blockIndex == blocks.size())
                     {
                         blockIndex = 0;
-                        playing = false;
                         endOfTape = true;
-                        ula::tapeLoaderActive = false;
+                        stop();
                         win_app::info("End of tape");
                     }
                     else
@@ -812,8 +815,7 @@ namespace tape
 
                             if (!tapeHasStop)
                             {
-                                playing = false;
-                                ula::tapeLoaderActive = false; //!!!!!!!!!!!!!!!!!
+                                stop();
                                 win_app::info("Tape has no incoming stop block, stopping");
                             }
                         }
@@ -822,28 +824,10 @@ namespace tape
                         {
                             if (!setBlockPulses())
                             {
-                                playing = false;
-                                ula::tapeLoaderActive = false; //!!!!!!!!!!!!!!!!!
+                                stop();
                                 win_app::info("No more blocks!");
                             }
                         }
-
-                        // if (!settings::current.tapeAutoStartStop || ula::tapeLoaderActive)
-                        // {
-                        //     win_app::info("Continue loading");
-                        //     if (!setBlockPulses())
-                        //     {
-                        //         playing = false;
-                        //         win_app::info("No more blocks!");
-                        //         // stop(false);
-                        //     }
-                        // }
-                        // else
-                        // {
-                        //     playing = false;
-                        //     win_app::info("Stop from tape");
-                        //     // stop(false);
-                        // }
                     }
                 }
                 else

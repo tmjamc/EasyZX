@@ -5,8 +5,9 @@
 #include "zx_theme.h"
 #include "model_selection.h"
 #include "giga_screen.h"
-#include "disk_drive.h"
+#include "disk_manager.h"
 #include "tape_manager.h"
+#include "frame_time.h"
 
 namespace realtime_monitor
 {
@@ -14,18 +15,19 @@ namespace realtime_monitor
 
     void render()
     {
-        // if (!opened)
-        // {
-        //     return;
-        // }
+        if (!opened)
+        {
+            return;
+        }
 
         ImGui::SetNextWindowSize(ImVec2(500, 300), ImGuiCond_Once);
         if (ImGui::ZXBegin("Realtime monitor", ImGuiWindowFlags_NoCollapse))
         {
-            widgets::renderModelSelection();
+            widgets::renderFrameTime();
             widgets::renderGigaScreen();
-            widgets::renderTape();
-            widgets::renderDiskDrive();
+            widgets::renderModelSelection();
+            widgets::renderTapeManager();
+            widgets::renderDiskManager();
 
             ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 10.0f);
             ImGui::Dummy(ImVec2(0.0f, 0.0f));

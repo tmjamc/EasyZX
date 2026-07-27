@@ -14,6 +14,7 @@
 #include "audio.h"
 #include "beeper.h"
 #include "ay_3_8912.h"
+#include "widgets_window.h"
 
 namespace main
 {
@@ -25,7 +26,6 @@ namespace main
         HANDLE frameTimer;
         LARGE_INTEGER frameDueTime{};
         std::chrono::steady_clock::time_point currentFrameTime;
-        int tapeRequestCount = 0;
 
         void reset()
         {
@@ -37,8 +37,6 @@ namespace main
                     break;
                 }
             }
-
-            tapeRequestCount = 0;
 
             audio::reset();
             z80::reset();
@@ -150,13 +148,14 @@ namespace main
 
         void waitForNextFrame()
         {
+            frameTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - currentFrameTime).count();
+
             throttle = keyStates[VK_F9];
 
             // Do not throttle the frame rate
             if (throttle)
             {
                 ula::gigaScreen = false;
-                const uint64_t frameTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - currentFrameTime).count();
                 if (frameTime < 20)
                 {
                     return;
@@ -215,10 +214,13 @@ namespace main
 	bool* keyStates;
     bool resetRequested = false;
     bool throttle = false;
+    uint64_t frameTime = 0;
 
     void start()
     {
         reset();
+        
+        widgets_window::init();
         
         keyStates = new bool[0x100]{};
         display::startRenderThread();
@@ -240,6 +242,7 @@ namespace main
         tape::cleanUp();
         beta_disk::cleanUp();
         wd_1793::cleanUp();
+
     }
 
     void tact()
@@ -285,40 +288,10 @@ namespace main
         {
             ula::updateDisplayBuffer();
 
-            if (settings::current.tapeAutoStartStop)
+            if (settings::current.tapeAutoStartStop && !tape::playing && ula::tapeLoaderActive)
             {
-                if (!tape::playing && ula::tapeLoaderActive)
-                {
-                    // if (++tapeRequestCount == 50)
-                    // {
-                        win_app::info("Tape load request from main");
-                        tape::play();
-                        tapeRequestCount = 0;
-                    // }
-                }
-                else
-                {
-                    tapeRequestCount = 0;
-                }
-                // if (tape::playing)
-                // {
-                //     tapeRequestCount = 0;
-                // }
-                // else
-                // {
-                //     if (ula::tapeLoaderActive)
-                //     {
-                //         if (++tapeRequestCount == 50)
-                //         {
-                //             win_app::info("Tape load request from main");
-                //             tape::play();
-                //         }
-                //     }
-                //     else
-                //     {
-                //         tapeRequestCount = 0;
-                //     }
-                // }
+                win_app::info("Tape load request from main");
+                tape::play();
             }
 
             currentTact = 0;

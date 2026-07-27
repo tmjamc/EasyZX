@@ -949,7 +949,7 @@ namespace ImGui
         ImVec4* colors = style.Colors;
 
         // Backgrounds 
-        colors[ImGuiCol_WindowBg]           = ImVec4(0.13f, 0.13f, 0.13f, 1.00f);
+        colors[ImGuiCol_WindowBg]           = ImVec4(0.17f, 0.17f, 0.17f, 1.00f);
         colors[ImGuiCol_ChildBg]            = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
         colors[ImGuiCol_PopupBg]            = ImVec4(0.10f, 0.10f, 0.10f, 0.95f);
         colors[ImGuiCol_Border]             = ImVec4(0.35f, 0.35f, 0.35f, 0.40f);
