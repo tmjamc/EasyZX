@@ -57,4 +57,4 @@ void main()
    vec2 mod_texel = texel_floored + f;
 
    FragColor = vec4(texture(Source, mod_texel / SourceSize.xy).rgb, 1.0);
-} 
+}

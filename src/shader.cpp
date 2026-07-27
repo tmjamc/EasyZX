@@ -28,29 +28,35 @@ namespace shader
                 return nullptr;
             }
 
-            return static_cast<const char*>(LockResource(hGlob));
+            DWORD size = SizeofResource(hModule, hRes);
+
+            char* buffer = new char[size + 1];
+            memcpy(buffer, static_cast<const char*>(LockResource(hGlob)), size);
+            buffer[size] = '\0';
+
+            return buffer;
         }
 
         void checkCompileErrors(unsigned int shader, const char* type)
         {
             int success;
             char infoLog[1024];
-            if (type != "PROGRAM")
-            {
-                glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-                if (!success)
-                {
-                    glGetShaderInfoLog(shader, 1024, NULL, infoLog);
-                    win_app::error(std::format("ERROR::SHADER_COMPILATION_ERROR of type: {}\n{}\n -- --------------------------------------------------- -- ", type, infoLog).c_str());
-                }
-            }
-            else
+            if (type == "PROGRAM")
             {
                 glGetProgramiv(shader, GL_LINK_STATUS, &success);
                 if (!success)
                 {
                     glGetProgramInfoLog(shader, 1024, NULL, infoLog);
                     win_app::error(std::format("ERROR::PROGRAM_LINKING_ERROR of type: {}\n{}\n -- --------------------------------------------------- -- ", type, infoLog).c_str());
+                }
+            }
+            else
+            {
+                glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+                if (!success)
+                {
+                    glGetShaderInfoLog(shader, 1024, NULL, infoLog);
+                    win_app::error(std::format("ERROR::SHADER_COMPILATION_ERROR of type: {}\n{}\n -- --------------------------------------------------- -- ", type, infoLog).c_str());
                 }
             }
         }
@@ -66,16 +72,20 @@ namespace shader
         // vertex shader
         vertex = glCreateShader(GL_VERTEX_SHADER);
         const char* vertexSource = getShaderSourceFromResource(vertexResourceId);
+        win_app::info(vertexSource);
         glShaderSource(vertex, 1, &vertexSource, nullptr);
         glCompileShader(vertex);
         checkCompileErrors(vertex, "VERTEX");
-
+        delete[] vertexSource;
+        
         // fragment shader
         fragment = glCreateShader(GL_FRAGMENT_SHADER);
         const char* fragmentSource = getShaderSourceFromResource(fragmentResourceId);
+        win_app::info(fragmentSource);
         glShaderSource(fragment, 1, &fragmentSource, nullptr);
         glCompileShader(fragment);
         checkCompileErrors(fragment, "FRAGMENT");
+        delete[] fragmentSource;
 
         // shader Program
         shaderId = glCreateProgram();
