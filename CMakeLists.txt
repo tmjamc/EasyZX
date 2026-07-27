@@ -33,7 +33,6 @@ WIN32
 	src/display.cpp
 	src/shader.cpp
 	src/audio.cpp
-	src/ui/realtime_monitor.cpp
 	src/ui/zx_theme.cpp
 	src/ui/widgets_window.cpp
 	src/ui/widgets/model_selection.cpp

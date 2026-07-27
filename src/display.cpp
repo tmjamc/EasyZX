@@ -7,7 +7,6 @@
 #include "settings.h"
 #include "main.h"
 #include "shader.h"
-#include "realtime_monitor.h"
 #include "resources/resources.h"
 #include "imgui_impl_win32.h"
 #include "imgui_impl_opengl3.h"
@@ -94,6 +93,8 @@ namespace display
 			// Initialize ImGui Platform and Renderer backends
 			ImGui_ImplWin32_InitForOpenGL(win_app::hWnd);
 			ImGui_ImplOpenGL3_Init();
+
+	        widgets_window::init();
 		}
 
 		void run()

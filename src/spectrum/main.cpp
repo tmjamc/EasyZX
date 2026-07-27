@@ -14,7 +14,6 @@
 #include "audio.h"
 #include "beeper.h"
 #include "ay_3_8912.h"
-#include "widgets_window.h"
 
 namespace main
 {
@@ -219,8 +218,6 @@ namespace main
     void start()
     {
         reset();
-        
-        widgets_window::init();
         
         keyStates = new bool[0x100]{};
         display::startRenderThread();
