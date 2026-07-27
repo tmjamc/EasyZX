@@ -23,6 +23,7 @@ namespace tape
     extern const char *fileName;
     extern std::vector<Block> blocks;
     extern int blockIndex;
+    extern int stopFrameCount;
 
     void reset();
     void cleanUp();

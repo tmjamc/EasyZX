@@ -557,36 +557,44 @@ namespace tape
             }
         }
 
+        bool nextBlock()
+        {
+            if (++blockIndex >= blocks.size())
+            {
+                blockIndex = 0;
+                endOfTape = true;
+                stop();
+                return false;
+            }
+
+            return true;
+        }
+
         bool setBlockPulses()
         {
             bool result = false;
 
             pulses.clear();
 
-            if (blockIndex == blocks.size())
-            {
-                blockIndex = 0;
-                return false;
-            }
-
+            // Check for stop block
             if (blocks[blockIndex].type == 0x2a)
             {
                 win_app::info("Stop");
-                ++blockIndex %= blocks.size();
                 stop();
+                nextBlock();
                 return false;
             }
 
+            // Skip description blocks
             while (blockIndex < blocks.size() && blocks[blockIndex].type == 0x30)
             {
-                ++blockIndex;
+                if (!nextBlock())
+                {
+                    return false;
+                }
+                // ++blockIndex;
             }
 
-            if (blockIndex == blocks.size())
-            {
-                blockIndex = 0;
-                return false;
-            }
 
             int dataIndexStart = blocks[blockIndex].start;
             int dataIndexEnd = (blockIndex == blocks.size() - 1) ? dataLength : blocks[blockIndex + 1].start;
@@ -660,6 +668,7 @@ namespace tape
     const char *fileName = nullptr;
     std::vector<Block> blocks;
     int blockIndex = 0;
+    int stopFrameCount = 0;
 
     void reset()
     {
@@ -674,6 +683,7 @@ namespace tape
         pulseSignal = false;
         blockPulsesCount = 0;
         blockPulsesIndex = 0;
+        stopFrameCount = 0;
     }
 
     void cleanUp()
@@ -758,6 +768,7 @@ namespace tape
             return;
         }
 
+        stopFrameCount = 0;
         playing = true;
     }
 
@@ -765,6 +776,7 @@ namespace tape
     {
         playing = false;
         ula::tapeLoaderActive = false;
+        stopFrameCount = 50;
     }
 
     void tact()
@@ -789,14 +801,7 @@ namespace tape
             {
                 if (++pulseIndex >= pulses.size())
                 {
-                    if (++blockIndex == blocks.size())
-                    {
-                        blockIndex = 0;
-                        endOfTape = true;
-                        stop();
-                        win_app::info("End of tape");
-                    }
-                    else
+                    if (nextBlock())
                     {
                         if (settings::current.tapeAutoStartStop)
                         {
@@ -824,10 +829,14 @@ namespace tape
                         {
                             if (!setBlockPulses())
                             {
-                                stop();
+                                // stop();
                                 win_app::info("No more blocks!");
                             }
                         }
+                    }
+                    else
+                    {
+                        win_app::info("End of tape");
                     }
                 }
                 else

@@ -57,16 +57,16 @@ namespace main
         // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\nogfx.trd");
 
 
-        tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\Basil The Great Mouse Detective.tzx");
+        // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\Basil The Great Mouse Detective.tzx");
         // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\Rescate Atlantida - Side 1.tzx");
         // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\Cobra.tzx");
         // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\Chase HQ (Erbe - Serie 5 Estrellas) - Side A.tzx");
-        // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\Pyjamarama - v1.tzx");
+        // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\Pyjamarama - v2.tzx");
         // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\Movie.tzx");
         // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\Astro Marine Corps - Side 1.tzx");
         // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\Renegade - Side 2 (Erbe).tzx");
         // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\The Trapdoor.tzx");
-        // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\Samurai Warrior (MCM).tzx");
+        tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\Samurai Warrior (MCM).tzx");
         // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\Road Runner - Side A.tzx");
         // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\Renegade 2 - Target Renegade - Side 1 (Erbe).tzx");
         // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\Three Weeks In Paradise (Erbe).tzx");
@@ -285,10 +285,17 @@ namespace main
         {
             ula::updateDisplayBuffer();
 
-            if (settings::current.tapeAutoStartStop && !tape::playing && ula::tapeLoaderActive)
+            if (tape::stopFrameCount)
             {
-                win_app::info("Tape load request from main");
-                tape::play();
+                --tape::stopFrameCount;
+            }
+            else
+            {
+                if (settings::current.tapeAutoStartStop && !tape::playing && ula::tapeLoaderActive)
+                {
+                    win_app::info("Tape load request from main");
+                    tape::play();
+                }
             }
 
             currentTact = 0;
