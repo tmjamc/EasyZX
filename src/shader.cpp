@@ -72,7 +72,6 @@ namespace shader
         // vertex shader
         vertex = glCreateShader(GL_VERTEX_SHADER);
         const char* vertexSource = getShaderSourceFromResource(vertexResourceId);
-        win_app::info(vertexSource);
         glShaderSource(vertex, 1, &vertexSource, nullptr);
         glCompileShader(vertex);
         checkCompileErrors(vertex, "VERTEX");
@@ -81,7 +80,6 @@ namespace shader
         // fragment shader
         fragment = glCreateShader(GL_FRAGMENT_SHADER);
         const char* fragmentSource = getShaderSourceFromResource(fragmentResourceId);
-        win_app::info(fragmentSource);
         glShaderSource(fragment, 1, &fragmentSource, nullptr);
         glCompileShader(fragment);
         checkCompileErrors(fragment, "FRAGMENT");
