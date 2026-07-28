@@ -51,8 +51,10 @@ namespace main
         // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\RRJ-RAAT.SCL");
         // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\InColor(Pentagon).trd");
         // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\OldSkoolCodingOldSchoolStyle.trd");
-        wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\across_the_edge_by_demarche_fix_0.trd");
-        // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\summer.trd");
+        // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\across_the_edge_by_demarche_fix_0.trd");
+        // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\7threal-tsfix.trd");
+        // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\the_pencils_party.trd");
+        wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\summer.trd");
         // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\tiratok_final_by_demarche_version_for_pentagon.trd");
         // wd_1793::insertDisk(0, "C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\nogfx.trd");
 
@@ -66,7 +68,7 @@ namespace main
         // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\Astro Marine Corps - Side 1.tzx");
         // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\Renegade - Side 2 (Erbe).tzx");
         // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\The Trapdoor.tzx");
-        tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\Samurai Warrior (MCM).tzx");
+        // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\Samurai Warrior (MCM).tzx");
         // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\Road Runner - Side A.tzx");
         // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\Renegade 2 - Target Renegade - Side 1 (Erbe).tzx");
         // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\Three Weeks In Paradise (Erbe).tzx");
@@ -74,8 +76,10 @@ namespace main
         // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\modern\\MRKF.tzx");
         // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\El Lingote.tzx");
         // tape::load("C:\\Users\\jam\\Documents\\Projects\\tapes\\Shadow Dancer - Side 1.tzx");
-        // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\music\\beeper\\thevocoders.tap");
+        tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\music\\beeper\\thevocoders.tap");
         // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\music\\beeper\\Beeper_Cafe_Album_PRESS_ENTER_FOR_NEXT_TRACK.tap");
+        // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\7TH_REAL.TAP");
+        // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\ILLUSION.TAP");
 
         }
 

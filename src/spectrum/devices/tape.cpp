@@ -592,9 +592,7 @@ namespace tape
                 {
                     return false;
                 }
-                // ++blockIndex;
             }
-
 
             int dataIndexStart = blocks[blockIndex].start;
             int dataIndexEnd = (blockIndex == blocks.size() - 1) ? dataLength : blocks[blockIndex + 1].start;
@@ -724,9 +722,6 @@ namespace tape
             tzxParseBlocks();
             tape::fileName = fileName;
             printBlocks();
-
-            // blockIndex = 5;
-
             return;
         }
 
@@ -829,7 +824,6 @@ namespace tape
                         {
                             if (!setBlockPulses())
                             {
-                                // stop();
                                 win_app::info("No more blocks!");
                             }
                         }

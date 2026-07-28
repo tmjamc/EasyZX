@@ -924,7 +924,7 @@ namespace ImGui
         };
 
         constexpr float SPECTRUM_BAR_HEIGHT = 30.0f;
-        constexpr float SPECTRUM_BAR_WIDTH = 20.0f;
+        constexpr float SPECTRUM_BAR_WIDTH = 25.0f;
 
         ImVec2 windowPos;
         ImVec2 windowSize;
@@ -936,9 +936,12 @@ namespace ImGui
             const ImVec2 b = ImVec2(windowPos.x + windowSize.x - SPECTRUM_BAR_WIDTH, windowPos.y);
             const ImVec2 c = ImVec2(windowPos.x + windowSize.x, windowPos.y);
             const ImVec2 d = ImVec2(windowPos.x + windowSize.x - SPECTRUM_BAR_WIDTH, windowPos.y + SPECTRUM_BAR_HEIGHT);
+
             const ImVec2 p = ImGui::GetMousePos();
-            const bool mouseInBar = ImTriangleContainsPoint(a, b, d, p) || ImTriangleContainsPoint(b, c, d, p);
-            drawList->AddQuadFilled(a, b, c, d, mouseInBar ? colHover : col);
+            ImGuiContext& g = *GImGui;
+            ImGuiWindow* window = g.CurrentWindow;
+            const bool isMouseHovering = IsWindowContentHoverable(window) && (ImTriangleContainsPoint(a, b, d, p) || ImTriangleContainsPoint(b, c, d, p));
+            drawList->AddQuadFilled(a, b, c, d, isMouseHovering ? colHover : col);
             windowPos.x -= SPECTRUM_BAR_WIDTH - 0.5f;
         }
     }
@@ -948,7 +951,7 @@ namespace ImGui
         ImGuiStyle& style = ImGui::GetStyle();
         ImVec4* colors = style.Colors;
 
-        // Backgrounds 
+        // Backgrounds
         colors[ImGuiCol_WindowBg]           = ImVec4(0.17f, 0.17f, 0.17f, 1.00f);
         colors[ImGuiCol_ChildBg]            = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
         colors[ImGuiCol_PopupBg]            = ImVec4(0.10f, 0.10f, 0.10f, 0.95f);
