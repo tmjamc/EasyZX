@@ -63,6 +63,7 @@ WIN32
     src/libs/ImGui/imgui_widgets.cpp
     src/libs/ImGui/backends/imgui_impl_opengl3.cpp
     src/libs/ImGui/backends/imgui_impl_win32.cpp
+    src/libs/stb/stb_image.h
 )
 
 target_include_directories(EasyZX
@@ -79,6 +80,7 @@ PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/libs/audio_filters
     ${CMAKE_CURRENT_SOURCE_DIR}/src/libs/ImGui
     ${CMAKE_CURRENT_SOURCE_DIR}/src/libs/ImGui/backends
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/libs/stb
 )
 
 target_link_libraries(EasyZX

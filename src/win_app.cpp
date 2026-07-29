@@ -131,6 +131,7 @@ namespace win_app
             if (imguiContext != nullptr)
             {
                 ImGui::DestroyContext();
+                ImGui::ZXThemeCleanUp();
             }
 
             if (hDC != nullptr)

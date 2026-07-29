@@ -94,10 +94,12 @@ namespace file_browser
                 {
                     ImGui::TableNextRow();
                     ImGui::TableSetColumnIndex(0);
+                    ImGui::ZXIcon(0);
+                    ImGui::SameLine();
                     ImGui::Text(entries[i].path().filename().string().c_str());
                     
                     ImGui::TableSetColumnIndex(1);
-                    ImGui::Text(formatFileSize(entries[i].file_size()).c_str());
+                    ImGui::Text(entries[i].is_regular_file() ? formatFileSize(entries[i].file_size()).c_str() : "");
 
                     ImGui::TableSetColumnIndex(2);
                     ImGui::Text(std::format(locale, "{:L%c}", entries[i].last_write_time()).c_str());
