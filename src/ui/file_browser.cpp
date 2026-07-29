@@ -8,13 +8,14 @@ namespace file_browser
 {
     namespace
     {
+        const std::locale &locale = std::locale("");
+
         std::string currentPath;
         std::unordered_set<std::string> currentFilter;
         std::vector<std::filesystem::directory_entry> entries;
 
         bool openRequest = false;
         bool opened = false;
-        const std::locale &loc = std::locale("");
 
         void updateEntries()
         {
@@ -35,6 +36,18 @@ namespace file_browser
                     entries.push_back(entry);
                 }
             }
+        }
+
+        std::string formatFileSize(std::uintmax_t size)
+        {
+            double mantissa = size;
+            int i = 0;
+            while (mantissa >= 1024.0)
+            {
+                mantissa /= 1024.0;
+                ++i;
+            }
+            return std::format("{}{}{}", std::ceil(mantissa * 10.0) / 10.0, i["BKMGTPE"], i ? "B" : "");
         }
     }
 
@@ -72,8 +85,8 @@ namespace file_browser
             if (ImGui::BeginTable("###entries_table", 3, ImGuiTableFlags_Resizable | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY | ImGuiTableFlags_RowBg | ImGuiTableFlags_Sortable | ImGuiTableFlags_Hideable))
             {
                 ImGui::TableSetupColumn("Name");
-                ImGui::TableSetupColumn("Date");
                 ImGui::TableSetupColumn("Size");
+                ImGui::TableSetupColumn("Date");
                 ImGui::TableSetupScrollFreeze(0, 1);
                 ImGui::TableHeadersRow();
                 
@@ -84,11 +97,10 @@ namespace file_browser
                     ImGui::Text(entries[i].path().filename().string().c_str());
                     
                     ImGui::TableSetColumnIndex(1);
-                    auto sctp = std::chrono::clock_cast<std::chrono::system_clock>(entries[i].last_write_time());
-                    auto test = std::format(loc, "{:L%c}", sctp);
-                    ImGui::Text(test.c_str());
+                    ImGui::Text(formatFileSize(entries[i].file_size()).c_str());
 
-                    // ImGui::Text(std::format("{:%c}", entries[i].last_write_time()).c_str());
+                    ImGui::TableSetColumnIndex(2);
+                    ImGui::Text(std::format(locale, "{:L%c}", entries[i].last_write_time()).c_str());
                 }
 
                 ImGui::EndTable();
