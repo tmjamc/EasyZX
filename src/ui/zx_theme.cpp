@@ -694,6 +694,10 @@ namespace ImGui
 
         constexpr float SPECTRUM_BAR_HEIGHT = 30.0f;
         constexpr float SPECTRUM_BAR_WIDTH = 25.0f;
+        constexpr int ZX_ICONS_COLUMNS = 4;
+        constexpr int ZX_ICONS_ROWS = 4;
+        constexpr float ZX_ICON_WIDTH = 1.0f / (float)ZX_ICONS_COLUMNS;
+        constexpr float ZX_ICON_HEIGHT = 1.0f / (float)ZX_ICONS_ROWS;
 
         ImVec2 windowPos;
         ImVec2 windowSize;
@@ -867,7 +871,7 @@ namespace ImGui
         ImGui::LabelText("", name);
     }
 
-    void ZXIcon(int id)
+    void ZXIcon(ZXIconId id)
     {
         if (!iconsTexture)
         {
@@ -893,8 +897,12 @@ namespace ImGui
             stbi_image_free(iconsImageData);
         }
 
-        //(ImTextureID)(intptr_t)
-        ImGui::Image(iconsTexture, ImVec2(16.0, 16.0), ImVec2(0.5f, 0.0f), ImVec2(1.0f, 1.0f));
+        const float x = id % ZX_ICONS_COLUMNS;
+        const float y = id / ZX_ICONS_COLUMNS;
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 1.0f);
+        ImGui::Image(iconsTexture, ImVec2(16.0, 16.0), ImVec2(x * ZX_ICON_WIDTH, y * ZX_ICON_HEIGHT), ImVec2((x + 1) * ZX_ICON_WIDTH, (y + 1) * ZX_ICON_HEIGHT));
+        ImGui::SameLine();
+        ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPosX() - 5.0f, ImGui::GetCursorPosY() - 1.0f));
     }
 
     bool ZXCollapsingHeader(const char* name, bool &collapsed)

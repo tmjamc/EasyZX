@@ -31,7 +31,7 @@ namespace widgets
         ImGui::SameLine();
         if (ImGui::Button("Insert", ImVec2(60.0f, 0.0f)))
         {
-            file_browser::open("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games", {".tap", ".tzx"});
+            file_browser::open("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy", {}/*{".tap", ".tzx"}*/);
         }
 
         ImGui::SameLine();

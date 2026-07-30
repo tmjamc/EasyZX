@@ -1,5 +1,6 @@
 #include <iostream>
 #include <filesystem>
+#include <ranges>
 
 #include "zx_theme.h"
 #include "file_browser.h"
@@ -10,9 +11,17 @@ namespace file_browser
     {
         const std::locale &locale = std::locale("");
 
+        struct FileEntry
+        {
+            std::filesystem::directory_entry directoryEntry;
+            std::string extension;
+            ImGui::ZXIconId iconId;
+        };
+
         std::string currentPath;
         std::unordered_set<std::string> currentFilter;
-        std::vector<std::filesystem::directory_entry> entries;
+        std::vector<FileEntry> entries;
+        std::vector<FileEntry> filteredAndSortedEntries;
 
         bool openRequest = false;
         bool opened = false;
@@ -21,21 +30,61 @@ namespace file_browser
         {
             entries.clear();
 
-            for (const std::filesystem::directory_entry &entry : std::filesystem::directory_iterator(currentPath))
+            for (const std::filesystem::directory_entry &directoryEntry : std::filesystem::directory_iterator(currentPath))
             {
-                if (entry.is_directory())
+                std::string extension{};
+                ImGui::ZXIconId iconId = ImGui::ZXIconId::DEFAULT;
+                if (directoryEntry.is_directory())
                 {
-                    entries.push_back(entry);
-                    continue;
+                    iconId = ImGui::ZXIconId::FOLDER;
+                }
+                else
+                {
+                    extension = directoryEntry.path().extension().string();
+                    std::transform(extension.begin(), extension.end(), extension.begin(), [](unsigned char c) { return std::tolower(c); });
+
+                    if (extension == ".tap"|| extension == ".tzx")
+                    {
+                        iconId = ImGui::ZXIconId::TAPE;
+                    }
                 }
 
-                std::string extension = entry.path().extension().string();
-
-                if (currentFilter.contains(extension))
-                {
-                    entries.push_back(entry);
-                }
+                entries.emplace_back(directoryEntry, extension, iconId);
             }
+        }
+
+        void updateFilterAndSort()
+        {
+            auto filteredView = entries | std::views::filter([](const FileEntry &entry)
+            {
+                if (entry.directoryEntry.is_directory())
+                {
+                    return true;
+                }
+                return currentFilter.size() ? currentFilter.contains(entry.extension) : true;
+            });
+
+            filteredAndSortedEntries = std::vector<FileEntry>(filteredView.begin(), filteredView.end());
+
+            std::ranges::sort(filteredAndSortedEntries, [](const FileEntry &entry1, const FileEntry &entry2)
+            {
+                if (entry1.directoryEntry.is_directory() && !entry2.directoryEntry.is_directory())
+                {
+                    return true;
+                }
+                if (!entry1.directoryEntry.is_directory() && entry2.directoryEntry.is_directory())
+                {
+                    return false;
+                }
+                
+                std::string file1 = entry1.directoryEntry.path().filename().string();
+                std::transform(file1.begin(), file1.end(), file1.begin(), [](unsigned char c) { return std::tolower(c); });
+
+                std::string file2 = entry2.directoryEntry.path().filename().string();
+                std::transform(file2.begin(), file2.end(), file2.begin(), [](unsigned char c) { return std::tolower(c); });
+
+                return file1 < file2;
+            });
         }
 
         std::string formatFileSize(std::uintmax_t size)
@@ -84,25 +133,35 @@ namespace file_browser
 
             if (ImGui::BeginTable("###entries_table", 3, ImGuiTableFlags_Resizable | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY | ImGuiTableFlags_RowBg | ImGuiTableFlags_Sortable | ImGuiTableFlags_Hideable))
             {
-                ImGui::TableSetupColumn("Name");
+                ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_DefaultSort);
                 ImGui::TableSetupColumn("Size");
                 ImGui::TableSetupColumn("Date");
                 ImGui::TableSetupScrollFreeze(0, 1);
                 ImGui::TableHeadersRow();
+
+                // Sorting
+                if (ImGuiTableSortSpecs* sortSpecs = ImGui::TableGetSortSpecs())
+                {
+                    if (sortSpecs->SpecsDirty)
+                    {
+                        // Sort your underlying data here
+                        updateFilterAndSort(/*sortSpecs*/);
+                        sortSpecs->SpecsDirty = false;
+                    }
+                }
                 
-                for (int i = 0; i < entries.size(); ++i)
+                for (int i = 0; i < filteredAndSortedEntries.size(); ++i)
                 {
                     ImGui::TableNextRow();
                     ImGui::TableSetColumnIndex(0);
-                    ImGui::ZXIcon(0);
-                    ImGui::SameLine();
-                    ImGui::Text(entries[i].path().filename().string().c_str());
+                    ImGui::ZXIcon(filteredAndSortedEntries[i].iconId);
+                    ImGui::Text(filteredAndSortedEntries[i].directoryEntry.path().filename().string().c_str());
                     
                     ImGui::TableSetColumnIndex(1);
-                    ImGui::Text(entries[i].is_regular_file() ? formatFileSize(entries[i].file_size()).c_str() : "");
+                    ImGui::Text(filteredAndSortedEntries[i].directoryEntry.is_regular_file() ? formatFileSize(filteredAndSortedEntries[i].directoryEntry.file_size()).c_str() : "");
 
                     ImGui::TableSetColumnIndex(2);
-                    ImGui::Text(std::format(locale, "{:L%c}", entries[i].last_write_time()).c_str());
+                    ImGui::Text(std::format(locale, "{:L%c}", filteredAndSortedEntries[i].directoryEntry.last_write_time()).c_str());
                 }
 
                 ImGui::EndTable();
