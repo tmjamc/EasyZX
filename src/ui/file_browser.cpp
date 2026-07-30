@@ -9,6 +9,8 @@ namespace file_browser
 {
     namespace
     {
+        constexpr ImGuiSelectableFlags SELECTABLE_FLAGS = ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowDoubleClick;
+
         const std::locale &locale = std::locale("");
 
         struct FileEntry
@@ -96,7 +98,7 @@ namespace file_browser
                 mantissa /= 1024.0;
                 ++i;
             }
-            return std::format("{}{}{}", std::ceil(mantissa * 10.0) / 10.0, i["BKMGTPE"], i ? "B" : "");
+            return std::format("{} {}{}", std::ceil(mantissa * 10.0) / 10.0, i["BKMGTPE"], i ? "B" : "");
         }
     }
 
@@ -131,13 +133,16 @@ namespace file_browser
             ImGui::PushStyleColor(ImGuiCol_SeparatorActive, ImVec4(0.35f, 0.35f, 0.35f, 0.40f));
             ImGui::PushStyleColor(ImGuiCol_SeparatorHovered, ImVec4(0.35f, 0.35f, 0.35f, 0.40f));
 
-            if (ImGui::BeginTable("###entries_table", 3, ImGuiTableFlags_Resizable | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY | ImGuiTableFlags_RowBg | ImGuiTableFlags_Sortable | ImGuiTableFlags_Hideable))
+            if (ImGui::BeginTable("###entries_table", 3, ImGuiTableFlags_Resizable | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY | ImGuiTableFlags_RowBg | ImGuiTableFlags_Sortable | ImGuiTableFlags_Hideable | ImGuiTableFlags_RowBg))
             {
                 ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_DefaultSort);
                 ImGui::TableSetupColumn("Size");
                 ImGui::TableSetupColumn("Date");
                 ImGui::TableSetupScrollFreeze(0, 1);
+
+                ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, { 0.0f, 3.5f }); // Increase vertical padding
                 ImGui::TableHeadersRow();
+                ImGui::PopStyleVar();
 
                 // Sorting
                 if (ImGuiTableSortSpecs* sortSpecs = ImGui::TableGetSortSpecs())
@@ -152,16 +157,31 @@ namespace file_browser
                 
                 for (int i = 0; i < filteredAndSortedEntries.size(); ++i)
                 {
-                    ImGui::TableNextRow();
+                    ImGui::PushID(i);
+
+                    ImGui::TableNextRow(ImGuiTableRowFlags_None, 24.0f);
+
                     ImGui::TableSetColumnIndex(0);
                     ImGui::ZXIcon(filteredAndSortedEntries[i].iconId);
                     ImGui::Text(filteredAndSortedEntries[i].directoryEntry.path().filename().string().c_str());
+                    ImGui::SameLine();
+                    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 2.0f);
+                    const bool item_is_selected = i == 3;
+                    if (ImGui::Selectable("", item_is_selected, SELECTABLE_FLAGS, ImVec2(0.0f, 14.0f)))
+                    {
+                        // if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+                        // {
+                        //     _app->zx->tape->tapeBlockIndex = row;
+                        // }
+                    }
                     
                     ImGui::TableSetColumnIndex(1);
                     ImGui::Text(filteredAndSortedEntries[i].directoryEntry.is_regular_file() ? formatFileSize(filteredAndSortedEntries[i].directoryEntry.file_size()).c_str() : "");
 
                     ImGui::TableSetColumnIndex(2);
                     ImGui::Text(std::format(locale, "{:L%c}", filteredAndSortedEntries[i].directoryEntry.last_write_time()).c_str());
+
+                    ImGui::PopID();
                 }
 
                 ImGui::EndTable();
