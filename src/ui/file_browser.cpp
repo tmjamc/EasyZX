@@ -25,12 +25,16 @@ namespace file_browser
         std::vector<FileEntry> entries;
         std::vector<FileEntry> filteredAndSortedEntries;
 
+        int selectedRowIndex = -1;
+
+        bool updateRequest = false;
         bool openRequest = false;
         bool opened = false;
 
         void updateEntries()
         {
             entries.clear();
+            filteredAndSortedEntries.clear();
 
             for (const std::filesystem::directory_entry &directoryEntry : std::filesystem::directory_iterator(currentPath))
             {
@@ -87,6 +91,8 @@ namespace file_browser
 
                 return file1 < file2;
             });
+
+            selectedRowIndex = -1;
         }
 
         std::string formatFileSize(std::uintmax_t size)
@@ -106,8 +112,8 @@ namespace file_browser
     {
         currentPath = path;
         currentFilter = filter;
-        updateEntries();
         openRequest = true;
+        updateRequest = true;
     }
 
     void render()
@@ -122,6 +128,12 @@ namespace file_browser
         if (!opened)
         {
             return;
+        }
+
+        if (updateRequest)
+        {
+            updateRequest = false;
+            updateEntries();
         }
 
         ImGui::SetNextWindowSize(ImVec2(800.0f, 600.0f));
@@ -145,41 +157,44 @@ namespace file_browser
                 ImGui::PopStyleVar();
 
                 // Sorting
-                if (ImGuiTableSortSpecs* sortSpecs = ImGui::TableGetSortSpecs())
+                ImGuiTableSortSpecs* sortSpecs = ImGui::TableGetSortSpecs();
+                if (filteredAndSortedEntries.empty() || sortSpecs->SpecsDirty)
                 {
-                    if (sortSpecs->SpecsDirty)
-                    {
-                        // Sort your underlying data here
-                        updateFilterAndSort(/*sortSpecs*/);
-                        sortSpecs->SpecsDirty = false;
-                    }
+                    // Sort your underlying data here
+                    updateFilterAndSort(/*sortSpecs*/);
+                    sortSpecs->SpecsDirty = false;
                 }
                 
-                for (int i = 0; i < filteredAndSortedEntries.size(); ++i)
+                for (int rowIndex = 0; rowIndex < filteredAndSortedEntries.size(); ++rowIndex)
                 {
-                    ImGui::PushID(i);
+                    ImGui::PushID(rowIndex);
 
                     ImGui::TableNextRow(ImGuiTableRowFlags_None, 24.0f);
 
                     ImGui::TableSetColumnIndex(0);
-                    ImGui::ZXIcon(filteredAndSortedEntries[i].iconId);
-                    ImGui::Text(filteredAndSortedEntries[i].directoryEntry.path().filename().string().c_str());
+                    ImGui::ZXIcon(filteredAndSortedEntries[rowIndex].iconId);
+                    ImGui::Text(filteredAndSortedEntries[rowIndex].directoryEntry.path().filename().string().c_str());
                     ImGui::SameLine();
                     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 2.0f);
-                    const bool item_is_selected = i == 3;
+                    const bool item_is_selected = rowIndex == selectedRowIndex;
                     if (ImGui::Selectable("", item_is_selected, SELECTABLE_FLAGS, ImVec2(0.0f, 14.0f)))
                     {
-                        // if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
-                        // {
-                        //     _app->zx->tape->tapeBlockIndex = row;
-                        // }
+                        selectedRowIndex = rowIndex;
+                        if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+                        {
+                            if (filteredAndSortedEntries[rowIndex].directoryEntry.is_directory())
+                            {
+                                currentPath = filteredAndSortedEntries[rowIndex].directoryEntry.path().string();
+                                updateRequest = true;
+                            }
+                        }
                     }
                     
                     ImGui::TableSetColumnIndex(1);
-                    ImGui::Text(filteredAndSortedEntries[i].directoryEntry.is_regular_file() ? formatFileSize(filteredAndSortedEntries[i].directoryEntry.file_size()).c_str() : "");
+                    ImGui::Text(filteredAndSortedEntries[rowIndex].directoryEntry.is_regular_file() ? formatFileSize(filteredAndSortedEntries[rowIndex].directoryEntry.file_size()).c_str() : "");
 
                     ImGui::TableSetColumnIndex(2);
-                    ImGui::Text(std::format(locale, "{:L%c}", filteredAndSortedEntries[i].directoryEntry.last_write_time()).c_str());
+                    ImGui::Text(std::format(locale, "{:L%c}", filteredAndSortedEntries[rowIndex].directoryEntry.last_write_time()).c_str());
 
                     ImGui::PopID();
                 }
