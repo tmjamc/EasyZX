@@ -731,7 +731,7 @@ namespace ImGui
         colors[ImGuiCol_Text] =                      ImVec4(0.92f, 0.92f, 0.92f, 1.00f);
         colors[ImGuiCol_TextDisabled] =              ImVec4(0.65f, 0.65f, 0.65f, 1.00f);
         colors[ImGuiCol_WindowBg] =                  ImVec4(0.17f, 0.17f, 0.17f, 1.00f);
-        colors[ImGuiCol_ChildBg] =                   ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
+        colors[ImGuiCol_ChildBg] =                   ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
         colors[ImGuiCol_PopupBg] =                   ImVec4(0.17f, 0.17f, 0.17f, 1.00f);
         colors[ImGuiCol_Border] =                    ImVec4(0.35f, 0.35f, 0.35f, 0.40f);
         colors[ImGuiCol_BorderShadow] =              ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
