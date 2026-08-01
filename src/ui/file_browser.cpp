@@ -1,4 +1,5 @@
 #include <windows.h>
+#include <shlobj.h>
 #include <iostream>
 #include <filesystem>
 #include <ranges>
@@ -11,7 +12,7 @@ namespace file_browser
     namespace
     {
         constexpr ImGuiSelectableFlags SELECTABLE_FLAGS = ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowDoubleClick;
-        constexpr float SPLITTER_WIDTH = 6.0f;
+        constexpr float SPLITTER_WIDTH = 8.0f;
         constexpr float MIN_PANE_WIDTH = 100.0f;
 
         const std::locale &locale = std::locale("");
@@ -41,10 +42,55 @@ namespace file_browser
         struct VolumeEntry
         {
             uint32_t type;
+            std::string path;
             std::string name;
         };
-
         std::vector<VolumeEntry> volumeEntries;
+
+        struct FolderEntry
+        {
+            std::string path;
+            std::string name;
+        };        
+        std::vector<FolderEntry> folderEntries;
+        
+        std::string wideToString(LPWSTR wstr)
+        {
+            if (!wstr)
+            {
+                return std::string();
+            }
+
+            int sizeNeeded = WideCharToMultiByte(CP_UTF8, 0, wstr, -1, nullptr, 0, nullptr, nullptr);
+
+            if (sizeNeeded <= 0)
+            {
+                return std::string();
+            }
+
+            std::string result(sizeNeeded - 1, 0); // -1 to exclude null terminator
+            WideCharToMultiByte(CP_UTF8, 0, wstr, -1, &result[0], sizeNeeded, nullptr, nullptr);
+
+            return result;
+        }
+
+        std::string getFolder(REFKNOWNFOLDERID folderId)
+        {
+            LPWSTR wszPath = nullptr;
+            HRESULT hr;
+            hr = SHGetKnownFolderPath(folderId, KF_FLAG_CREATE, NULL, &wszPath);
+            
+            std::string result{};
+            
+            if (SUCCEEDED(hr))
+            {
+                result = wideToString(wszPath);
+            }
+
+            CoTaskMemFree(wszPath);
+
+            return result;
+        }
 
         void updateVolumeEntries()
         {
@@ -83,9 +129,17 @@ namespace file_browser
 
                 if (ok)
                 {
-                    volumeEntries.emplace_back(type, std::format("{} ({})", volumeName[0] ? volumeName : typeStr, root));
+                    volumeEntries.emplace_back(type, root, std::format("{} ({})", volumeName[0] ? volumeName : typeStr, root));
                 }
             }
+
+            folderEntries.clear();
+            folderEntries.emplace_back(getFolder(FOLDERID_Desktop), std::filesystem::path(getFolder(FOLDERID_Desktop)).filename().string());
+            folderEntries.emplace_back(getFolder(FOLDERID_Downloads), std::filesystem::path(getFolder(FOLDERID_Downloads)).filename().string());
+            folderEntries.emplace_back(getFolder(FOLDERID_Documents), std::filesystem::path(getFolder(FOLDERID_Documents)).filename().string());
+            folderEntries.emplace_back(getFolder(FOLDERID_Pictures), std::filesystem::path(getFolder(FOLDERID_Pictures)).filename().string());
+            folderEntries.emplace_back(getFolder(FOLDERID_Music), std::filesystem::path(getFolder(FOLDERID_Music)).filename().string());
+            folderEntries.emplace_back(getFolder(FOLDERID_Videos), std::filesystem::path(getFolder(FOLDERID_Videos)).filename().string());
         }
 
         void updateEntries()
@@ -237,8 +291,11 @@ namespace file_browser
                 ImGui::TableHeadersRow();
                 ImGui::PopStyleVar();
 
+                int rowIndex = 0;
                 for (const VolumeEntry &volumeEntry : volumeEntries)
                 {
+                    ImGui::PushID(rowIndex++);
+
                     ImGui::TableNextRow(ImGuiTableRowFlags_None, 24.0f);
                     ImGui::TableSetColumnIndex(0);
 
@@ -247,10 +304,47 @@ namespace file_browser
                     ImGui::SameLine();
                     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 2.0f);
 
-                    if (ImGui::Selectable("", false, SELECTABLE_FLAGS, ImVec2(0.0f, 14.0f)))
+                    if (ImGui::Selectable("", false, ImGuiSelectableFlags_SpanAllColumns, ImVec2(0.0f, 14.0f)))
                     {
-
+                        currentPath = volumeEntry.path;
+                        updateRequest = true;
                     }
+
+                    ImGui::PopID();
+                }
+
+                ImGui::EndTable();
+            }
+
+            // Folders
+            if (ImGui::BeginTable("###folders", 1, ImGuiTableFlags_BordersOuter | ImGuiTableFlags_RowBg))
+            {
+                ImGui::TableSetupColumn("Folders", ImGuiTableColumnFlags_WidthStretch);
+                ImGui::TableSetupScrollFreeze(0, 1);
+                ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, { 0.0f, 3.5f });
+                ImGui::TableHeadersRow();
+                ImGui::PopStyleVar();
+
+                int rowIndex = 0;
+                for (const FolderEntry &folderEntry : folderEntries)
+                {
+                    ImGui::PushID(rowIndex++);
+
+                    ImGui::TableNextRow(ImGuiTableRowFlags_None, 24.0f);
+                    ImGui::TableSetColumnIndex(0);
+
+                    ImGui::ZXIcon(ImGui::ZXIconId::FOLDER);
+                    ImGui::TextUnformatted(folderEntry.name.c_str());
+                    ImGui::SameLine();
+                    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 2.0f);
+
+                    if (ImGui::Selectable("", false, ImGuiSelectableFlags_SpanAllColumns, ImVec2(0.0f, 14.0f)))
+                    {
+                        currentPath = folderEntry.path;
+                        updateRequest = true;
+                    }
+
+                    ImGui::PopID();
                 }
 
                 ImGui::EndTable();
@@ -282,10 +376,6 @@ namespace file_browser
                 }
             }
 
-            // Draw splitter
-            ImU32 color = active ? IM_COL32(180, 180, 180, 255) : (hovered ? IM_COL32(140, 140, 140, 255) : IM_COL32(0, 0, 0, 0));
-            ImDrawList* drawList = ImGui::GetWindowDrawList();
-            drawList->AddRectFilled(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), color);
             ImGui::SameLine();
             ImGui::SetCursorPosX(ImGui::GetCursorPosX() - 10.0f);
 
@@ -300,7 +390,15 @@ namespace file_browser
                 updateRequest = true;
             }
             ImGui::SameLine();
+            
+            ImGui::AlignTextToFramePadding();
 
+            ImGui::Dummy(ImVec2(0.0f, 0.0f));
+            ImGui::SameLine();
+
+            ImGui::AlignTextToFramePadding();
+            
+            ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, { 0.0f, 0.0f });
             std::string partialPath{};
             for (const auto& part : currentPath)
             {
@@ -320,6 +418,9 @@ namespace file_browser
                 ImGui::SameLine();
                 ImGui::TextUnformatted("\\");
             }
+            ImGui::PopStyleVar();
+
+            ImGui::Dummy(ImVec2(0.0f, 0.0f));
 
             if (updateRequest)
             {
