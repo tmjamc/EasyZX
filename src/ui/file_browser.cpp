@@ -6,6 +6,7 @@
 
 #include "zx_theme.h"
 #include "file_browser.h"
+#include "paths.h"
 
 namespace file_browser
 {
@@ -54,44 +55,6 @@ namespace file_browser
         };        
         std::vector<FolderEntry> folderEntries;
         
-        std::string wideToString(LPWSTR wstr)
-        {
-            if (!wstr)
-            {
-                return std::string();
-            }
-
-            int sizeNeeded = WideCharToMultiByte(CP_UTF8, 0, wstr, -1, nullptr, 0, nullptr, nullptr);
-
-            if (sizeNeeded <= 0)
-            {
-                return std::string();
-            }
-
-            std::string result(sizeNeeded - 1, 0); // -1 to exclude null terminator
-            WideCharToMultiByte(CP_UTF8, 0, wstr, -1, &result[0], sizeNeeded, nullptr, nullptr);
-
-            return result;
-        }
-
-        std::string getFolder(REFKNOWNFOLDERID folderId)
-        {
-            LPWSTR wszPath = nullptr;
-            HRESULT hr;
-            hr = SHGetKnownFolderPath(folderId, KF_FLAG_CREATE, NULL, &wszPath);
-            
-            std::string result{};
-            
-            if (SUCCEEDED(hr))
-            {
-                result = wideToString(wszPath);
-            }
-
-            CoTaskMemFree(wszPath);
-
-            return result;
-        }
-
         void updateVolumeEntries()
         {
             volumeEntries.clear();
@@ -134,12 +97,12 @@ namespace file_browser
             }
 
             folderEntries.clear();
-            folderEntries.emplace_back(getFolder(FOLDERID_Desktop), std::filesystem::path(getFolder(FOLDERID_Desktop)).filename().string());
-            folderEntries.emplace_back(getFolder(FOLDERID_Downloads), std::filesystem::path(getFolder(FOLDERID_Downloads)).filename().string());
-            folderEntries.emplace_back(getFolder(FOLDERID_Documents), std::filesystem::path(getFolder(FOLDERID_Documents)).filename().string());
-            folderEntries.emplace_back(getFolder(FOLDERID_Pictures), std::filesystem::path(getFolder(FOLDERID_Pictures)).filename().string());
-            folderEntries.emplace_back(getFolder(FOLDERID_Music), std::filesystem::path(getFolder(FOLDERID_Music)).filename().string());
-            folderEntries.emplace_back(getFolder(FOLDERID_Videos), std::filesystem::path(getFolder(FOLDERID_Videos)).filename().string());
+            folderEntries.emplace_back(paths::getFolder(FOLDERID_Desktop), std::filesystem::path(paths::getFolder(FOLDERID_Desktop)).filename().string());
+            folderEntries.emplace_back(paths::getFolder(FOLDERID_Downloads), std::filesystem::path(paths::getFolder(FOLDERID_Downloads)).filename().string());
+            folderEntries.emplace_back(paths::getFolder(FOLDERID_Documents), std::filesystem::path(paths::getFolder(FOLDERID_Documents)).filename().string());
+            folderEntries.emplace_back(paths::getFolder(FOLDERID_Pictures), std::filesystem::path(paths::getFolder(FOLDERID_Pictures)).filename().string());
+            folderEntries.emplace_back(paths::getFolder(FOLDERID_Music), std::filesystem::path(paths::getFolder(FOLDERID_Music)).filename().string());
+            folderEntries.emplace_back(paths::getFolder(FOLDERID_Videos), std::filesystem::path(paths::getFolder(FOLDERID_Videos)).filename().string());
         }
 
         void updateEntries()

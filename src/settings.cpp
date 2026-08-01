@@ -1,5 +1,6 @@
 #include "settings.h"
 #include "ini.h"
+#include "paths.h"
 
 // Handles persistent emulator configuration.
 // Settings are loaded from an INI file during startup
@@ -7,8 +8,6 @@
 // user changes configuration.
 namespace settings
 {
-    constexpr static const char* SETTINGS_FILE_NAME = "./EasyZX.ini";
-
     // Global runtime configuration currently used by the emulator.
     Settings current;
     
@@ -50,7 +49,7 @@ namespace settings
     {
         current = {};
         
-        mINI::INIFile file(SETTINGS_FILE_NAME);
+        mINI::INIFile file(paths::settingsPath);
 
         mINI::INIStructure ini;
 
@@ -111,7 +110,7 @@ namespace settings
     // an INI file so settings persist between sessions.
     void save()
     {
-        mINI::INIFile file(SETTINGS_FILE_NAME);
+        mINI::INIFile file(paths::settingsPath);
 
         mINI::INIStructure ini;
         

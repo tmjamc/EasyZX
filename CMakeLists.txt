@@ -33,6 +33,7 @@ WIN32
     src/display.cpp
     src/shader.cpp
     src/audio.cpp
+    src/paths.cpp
     src/ui/zx_theme.cpp
     src/ui/file_browser.cpp
     src/ui/widgets_window.cpp

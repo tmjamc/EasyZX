@@ -8,6 +8,7 @@
 #include "imgui_impl_opengl3.h"
 #include "win_app.h"
 #include "display.h"
+#include "paths.h"
 #include "settings.h"
 #include "main.h"
 #include "zx_theme.h"
@@ -392,6 +393,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
     // Free the memory allocated by CommandLineToArgvW
     LocalFree(argv);
 
+    paths::init();
     settings::load();
 
     // Initialize main window, OpenGL, etc.
