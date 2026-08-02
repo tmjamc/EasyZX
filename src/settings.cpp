@@ -1,5 +1,4 @@
 #include "settings.h"
-#include "ini.h"
 #include "paths.h"
 
 // Handles persistent emulator configuration.
@@ -8,43 +7,8 @@
 // user changes configuration.
 namespace settings
 {
-    // Global runtime configuration currently used by the emulator.
     Settings current;
-    
-    // Load an integer value if the key exists.
-    // Missing keys leave the current value unchanged.
-    static void loadInt(int &variable, const mINI::INIMap<std::string> &section, const std::string &key)
-    {
-        const std::string value = section.get(key);
-        variable = value.empty() ? variable : std::stoi(value);
-    }
-    
-    // Load a boolean value if the key exists.
-    // Missing keys leave the current value unchanged.
-    static void loadBool(bool &variable, const mINI::INIMap<std::string> &section, const std::string &key)
-    {
-        const std::string value = section.get(key);
-        variable = value.empty() ? variable : (std::stoi(value) != 0);
-    }
-    
-    // Load a string value if the key exists.
-    // Missing keys leave the current value unchanged.
-    static void loadString(std::string &variable, const mINI::INIMap<std::string> &section, const std::string &key)
-    {
-        const std::string value = section.get(key);
-        variable = value.empty() ? variable : value;
-    }
-    
-    // Load a float value if the key exists.
-    // Missing keys leave the current value unchanged.
-    static void loadFloat(float &variable, const mINI::INIMap<std::string> &section, const std::string &key)
-    {
-        const std::string value = section.get(key);
-        variable = value.empty() ? variable : std::stof(value);
-    }
 
-    // Load settings from INI file.
-    // Existing values remain untouched when a key is missing.
     void load()
     {
         current = {};
@@ -106,8 +70,6 @@ namespace settings
         loadBool(current.devicesAY, devices, "ay");
     }
 
-    // Serialize the current runtime configuration into
-    // an INI file so settings persist between sessions.
     void save()
     {
         mINI::INIFile file(paths::settingsPath);
@@ -162,5 +124,29 @@ namespace settings
              {"ay", std::to_string(current.devicesAY)}});
 
         file.generate(ini, true);
+    }
+    
+    void loadInt(int &variable, const mINI::INIMap<std::string> &section, const std::string &key)
+    {
+        const std::string value = section.get(key);
+        variable = value.empty() ? variable : std::stoi(value);
+    }
+    
+    void loadBool(bool &variable, const mINI::INIMap<std::string> &section, const std::string &key)
+    {
+        const std::string value = section.get(key);
+        variable = value.empty() ? variable : (std::stoi(value) != 0);
+    }
+    
+    void loadString(std::string &variable, const mINI::INIMap<std::string> &section, const std::string &key)
+    {
+        const std::string value = section.get(key);
+        variable = value.empty() ? variable : value;
+    }
+    
+    void loadFloat(float &variable, const mINI::INIMap<std::string> &section, const std::string &key)
+    {
+        const std::string value = section.get(key);
+        variable = value.empty() ? variable : std::stof(value);
     }
 }

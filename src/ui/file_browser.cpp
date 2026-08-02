@@ -7,16 +7,20 @@
 #include "zx_theme.h"
 #include "file_browser.h"
 #include "paths.h"
+#include "ini.h"
+#include "settings.h"
 
 namespace file_browser
 {
     namespace
     {
-        constexpr ImGuiSelectableFlags SELECTABLE_FLAGS = ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowDoubleClick;
         constexpr float SPLITTER_WIDTH = 8.0f;
         constexpr float MIN_PANE_WIDTH = 100.0f;
+        constexpr int FILE_NAME_LENGTH = 300;
 
         const std::locale &locale = std::locale("");
+
+        std::filesystem::path currentPath;
 
         struct FileEntry
         {
@@ -24,11 +28,11 @@ namespace file_browser
             std::string extension;
             ImGui::ZXIconId iconId;
         };
-
-        std::filesystem::path currentPath;
-        std::unordered_set<std::string> currentFilter;
         std::vector<FileEntry> entries;
         std::vector<FileEntry> filteredAndSortedEntries;
+
+        std::vector<ExtensionFilter> extensionFilters;
+        int selectedExtensionFilterIndex = 0;
 
         int selectedRowIndex = -1;
         int sortColumnIndex = 0;
@@ -38,7 +42,9 @@ namespace file_browser
         bool openRequest = false;
         bool opened = false;
 
-        float leftPaneWidth = 250.0f;
+        float leftPaneWidth = 200.0f;
+
+        char fileName[FILE_NAME_LENGTH]{};
 
         struct VolumeEntry
         {
@@ -54,6 +60,9 @@ namespace file_browser
             std::string name;
         };        
         std::vector<FolderEntry> folderEntries;
+
+        ImVec2 size(800.0f, 600.0f);
+        ImVec2 position((GetSystemMetrics(SM_CXSCREEN) - size.x) / 2.0f, (GetSystemMetrics(SM_CYSCREEN) - size.y) / 2.0f);
         
         void updateVolumeEntries()
         {
@@ -141,7 +150,7 @@ namespace file_browser
                 {
                     return true;
                 }
-                return currentFilter.size() ? currentFilter.contains(entry.extension) : true;
+                return extensionFilters[selectedExtensionFilterIndex].extensions.size() ? extensionFilters[selectedExtensionFilterIndex].extensions.contains(entry.extension) : true;
             });
 
             filteredAndSortedEntries = std::vector<FileEntry>(filteredView.begin(), filteredView.end());
@@ -196,14 +205,62 @@ namespace file_browser
             }
             return std::format("{} {}{}", std::ceil(mantissa * 10.0) / 10.0, i["BKMGTPE"], i ? "B" : "");
         }
+    
+        void load()
+        {
+            mINI::INIFile file(paths::fileBrowserPath);
+
+            mINI::INIStructure ini;
+
+            if (!file.read(ini))
+            {
+                return;
+            }
+
+            const auto &dimensions = ini["dimensions"];
+            settings::loadFloat(position.x, dimensions, "position.x");
+            settings::loadFloat(position.y, dimensions, "position.y");
+            settings::loadFloat(size.x, dimensions, "size.x");
+            settings::loadFloat(size.y, dimensions, "size.y");
+            settings::loadFloat(leftPaneWidth, dimensions, "left_pane_width");
+            // column 1 width
+            // column 2 width
+            // sortColumnIndex
+            // sortAscending
+        }
+
+        void save()
+        {
+            mINI::INIFile file(paths::fileBrowserPath);
+
+            mINI::INIStructure ini;
+            
+            ini["dimensions"].set(
+                {{"position.x", std::to_string(position.x)},
+                 {"position.y", std::to_string(position.y)},
+                 {"size.x", std::to_string(size.x)},
+                 {"size.y", std::to_string(size.y)},
+                 {"left_pane_width", std::to_string(leftPaneWidth)}});
+
+            file.generate(ini, true);
+        }    
     }
 
-    void open(std::string path, std::unordered_set<std::string> filter)
+    std::vector<ExtensionFilter> tapeFilters =
     {
+        {"Tape files (*.tap, *.tzx)", {".tap", ".tzx"}},
+        {"All files (*.*)", {}}
+    };
+
+    void open(std::string path, std::vector<ExtensionFilter> filter)
+    {
+        load();
         currentPath = path;
-        currentFilter = filter;
+        extensionFilters = filter;
+        selectedExtensionFilterIndex = 0;
         openRequest = true;
         updateRequest = true;
+        memset(fileName, 0, FILE_NAME_LENGTH);
 
         updateVolumeEntries();
     }
@@ -222,13 +279,15 @@ namespace file_browser
             return;
         }
 
-        ImGui::SetNextWindowSize(ImVec2(800.0f, 600.0f));
+        ImGui::SetNextWindowPos(position, ImGuiCond_Once);
+        ImGui::SetNextWindowSize(size, ImGuiCond_Once);
         if (ImGui::BeginPopupModal("###file_browser_dialog", &opened))
         {
             // Available area inside the window
             ImVec2 available = ImGui::GetContentRegionAvail();
 
             float rightPaneWidth = available.x - leftPaneWidth - SPLITTER_WIDTH;
+            float panesHeight = available.y - 40.0f;
 
             // Clamp sizes
             if (leftPaneWidth < MIN_PANE_WIDTH)
@@ -243,7 +302,7 @@ namespace file_browser
             }
 
             // Left Pane
-            ImGui::BeginChild("###left_pane", ImVec2(leftPaneWidth, 0), ImGuiChildFlags_None);
+            ImGui::BeginChild("###left_pane", ImVec2(leftPaneWidth, panesHeight), ImGuiChildFlags_None);
 
             // Volumes
             if (ImGui::BeginTable("###volumes", 1, ImGuiTableFlags_BordersOuter | ImGuiTableFlags_RowBg))
@@ -321,7 +380,7 @@ namespace file_browser
 
             // Splitter
             ImGui::SetCursorPosX(ImGui::GetCursorPosX() - 9.0f);
-            ImGui::InvisibleButton("###splitter", ImVec2(SPLITTER_WIDTH, available.y));
+            ImGui::InvisibleButton("###splitter", ImVec2(SPLITTER_WIDTH, panesHeight));
 
             bool hovered = ImGui::IsItemHovered();
             bool active = ImGui::IsItemActive();
@@ -343,7 +402,7 @@ namespace file_browser
             ImGui::SetCursorPosX(ImGui::GetCursorPosX() - 10.0f);
 
             // Right Pane
-            ImGui::BeginChild("###right_pane", ImVec2(0, 0), ImGuiChildFlags_None);
+            ImGui::BeginChild("###right_pane", ImVec2(0, panesHeight), ImGuiChildFlags_None);
 
             ImGui::AlignTextToFramePadding();
 
@@ -397,7 +456,7 @@ namespace file_browser
 
             if (ImGui::BeginTable("###entries_table", 3, ImGuiTableFlags_Resizable | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY | ImGuiTableFlags_RowBg | ImGuiTableFlags_Sortable | ImGuiTableFlags_Hideable))
             {
-                ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_DefaultSort);
+                ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_DefaultSort);
                 ImGui::TableSetupColumn("Size");
                 ImGui::TableSetupColumn("Date");
                 ImGui::TableSetupScrollFreeze(0, 1);
@@ -435,7 +494,7 @@ namespace file_browser
                     ImGui::TextUnformatted(filteredAndSortedEntries[rowIndex].directoryEntry.path().filename().string().c_str());
                     ImGui::SameLine();
                     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 2.0f);
-                    if (ImGui::Selectable("", rowIndex == selectedRowIndex, SELECTABLE_FLAGS, ImVec2(0.0f, 14.0f)))
+                    if (ImGui::Selectable("", rowIndex == selectedRowIndex, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowDoubleClick, ImVec2(0.0f, 14.0f)))
                     {
                         selectedRowIndex = rowIndex;
                         if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
@@ -464,7 +523,55 @@ namespace file_browser
 
             ImGui::EndChild();
 
+            // Bottom bar
+            ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - 350.0f);
+            ImGui::InputText("", fileName, FILE_NAME_LENGTH);
+
+            ImGui::SameLine();
+            ImGui::SetNextItemWidth(200.0f);
+            if (ImGui::BeginCombo("###extensions_filter", extensionFilters[selectedExtensionFilterIndex].description.c_str()))
+            {
+                for (int index = 0; index < extensionFilters.size(); ++index)
+                {
+                    const bool is_selected = (index == selectedExtensionFilterIndex);
+                    if (ImGui::Selectable(extensionFilters[index].description.c_str(), is_selected))
+                    {
+                        if (index != selectedExtensionFilterIndex)
+                        {
+                            selectedExtensionFilterIndex = index;
+                            updateFilterAndSort();
+                        }
+                    }
+                    if (is_selected)
+                    {
+                        ImGui::SetItemDefaultFocus();
+                    }
+                }
+
+                ImGui::EndCombo();
+            }
+
+            ImGui::SameLine();
+            if (ImGui::Button("OK", ImVec2(60.0f, 0.0f)))
+            {
+                opened = false;
+            }
+
+            ImGui::SameLine();
+            if (ImGui::Button("Cancel", ImVec2(60.0f, 0.0f)))
+            {
+                opened = false;
+            }
+
+            position = ImGui::GetWindowPos();
+            size = ImGui::GetWindowSize();
+
             ImGui::EndPopup();
+        }
+
+        if (!opened)
+        {
+            save();
         }
     }
 }

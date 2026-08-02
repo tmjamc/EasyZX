@@ -4,6 +4,14 @@
 
 namespace file_browser
 {
-    void open(std::string path, std::unordered_set<std::string> filter);
+    struct ExtensionFilter
+    {
+        std::string description;
+        std::unordered_set<std::string> extensions;
+    };
+
+    extern std::vector<ExtensionFilter> tapeFilters;
+
+    void open(std::string path, std::vector<ExtensionFilter> filter);
     void render();
 }

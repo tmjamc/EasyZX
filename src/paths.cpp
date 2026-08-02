@@ -8,6 +8,7 @@ namespace paths
     {
         constexpr const char* APPLICATION_FOLDER_NAME = "EasyZX";
         constexpr const char* SETTINGS_FILE_NAME = "settings.ini";
+        constexpr const char* FILE_BROWSER_FILE_NAME = "file_browser.ini";
 
         std::string wideToString(LPWSTR wstr)
         {
@@ -31,12 +32,16 @@ namespace paths
     }
 
     std::filesystem::path settingsPath;
+    std::filesystem::path fileBrowserPath;
 
     void init()
     {
         std::filesystem::path applicationFolderPath = std::filesystem::path(paths::getFolder(FOLDERID_RoamingAppData)).append(APPLICATION_FOLDER_NAME);
         std::filesystem::create_directories(applicationFolderPath);
-        settingsPath = applicationFolderPath.append(SETTINGS_FILE_NAME);
+        settingsPath = applicationFolderPath;
+        settingsPath.append(SETTINGS_FILE_NAME);
+        fileBrowserPath = applicationFolderPath;
+        fileBrowserPath.append(FILE_BROWSER_FILE_NAME);
     }
 
     std::string getFolder(REFKNOWNFOLDERID folderId)

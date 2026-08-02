@@ -1,6 +1,7 @@
 #pragma once
 
 #include <windows.h>
+#include "ini.h"
 
 namespace settings
 {
@@ -52,4 +53,8 @@ namespace settings
 
     void load();
     void save();
+    void loadInt(int &variable, const mINI::INIMap<std::string> &section, const std::string &key);
+    void loadBool(bool &variable, const mINI::INIMap<std::string> &section, const std::string &key);
+    void loadString(std::string &variable, const mINI::INIMap<std::string> &section, const std::string &key);
+    void loadFloat(float &variable, const mINI::INIMap<std::string> &section, const std::string &key);
 }
