@@ -20,14 +20,14 @@ namespace tape
     extern bool pulseSignal;
     extern DcAdjustmentFilter filter;
     extern int volume;
-    extern const char *fileName;
+    extern std::string fileName;
     extern std::vector<Block> blocks;
     extern int blockIndex;
     extern int stopFrameCount;
 
     void reset();
     void cleanUp();
-    void load(const char* fileName);
+    void load(std::string fileName);
     void play();
     void stop();
     void tact();

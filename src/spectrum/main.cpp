@@ -76,7 +76,7 @@ namespace main
         // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\modern\\MRKF.tzx");
         // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\games\\El Lingote.tzx");
         // tape::load("C:\\Users\\jam\\Documents\\Projects\\tapes\\Shadow Dancer - Side 1.tzx");
-        tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\music\\beeper\\thevocoders.tap");
+        // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\music\\beeper\\thevocoders.tap");
         // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\music\\beeper\\Beeper_Cafe_Album_PRESS_ENTER_FOR_NEXT_TRACK.tap");
         // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\7TH_REAL.TAP");
         // tape::load("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy\\demos\\pentagon\\ILLUSION.TAP");

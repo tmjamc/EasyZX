@@ -11,11 +11,16 @@ namespace widgets
     namespace
     {
         constexpr const char* TAPE_SPEED[3] = { "Normal speed", "Throttle", "Instant"};
+
+        void loadTapeFile(const std::string &fileName)
+        {
+            tape::load(fileName.c_str());
+        }
     }
     
     void renderTapeManager()
     {
-        bool empty = tape::fileName == nullptr;
+        bool empty = tape::fileName.empty();
 
         const float width = ImGui::GetContentRegionAvail().x - 131.0f;
         if (empty)
@@ -31,7 +36,7 @@ namespace widgets
         ImGui::SameLine();
         if (ImGui::Button("Insert", ImVec2(60.0f, 0.0f)))
         {
-            file_browser::open("C:\\Users\\jam\\Documents\\Projects\\EasyZX_Deploy", file_browser::tapeFilters);
+            file_browser::open(file_browser::tapeFilters, loadTapeFile);
         }
 
         ImGui::SameLine();

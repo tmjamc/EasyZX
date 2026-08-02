@@ -20,7 +20,7 @@ namespace file_browser
 
         const std::locale &locale = std::locale("");
 
-        std::filesystem::path currentPath;
+        std::filesystem::path currentPath = paths::getFolder(FOLDERID_Profile);
 
         struct FileEntry
         {
@@ -43,6 +43,8 @@ namespace file_browser
         bool opened = false;
 
         float leftPaneWidth = 200.0f;
+        float column1Width = 60.0f;
+        float column2Width = 120.0f;
 
         char fileName[FILE_NAME_LENGTH]{};
 
@@ -61,9 +63,18 @@ namespace file_browser
         };        
         std::vector<FolderEntry> folderEntries;
 
+        struct RecentEntry
+        {
+            int count;
+            std::string path;
+        };        
+        std::vector<RecentEntry> recentEntries;
+
         ImVec2 size(800.0f, 600.0f);
         ImVec2 position((GetSystemMetrics(SM_CXSCREEN) - size.x) / 2.0f, (GetSystemMetrics(SM_CYSCREEN) - size.y) / 2.0f);
         
+        std::function<void(const std::string&)> fileSelectedCallBack;
+
         void updateVolumeEntries()
         {
             volumeEntries.clear();
@@ -222,11 +233,18 @@ namespace file_browser
             settings::loadFloat(position.y, dimensions, "position.y");
             settings::loadFloat(size.x, dimensions, "size.x");
             settings::loadFloat(size.y, dimensions, "size.y");
-            settings::loadFloat(leftPaneWidth, dimensions, "left_pane_width");
-            // column 1 width
-            // column 2 width
-            // sortColumnIndex
-            // sortAscending
+            
+            const auto &layout = ini["layout"];
+            settings::loadFloat(leftPaneWidth, layout, "left_pane_width");
+            settings::loadFloat(column1Width, layout, "column_size_Width");
+            settings::loadFloat(column2Width, layout, "column_date_width");
+            settings::loadInt(sortColumnIndex, layout, "sort_column_index");
+            settings::loadBool(sortAscending, layout, "sort_ascending");
+            
+            const auto &paths = ini["paths"];
+            std::string value = currentPath.string();
+            settings::loadString(value, paths, "current_path");
+            currentPath = value;
         }
 
         void save()
@@ -239,11 +257,31 @@ namespace file_browser
                 {{"position.x", std::to_string(position.x)},
                  {"position.y", std::to_string(position.y)},
                  {"size.x", std::to_string(size.x)},
-                 {"size.y", std::to_string(size.y)},
-                 {"left_pane_width", std::to_string(leftPaneWidth)}});
+                 {"size.y", std::to_string(size.y)}});
+
+            ini["layout"].set(
+                {{"left_pane_width", std::to_string(leftPaneWidth)},
+                 {"column_size_Width", std::to_string(column1Width)},
+                 {"column_date_width", std::to_string(column2Width)},
+                 {"sort_column_index", std::to_string(sortColumnIndex)},
+                 {"sort_ascending", std::to_string(sortAscending)}});
+
+            ini["paths"].set(
+                {{"current_path", currentPath.string()}});
 
             file.generate(ini, true);
-        }    
+        }
+
+        void selectFile()
+        {
+            std::filesystem::path filePath = std::filesystem::path(currentPath).append(fileName);
+
+            if (std::filesystem::exists(filePath))
+            {
+                fileSelectedCallBack(filePath.string());
+                opened = false;
+            }
+        }
     }
 
     std::vector<ExtensionFilter> tapeFilters =
@@ -252,11 +290,12 @@ namespace file_browser
         {"All files (*.*)", {}}
     };
 
-    void open(std::string path, std::vector<ExtensionFilter> filter)
+    void open(std::vector<ExtensionFilter> filter, std::function<void(const std::string&)> callBack)
     {
         load();
-        currentPath = path;
+        // currentPath = path;
         extensionFilters = filter;
+        fileSelectedCallBack = callBack;
         selectedExtensionFilterIndex = 0;
         openRequest = true;
         updateRequest = true;
@@ -456,9 +495,9 @@ namespace file_browser
 
             if (ImGui::BeginTable("###entries_table", 3, ImGuiTableFlags_Resizable | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY | ImGuiTableFlags_RowBg | ImGuiTableFlags_Sortable | ImGuiTableFlags_Hideable))
             {
-                ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_DefaultSort);
-                ImGui::TableSetupColumn("Size");
-                ImGui::TableSetupColumn("Date");
+                ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthStretch | (sortColumnIndex == 0 ? ImGuiTableColumnFlags_DefaultSort : ImGuiTableColumnFlags_None) | (sortAscending ? ImGuiTableColumnFlags_PreferSortAscending : ImGuiTableColumnFlags_PreferSortDescending));
+                ImGui::TableSetupColumn("Size", ImGuiTableColumnFlags_WidthFixed | (sortColumnIndex == 1 ? ImGuiTableColumnFlags_DefaultSort : ImGuiTableColumnFlags_None) | (sortAscending ? ImGuiTableColumnFlags_PreferSortAscending : ImGuiTableColumnFlags_PreferSortDescending), column1Width);
+                ImGui::TableSetupColumn("Date", ImGuiTableColumnFlags_WidthFixed | (sortColumnIndex == 2 ? ImGuiTableColumnFlags_DefaultSort : ImGuiTableColumnFlags_None) | (sortAscending ? ImGuiTableColumnFlags_PreferSortAscending : ImGuiTableColumnFlags_PreferSortDescending), column2Width);
                 ImGui::TableSetupScrollFreeze(0, 1);
 
                 ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, { 0.0f, 3.5f });
@@ -497,6 +536,12 @@ namespace file_browser
                     if (ImGui::Selectable("", rowIndex == selectedRowIndex, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowDoubleClick, ImVec2(0.0f, 14.0f)))
                     {
                         selectedRowIndex = rowIndex;
+                        if (filteredAndSortedEntries[rowIndex].directoryEntry.is_regular_file())
+                        {
+                            const std::string selectedFileName = filteredAndSortedEntries[rowIndex].directoryEntry.path().filename().string();
+                            memcpy(fileName, selectedFileName.c_str(), selectedFileName.length());
+                            memset(fileName + selectedFileName.length(), 0, 1);
+                        }
                         if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
                         {
                             if (filteredAndSortedEntries[rowIndex].directoryEntry.is_directory())
@@ -504,13 +549,29 @@ namespace file_browser
                                 currentPath = filteredAndSortedEntries[rowIndex].directoryEntry.path();
                                 updateRequest = true;
                             }
+                            if (filteredAndSortedEntries[rowIndex].directoryEntry.is_regular_file())
+                            {
+                                selectFile();
+                            }
                         }
                     }
                     
                     ImGui::TableSetColumnIndex(1);
-                    ImGui::TextUnformatted(filteredAndSortedEntries[rowIndex].directoryEntry.is_regular_file() ? formatFileSize(filteredAndSortedEntries[rowIndex].directoryEntry.file_size()).c_str() : "");
+                    column1Width = ImGui::GetColumnWidth();
+
+                    const std::string sizeText = filteredAndSortedEntries[rowIndex].directoryEntry.is_regular_file() ? formatFileSize(filteredAndSortedEntries[rowIndex].directoryEntry.file_size()) : "";
+                    const float posX = ImGui::GetCursorPosX() + column1Width - ImGui::CalcTextSize(sizeText.c_str()).x;
+
+                    if (posX > ImGui::GetCursorPosX())
+                    {
+                        ImGui::SetCursorPosX(posX);
+                    }
+
+                    ImGui::TextUnformatted(sizeText.c_str());
 
                     ImGui::TableSetColumnIndex(2);
+                    column2Width = ImGui::GetColumnWidth();
+
                     ImGui::TextUnformatted(std::format(locale, "{:L%c}", filteredAndSortedEntries[rowIndex].directoryEntry.last_write_time()).c_str());
 
                     ImGui::PopID();
@@ -554,7 +615,7 @@ namespace file_browser
             ImGui::SameLine();
             if (ImGui::Button("OK", ImVec2(60.0f, 0.0f)))
             {
-                opened = false;
+                selectFile();
             }
 
             ImGui::SameLine();

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <unordered_set>
+#include <functional>
 
 namespace file_browser
 {
@@ -12,6 +13,6 @@ namespace file_browser
 
     extern std::vector<ExtensionFilter> tapeFilters;
 
-    void open(std::string path, std::vector<ExtensionFilter> filter);
+    void open(std::vector<ExtensionFilter> filter, std::function<void(const std::string&)> callBack);
     void render();
 }

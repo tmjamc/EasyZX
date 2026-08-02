@@ -663,7 +663,7 @@ namespace tape
     bool pulseSignal = false;
     DcAdjustmentFilter filter;
     int volume;
-    const char *fileName = nullptr;
+    std::string fileName{};
     std::vector<Block> blocks;
     int blockIndex = 0;
     int stopFrameCount = 0;
@@ -692,10 +692,10 @@ namespace tape
             data = nullptr;
         }
 
-        fileName = nullptr;
+        fileName.clear();
     }
     
-    void load(const char *fileName)
+    void load(std::string fileName)
     {
         std::ifstream file(fileName, std::ios::in | std::ios::binary);
         if (!file.is_open())
