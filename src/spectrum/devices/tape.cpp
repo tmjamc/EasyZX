@@ -7,6 +7,8 @@
 #include "ula.h"
 #include "win_app.h"
 #include "settings.h"
+#include "z80.h"
+#include "memory.h"
 
 namespace tape
 {
@@ -40,6 +42,8 @@ namespace tape
 
         int blockPulsesCount = 0;
         int blockPulsesIndex = 0;
+
+        int rawBlockIndex = 0;
 
         std::string getDataInfo(int index, int blockLength, std::string defaultValue)
         {
@@ -659,6 +663,71 @@ namespace tape
 
             win_app::info("");
         }
+    
+        std::span<uint8_t> getRawBlockData()
+        {
+            if (!dataLength)
+            {
+                return std::span<uint8_t>();
+            }
+
+            std::span<uint8_t> result(data, dataLength);
+
+            switch (fileFormat)
+            {
+
+            case Format::TAP:
+            {
+                int blockLength = data[rawBlockIndex++];
+                blockLength |= (data[rawBlockIndex++] << 8);
+                result = result.subspan(rawBlockIndex, blockLength);
+                rawBlockIndex += blockLength;
+                if (blockIndex < blocks.size() - 1 && rawBlockIndex == blocks[blockIndex + 1].start)
+                {
+                    ++blockIndex;
+                }
+                break;
+            }
+
+            // case TapeFormat::tzx:
+            // {
+            //     // Ignore Text description block
+            //     while (_tapeData[_tapeDataIndex] == 0x30)
+            //     {
+            //         if (++tapeBlockIndex == blockIndexesList.size())
+            //         {
+            //             return std::span<uint8_t>();
+            //         }
+
+            //         _tapeDataIndex = blockIndexesList[tapeBlockIndex];
+            //     }
+
+            //     // Ignore non standard block
+            //     if (_tapeData[_tapeDataIndex] != 0x10)
+            //     {
+            //         return std::span<uint8_t>();
+            //     }
+
+            //     int blockLength = _tapeData[_tapeDataIndex + 3] | _tapeData[_tapeDataIndex + 4] << 8;
+            //     _tapeDataIndex += 5;
+            //     result = result.subspan(_tapeDataIndex, blockLength);
+            //     _tapeDataIndex += blockLength;
+            //     ++tapeBlockIndex;
+            //     break;
+            // }
+
+            }
+
+            if (rawBlockIndex == dataLength)
+            {
+                // _tapeDataIndex = 0;
+                blockIndex = 0;
+            }
+
+            // _zx->app->display->tapeManager->focusRow = true;
+
+            return result;
+        }
     }
 
     bool playing = false;
@@ -685,6 +754,7 @@ namespace tape
         blockPulsesCount = 0;
         blockPulsesIndex = 0;
         stopFrameCount = 0;
+        rawBlockIndex = 0;
     }
 
     void cleanUp()
@@ -700,13 +770,15 @@ namespace tape
     
     void load(std::string fileName)
     {
+        cleanUp();
+        reset();
+        
         std::ifstream file(fileName, std::ios::in | std::ios::binary);
         if (!file.is_open())
         {
             return;
         }
 
-        cleanUp();
 
         file.seekg(0, std::ios::end);
         std::streampos fileSize = file.tellg();
@@ -849,6 +921,56 @@ namespace tape
         return blockPulsesCount && playing ? (float)blockPulsesIndex / (float)blockPulsesCount : 0;
     }
 
+    void instantLoad()
+    {
+        std::span<uint8_t> block = getRawBlockData();
+
+        if (block.empty())
+        {
+            return;
+        }
+
+        z80::registers.pc.w = 0x05e2;
+
+        if (z80::registers.af_.b.h == block[0])
+        {
+            z80::registers.af.b.h = block[0];
+            uint16_t count = block.size() - 2;
+            uint16_t index = 1;
+
+            while (z80::registers.de.w && count)
+            {
+                z80::xorByte(block[index]);
+                memory::write(z80::registers.ix.w++, block[index++]);
+                --z80::registers.de.w;
+                --count;
+            }
+
+            if (z80::registers.de.w)
+            {
+                // There are not enough bytes on the tape block
+                z80::registers.af.b.l = 0x50;
+            }
+            else
+            {
+                // Successfully loaded enough bytes from tape block
+                z80::xorByte(block[index]);
+                z80::registers.pc.w -= 2;
+
+                if (count)
+                {
+                    // TODO: There are more bytes on the tape block that some custom loaders need to read
+                    //setBlockPulses();
+                }
+            }
+        }
+        else
+        {
+            z80::registers.af.b.l = 0;
+            z80::registers.af.b.h = z80::registers.af_.b.h ^ block[0];
+        }
+    }
+    
     std::string Block::getInfo()
     {
         if (length == 0)

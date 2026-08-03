@@ -25,7 +25,7 @@ namespace settings
 
         // Tape settings
         bool tapeAutoStartStop = true;
-        bool tapeThrottleLoading = true;
+        bool tapeThrottleLoading = false;
         bool tapeInstantLoading = true;
 
         // Audio settings

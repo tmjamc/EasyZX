@@ -222,7 +222,17 @@ namespace main
             wd_1793::tact();
         }
 
-        tape::tact();
+        if (settings::current.tapeInstantLoading)
+        {
+            if (z80::registers.pc.w == 0x056c)
+            {
+                tape::instantLoad();
+            }
+        }
+        else
+        {
+            tape::tact();
+        }
 
         beeper::tact();
 

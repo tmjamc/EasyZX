@@ -32,5 +32,6 @@ namespace tape
     void stop();
     void tact();
     float getBlockProgress();
+    void instantLoad();
     std::string getCurrentBlockInfo();
 }
