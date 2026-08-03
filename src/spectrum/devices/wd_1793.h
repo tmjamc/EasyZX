@@ -35,6 +35,6 @@ namespace wd_1793
     void tact();
     void reset();
     void cleanUp();
-    bool insertDisk(uint8_t unit, std::string fileName);
+    bool insertDisk(uint8_t unit, const std::string &fileName);
     void ejectDisk(uint8_t unit);
 }

@@ -290,6 +290,12 @@ namespace file_browser
         {"All files (*.*)", {}}
     };
 
+    std::vector<ExtensionFilter> diskFilters =
+    {
+        {"Disk files (*.trd, *.scl)", {".trd", ".scl"}},
+        {"All files (*.*)", {}}
+    };
+
     void open(std::vector<ExtensionFilter> filter, std::function<void(const std::string&)> callBack)
     {
         load();

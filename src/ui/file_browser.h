@@ -12,6 +12,7 @@ namespace file_browser
     };
 
     extern std::vector<ExtensionFilter> tapeFilters;
+    extern std::vector<ExtensionFilter> diskFilters;
 
     void open(std::vector<ExtensionFilter> filter, std::function<void(const std::string&)> callBack);
     void render();

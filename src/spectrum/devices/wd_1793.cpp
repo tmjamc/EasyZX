@@ -1671,7 +1671,7 @@ namespace wd_1793
         }
     }
 
-    bool insertDisk(uint8_t unit, std::string fileName)
+    bool insertDisk(uint8_t unit, const std::string &fileName)
     {
         ejectDisk(unit);
 
