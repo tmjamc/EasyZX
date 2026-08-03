@@ -572,9 +572,12 @@ namespace tape
 
         bool setBlockPulses()
         {
-            bool result = false;
-
             pulses.clear();
+
+            if (blocks.empty())
+            {
+                return false;
+            }
 
             // Check for stop block
             if (blocks[blockIndex].type == 0x2a)

@@ -394,6 +394,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
     LocalFree(argv);
 
     paths::init();
+
     settings::load();
 
     // Initialize main window, OpenGL, etc.
@@ -407,12 +408,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
     win_app::cleanUp();
 
     settings::save();
-
-    // if (win_app::consoleEnabled)
-    // {
-    //     win_app::info("Press <Enter> to close this window...");
-    //     std::cin.get();
-    // }
 
     return 0;
 }

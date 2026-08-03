@@ -36,12 +36,9 @@ namespace paths
 
     void init()
     {
-        std::filesystem::path applicationFolderPath = std::filesystem::path(paths::getFolder(FOLDERID_RoamingAppData)).append(APPLICATION_FOLDER_NAME);
-        std::filesystem::create_directories(applicationFolderPath);
-        settingsPath = applicationFolderPath;
-        settingsPath.append(SETTINGS_FILE_NAME);
-        fileBrowserPath = applicationFolderPath;
-        fileBrowserPath.append(FILE_BROWSER_FILE_NAME);
+        std::filesystem::create_directories(std::filesystem::path(paths::getFolder(FOLDERID_RoamingAppData)).append(APPLICATION_FOLDER_NAME));
+        settingsPath = std::filesystem::path(paths::getFolder(FOLDERID_RoamingAppData)).append(APPLICATION_FOLDER_NAME).append(SETTINGS_FILE_NAME);
+        fileBrowserPath = std::filesystem::path(paths::getFolder(FOLDERID_RoamingAppData)).append(APPLICATION_FOLDER_NAME).append(FILE_BROWSER_FILE_NAME);
     }
 
     std::string getFolder(REFKNOWNFOLDERID folderId)

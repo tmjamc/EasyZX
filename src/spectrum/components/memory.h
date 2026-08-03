@@ -12,6 +12,19 @@ namespace memory
     void reset();
     void cleanUp();
     void setPaging(uint8_t data);
-    uint8_t read(uint16_t addr);
-    void write(uint16_t addr, uint8_t data);
+
+    inline uint8_t read(uint16_t addr)
+    {
+        return banks[addr >> 14][addr & 0x3fff];
+    }
+
+    inline void write(uint16_t addr, uint8_t data)
+    {
+        if (addr < 0x4000)
+        {
+            return;
+        }
+
+        banks[addr >> 14][addr & 0x3fff] = data;
+    }
 }

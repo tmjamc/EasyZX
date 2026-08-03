@@ -22,13 +22,13 @@ namespace z80
         uint8_t* sz53p = nullptr;
         uint8_t* parity = nullptr;
 
-        uint8_t contendRead(uint16_t addr)
+        inline uint8_t contendRead(uint16_t addr)
         {
             CONTEND(addr, 3);
             return memory::read(addr);
         }
 
-        void contendWrite(uint16_t addr, uint8_t data)
+        inline void contendWrite(uint16_t addr, uint8_t data)
         {
             CONTEND(addr, 3);
             memory::write(addr, data);

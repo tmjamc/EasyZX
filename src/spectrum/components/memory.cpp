@@ -143,19 +143,4 @@ namespace memory
             pagingEnabled = false;
         }
     }
-
-    uint8_t read(uint16_t addr)
-    {
-        return banks[(addr & 0xc000) >> 14][addr & 0x3fff];
-    }
-
-    void write(uint16_t addr, uint8_t data)
-    {
-        if (addr < 0x4000)
-        {
-            return;
-        }
-
-        banks[(addr & 0xc000) >> 14][addr & 0x3fff] = data;
-    }
 }
