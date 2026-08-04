@@ -6,6 +6,7 @@
 #include "imgui.h"
 #include "imgui_impl_win32.h"
 #include "imgui_impl_opengl3.h"
+
 #include "win_app.h"
 #include "display.h"
 #include "paths.h"
@@ -13,51 +14,61 @@
 #include "main.h"
 #include "zx_theme.h"
 
-#define ERROR_RESULT(msg) \
-cleanUp();                \
-win_app::error(msg);      \
-return false
-
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 namespace win_app
 {
+    HWND hWnd = nullptr;
+    HDC hDC = nullptr;
+    HGLRC glCtx = nullptr;
+    bool running = false;
+
     namespace
     {
-        constexpr char WINDOW_CLASSNAME[] = "EasyZXClass";
-        constexpr char WINDOW_TITLE[] = "EasyZX";
-        
-        HINSTANCE hInst;
+        constexpr wchar_t WINDOW_CLASSNAME[] = L"EasyZXClass";
+        constexpr wchar_t WINDOW_TITLE[] = L"EasyZX";
+        constexpr int MIN_WINDOW_WIDTH = 400;
+        constexpr int MIN_WINDOW_HEIGHT = 260;
+
+        HINSTANCE hInst = nullptr;
         HGLRC tmpCtx = nullptr;
         bool consoleEnabled = false;
+        bool windowClassRegistered = false;
         ImGuiContext* imguiContext = nullptr;
 
-        LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+        LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
-            if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
+            if (imguiContext != nullptr && ImGui_ImplWin32_WndProcHandler(hwnd, message, wParam, lParam))
             {
-                return true;
+                return TRUE;
             }
 
             switch (message)
             {
-
             case WM_KEYDOWN:
-                main::keyStates[wParam & 0xff] = true;
-                break;
+            case WM_SYSKEYDOWN:
+            {
+                const auto vk = static_cast<unsigned int>(wParam & 0xffu);
+                main::keyStates[vk] = true;
+                return 0;
+            }
 
             case WM_KEYUP:
-                main::keyStates[wParam & 0xff] = false;
-                break;
+            case WM_SYSKEYUP:
+            {
+                const auto vk = static_cast<unsigned int>(wParam & 0xffu);
+                main::keyStates[vk] = false;
+                return 0;
+            }
 
             case WM_DESTROY:
             {
-                WINDOWPLACEMENT wp = {};
-                wp.length = sizeof(WINDOWPLACEMENT);
-                if (GetWindowPlacement(hWnd, &wp))
+                WINDOWPLACEMENT wp{};
+                wp.length = sizeof(wp);
+                if (GetWindowPlacement(hwnd, &wp))
                 {
                     settings::current.windowMainStatus = wp.showCmd;
-                    if (settings::current.windowMainStatus == SW_SHOWNORMAL)
+                    if (wp.showCmd == SW_SHOWNORMAL)
                     {
                         settings::current.windowMainLeft = wp.rcNormalPosition.left;
                         settings::current.windowMainTop = wp.rcNormalPosition.top;
@@ -66,47 +77,52 @@ namespace win_app
                     }
                 }
                 PostQuitMessage(0);
-                break;
+                return 0;
             }
 
             case WM_GETMINMAXINFO:
             {
-                MINMAXINFO* mmi = (MINMAXINFO*)lParam;
-                mmi->ptMinTrackSize.x = 400;
-                mmi->ptMinTrackSize.y = 260;
-                break;
+                auto* mmi = reinterpret_cast<MINMAXINFO*>(lParam);
+                mmi->ptMinTrackSize.x = MIN_WINDOW_WIDTH;
+                mmi->ptMinTrackSize.y = MIN_WINDOW_HEIGHT;
+                return 0;
             }
 
             case WM_SIZE:
-                display::setViewport(LOWORD(lParam), HIWORD(lParam));
-                [[fallthrough]];
+                if (wParam != SIZE_MINIMIZED)
+                {
+                    display::setViewport(LOWORD(lParam), HIWORD(lParam));
+                }
+                return 0;
 
             default:
-                return DefWindowProc(hWnd, message, wParam, lParam);
-
+                return DefWindowProc(hwnd, message, wParam, lParam);
             }
-
-            return 0;
         }
 
         bool registerClass()
         {
             info("Registering main window class");
 
-            WNDCLASSEXA wcex{};
-            wcex.cbSize = sizeof(WNDCLASSEXA);
-            wcex.style = CS_HREDRAW | CS_VREDRAW;
+            WNDCLASSEXW wcex{};
+            wcex.cbSize = sizeof(wcex);
+            wcex.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
             wcex.lpfnWndProc = WndProc;
             wcex.hInstance = hInst;
             wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
             wcex.lpszClassName = WINDOW_CLASSNAME;
 
-            if (RegisterClassExA(&wcex) == FALSE)
+            if (RegisterClassExW(&wcex) == 0)
             {
-                error("Failed to create window class");
-                return false;
+                const DWORD err = GetLastError();
+                if (err != ERROR_CLASS_ALREADY_EXISTS)
+                {
+                    error("Failed to create window class");
+                    return false;
+                }
             }
 
+            windowClassRegistered = true;
             return true;
         }
 
@@ -114,9 +130,20 @@ namespace win_app
         {
             info("Creating main window instance");
 
-            hWnd = CreateWindowA(WINDOW_CLASSNAME, WINDOW_TITLE, WS_OVERLAPPEDWINDOW, settings::current.windowMainLeft, settings::current.windowMainTop, settings::current.windowMainWidth, settings::current.windowMainHeight, nullptr, nullptr, hInst, nullptr);
+            hWnd = CreateWindowW(
+                WINDOW_CLASSNAME,
+                WINDOW_TITLE,
+                WS_OVERLAPPEDWINDOW,
+                settings::current.windowMainLeft,
+                settings::current.windowMainTop,
+                settings::current.windowMainWidth,
+                settings::current.windowMainHeight,
+                nullptr,
+                nullptr,
+                hInst,
+                nullptr);
 
-            if (!hWnd)
+            if (hWnd == nullptr)
             {
                 error("Failed to create window instance");
                 return false;
@@ -125,14 +152,16 @@ namespace win_app
             return true;
         }
 
-        void cleanUp()
+        void cleanUp() noexcept
         {
             info("Cleaning up application");
 
             if (imguiContext != nullptr)
             {
-                ImGui::DestroyContext();
+                ImGui::SetCurrentContext(imguiContext);
                 ImGui::ZXThemeCleanUp();
+                ImGui::DestroyContext(imguiContext);
+                imguiContext = nullptr;
             }
 
             if (hDC != nullptr)
@@ -140,139 +169,179 @@ namespace win_app
                 wglMakeCurrent(hDC, nullptr);
             }
 
-            if (tmpCtx != nullptr)
-            {
-                wglDeleteContext(tmpCtx);
-            }
-
             if (glCtx != nullptr)
             {
                 wglDeleteContext(glCtx);
+                glCtx = nullptr;
             }
 
-            if (hDC != nullptr)
+            if (tmpCtx != nullptr)
+            {
+                wglDeleteContext(tmpCtx);
+                tmpCtx = nullptr;
+            }
+
+            if (hWnd != nullptr && hDC != nullptr)
             {
                 ReleaseDC(hWnd, hDC);
+                hDC = nullptr;
             }
 
             if (hWnd != nullptr)
             {
                 DestroyWindow(hWnd);
+                hWnd = nullptr;
             }
+
+            if (windowClassRegistered && hInst != nullptr)
+            {
+                UnregisterClassW(WINDOW_CLASSNAME, hInst);
+                windowClassRegistered = false;
+            }
+        }
+
+        bool fail(const char* msg)
+        {
+            error(msg);
+            cleanUp();
+            return false;
         }
 
         bool initOpenGL()
         {
             info("Initializing OpenGL");
 
-            // Get device context
             hDC = GetDC(hWnd);
             if (hDC == nullptr)
             {
-                ERROR_RESULT("Failed to get window's device context");
+                return fail("Failed to get window device context");
             }
 
-            // Set the pixel format
             PIXELFORMATDESCRIPTOR pfd{};
             pfd.nSize = sizeof(pfd);
-            pfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
+            pfd.nVersion = 1;
             pfd.dwFlags = PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW | PFD_DOUBLEBUFFER;
             pfd.iPixelType = PFD_TYPE_RGBA;
             pfd.cColorBits = 32;
+            pfd.cDepthBits = 24;
+            pfd.cStencilBits = 8;
             pfd.iLayerType = PFD_MAIN_PLANE;
 
-            int format = ChoosePixelFormat(hDC, &pfd);
+            const int format = ChoosePixelFormat(hDC, &pfd);
             if (format == 0 || SetPixelFormat(hDC, format, &pfd) == FALSE)
             {
-                ERROR_RESULT("Failed to set pixel format");
+                return fail("Failed to set pixel format");
             }
 
-            // Create and enable a temporary OpenGL context to load WGL extensions
             tmpCtx = wglCreateContext(hDC);
             if (tmpCtx == nullptr)
             {
-                ERROR_RESULT("Failed to create temporary OpenGL context");
+                return fail("Failed to create temporary OpenGL context");
             }
 
-            wglMakeCurrent(hDC, tmpCtx);
+            if (wglMakeCurrent(hDC, tmpCtx) == FALSE)
+            {
+                return fail("Failed to activate temporary OpenGL context");
+            }
 
-            // Load WGL Extensions
-            gladLoaderLoadWGL(hDC);
+            if (!gladLoaderLoadWGL(hDC) || wglCreateContextAttribsARB == nullptr)
+            {
+                return fail("Failed to load required WGL extensions");
+            }
 
-            // Set the desired OpenGL version
-            int attributes[] =
+            const int attributes[] =
             {
                 WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
                 WGL_CONTEXT_MINOR_VERSION_ARB, 3,
-                WGL_CONTEXT_FLAGS_ARB,
-                WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
+                WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
                 0
             };
 
-            // Create OpenGL context and delete the temporary one
             glCtx = wglCreateContextAttribsARB(hDC, nullptr, attributes);
             if (glCtx == nullptr)
             {
-                ERROR_RESULT("Failed to create OpenGL context");
+                return fail("Failed to create OpenGL 3.3 context");
             }
 
             wglMakeCurrent(hDC, nullptr);
             wglDeleteContext(tmpCtx);
+            tmpCtx = nullptr;
 
-            // Set OpenGL context
-            wglMakeCurrent(hDC, glCtx);
-
-            // Glad loader
-            if (!gladLoaderLoadGL())
+            if (wglMakeCurrent(hDC, glCtx) == FALSE)
             {
-                ERROR_RESULT("Glad loader failed");
+                return fail("Failed to activate OpenGL context");
             }
 
-            // Unbind the OpenGL context for now, it will be re-bound when the rendering thread starts
-            wglMakeCurrent(hDC, nullptr);
+            if (!gladLoaderLoadGL())
+            {
+                return fail("GLAD loader failed");
+            }
 
+            wglMakeCurrent(hDC, nullptr);
             return true;
         }
-    
+
         void initImGui()
         {
-            // Setup Dear ImGui context
             IMGUI_CHECKVERSION();
             imguiContext = ImGui::CreateContext();
+            ImGui::SetCurrentContext(imguiContext);
+
             ImGuiIO& io = ImGui::GetIO();
-            // (void)io;
             io.ConfigFlags &= ~ImGuiConfigFlags_NavEnableGamepad;
             io.ConfigFlags &= ~ImGuiConfigFlags_NavEnableKeyboard;
             io.IniFilename = nullptr;
-            // io.MouseDrawCursor = true;
 
             ImGui::ZXTheme();
         }
-    }
 
-    HWND hWnd = nullptr;
-    HDC hDC = nullptr;
-    HGLRC glCtx = nullptr;
-    bool running = false;
+        bool enableConsole()
+        {
+            if (consoleEnabled)
+            {
+                return true;
+            }
+
+            if (!AllocConsole())
+            {
+                return false;
+            }
+
+            FILE* dummyFile = nullptr;
+            if (freopen_s(&dummyFile, "CONIN$", "r", stdin) != 0 ||
+                freopen_s(&dummyFile, "CONOUT$", "w", stdout) != 0 ||
+                freopen_s(&dummyFile, "CONOUT$", "w", stderr) != 0)
+            {
+                FreeConsole();
+                return false;
+            }
+
+            setvbuf(stdin, nullptr, _IONBF, 0);
+            setvbuf(stdout, nullptr, _IONBF, 0);
+            setvbuf(stderr, nullptr, _IONBF, 0);
+
+            std::ios::sync_with_stdio(true);
+            std::cin.clear();
+            std::cout.clear();
+            std::cerr.clear();
+            std::wcin.clear();
+            std::wcout.clear();
+            std::wcerr.clear();
+
+            consoleEnabled = true;
+            info("EasyZX log console");
+            return true;
+        }
+    }
 
     bool init(HINSTANCE hInstance)
     {
         info("Initializing application");
-
         hInst = hInstance;
 
-        if (!registerClass())
+        if (!registerClass() || !initInstance() || !initOpenGL())
         {
-            return false;
-        }
-
-        if (!initInstance())
-        {
-            return false;
-        }
-
-        if (!initOpenGL())
-        {
+            cleanUp();
             return false;
         }
 
@@ -280,11 +349,7 @@ namespace win_app
 
         info("Showing main window");
         ShowWindow(hWnd, settings::current.windowMainStatus);
-
-        if (UpdateWindow(hWnd) == FALSE)
-        {
-            return false;
-        }
+        UpdateWindow(hWnd);
 
         return true;
     }
@@ -294,15 +359,22 @@ namespace win_app
         running = true;
         main::start();
 
-        MSG msg;
-        while (GetMessage(&msg, nullptr, 0, 0))
+        MSG msg{};
+        while (true)
         {
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
-            if (msg.message == WM_QUIT)
+            const BOOL result = GetMessage(&msg, nullptr, 0, 0);
+            if (result > 0)
             {
-                break;
+                TranslateMessage(&msg);
+                DispatchMessage(&msg);
+                continue;
             }
+
+            if (result == -1)
+            {
+                error("Message loop failed");
+            }
+            break;
         }
 
         running = false;
@@ -311,102 +383,55 @@ namespace win_app
 
     void info(const char* msg)
     {
-        if (!consoleEnabled)
+        if (consoleEnabled)
         {
-            return;
+            std::cout << msg << std::endl;
         }
-
-        std::cout << msg << std::endl;
     }
 
     void error(const char* msg)
     {
-        if (!consoleEnabled)
+        if (consoleEnabled)
         {
-            return;
+            std::cerr << msg << std::endl;
         }
-
-        std::cerr << msg << std::endl;
     }
 }
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
 {
-    // Parse for parameters
-    int argc;
-    LPWSTR *argv = CommandLineToArgvW(GetCommandLineW(), &argc);
+    UNREFERENCED_PARAMETER(hPrevInstance);
+    UNREFERENCED_PARAMETER(lpCmdLine);
+    UNREFERENCED_PARAMETER(nCmdShow);
 
+    int argc = 0;
+    LPWSTR* argv = CommandLineToArgvW(GetCommandLineW(), &argc);
     if (argv == nullptr)
     {
         return -1;
     }
 
-    // Check for parameters
     for (int i = 0; i < argc; ++i)
     {
-        if (wcscmp(argv[i], L"--console") == 0)
+        if (wcscmp(argv[i], L"--console") == 0 && !win_app::enableConsole())
         {
-            if (!AllocConsole())
-            {
-                return -1;
-            }
-
-            FILE* dummyFile;
-
-            // Redirect stdin to console input
-            if (freopen_s(&dummyFile, "CONIN$", "r", stdin) != 0)
-            {
-                return -1;
-            }
-            setvbuf(stdin, nullptr, _IONBF, 0);
-
-            // Redirect stdout to console output
-            if (freopen_s(&dummyFile, "CONOUT$", "w", stdout) != 0)
-            {
-                return -1;
-            }
-            setvbuf(stdout, nullptr, _IONBF, 0);
-
-            // Redirect stderr to console output
-            if (freopen_s(&dummyFile, "CONOUT$", "w", stderr) != 0)
-            {
-                return -1;
-            }
-            setvbuf(stderr, nullptr, _IONBF, 0);
-
-            // Synchronize C++ standard streams with C streams
-            std::ios::sync_with_stdio(true);
-
-            // Clear error states for C++ streams (required after re-opening)
-            std::cout.clear();
-            std::cerr.clear();
-            std::wcout.clear();
-            std::wcerr.clear();
-            std::cin.clear();
-            std::wcin.clear();
-
-            win_app::consoleEnabled = true;
-            win_app::info("EasyZX log console");
+            LocalFree(argv);
+            return -1;
         }
     }
 
-    // Free the memory allocated by CommandLineToArgvW
     LocalFree(argv);
 
     paths::init();
-
     settings::load();
 
-    // Initialize main window, OpenGL, etc.
     if (!win_app::init(hInstance))
     {
         return -1;
     }
 
     win_app::run();
-
     win_app::cleanUp();
-
     settings::save();
 
     return 0;

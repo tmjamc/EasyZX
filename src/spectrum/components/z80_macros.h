@@ -108,12 +108,12 @@
     MP = PC
 
 #define POPW(rl, rh)     \
-    rl = contendRead(SP++); \
-    rh = contendRead(SP++)
+    rl = memoryRead(SP++); \
+    rh = memoryRead(SP++)
 
 #define PUSHW(rl, rh)   \
-    contendWrite(--SP, rh); \
-    contendWrite(--SP, rl)
+    memoryWrite(--SP, rh); \
+    memoryWrite(--SP, rl)
 
 #define CALL()                   \
     CONTEND_READ_NO_MREQ(PC, 1); \
@@ -212,7 +212,7 @@
 
 #define JR()                         \
     {                                \
-        int8_t temp = contendRead(PC);  \
+        int8_t temp = memoryRead(PC);  \
         CONTEND_READ_NO_MREQ(PC, 1); \
         CONTEND_READ_NO_MREQ(PC, 1); \
         CONTEND_READ_NO_MREQ(PC, 1); \
@@ -226,21 +226,21 @@
 #define LDW_NNRR(rl, rh)             \
     {                                \
         uint16_t temp;               \
-        temp = contendRead(PC++);       \
-        temp |= contendRead(PC++) << 8; \
-        contendWrite(temp++, rl);        \
+        temp = memoryRead(PC++);       \
+        temp |= memoryRead(PC++) << 8; \
+        memoryWrite(temp++, rl);        \
         MP = temp;                   \
-        contendWrite(temp, rh);          \
+        memoryWrite(temp, rh);          \
     }
 
 #define LDW_RRNN(rl, rh)             \
     {                                \
         uint16_t temp;               \
-        temp = contendRead(PC++);       \
-        temp |= contendRead(PC++) << 8; \
-        rl = contendRead(temp++);       \
+        temp = memoryRead(PC++);       \
+        temp |= memoryRead(PC++) << 8; \
+        rl = memoryRead(temp++);       \
         MP = temp;                   \
-        rh = contendRead(temp);         \
+        rh = memoryRead(temp);         \
     }
 
 #define RLC(r)                    \
