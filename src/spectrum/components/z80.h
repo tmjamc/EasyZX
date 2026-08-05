@@ -31,7 +31,6 @@ namespace z80
     extern Z80Registers registers;
 
     void reset();
-    void init();
     void cleanUp();
     void executeInstruction();
     bool requestInterrupt();

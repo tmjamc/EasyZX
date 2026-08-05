@@ -74,7 +74,7 @@ namespace z80
         void _0x15() /* DEC D        */ { DEC(D); };
         void _0x16() /* LD D,nn      */ { D = memoryRead(PC++); };
         void _0x17() /* RLA          */ { uint8_t v = A; A = (A << 1) | (F & FLAG_C); F = (F & (FLAG_P | FLAG_Z | FLAG_S)) | (A & (FLAG_3 | FLAG_5)) | (v >> 7); Q = F; };
-        void _0x18() /* JR offset    */ { JR(); };
+        void _0x18() /* JR offset    */ JR();
         void _0x19() /* ADD HL,DE    */ { REP_7(CONTEND_READ_NO_MREQ(IR, 1)); ADDW(HL, DE); };
         void _0x1a() /* LD A,(DE)    */ { MP = DE + 1; A = memoryRead(DE); };
         void _0x1b() /* DEC DE       */ { REP_2(CONTEND_READ_NO_MREQ(IR, 1)); --DE; };
@@ -84,7 +84,7 @@ namespace z80
         void _0x1f() /* RRA          */ { uint8_t v = A; A = (A >> 1) | (F << 7); F = (F & (FLAG_P | FLAG_Z | FLAG_S)) | (A & (FLAG_3 | FLAG_5)) | (v & FLAG_C); Q = F; };
         void _0x20() /* JR NZ,offset */ { if (!(F & FLAG_Z)) { JR(); } else { CONTEND(PC, 3); ++PC; } };
         void _0x21() /* LD HL,nnnn   */ { L = memoryRead(PC++); H = memoryRead(PC++); };
-        void _0x22() /* LD (nnnn),HL */ { LDW_NNRR(L, H); };
+        void _0x22() /* LD (nnnn),HL */ LDW_NNRR(L, H);
         void _0x23() /* INC HL       */ { REP_2(CONTEND_READ_NO_MREQ(IR, 1)); ++HL; };
         void _0x24() /* INC H        */ { INC(H); };
         void _0x25() /* DEC H        */ { DEC(H); };
@@ -92,7 +92,7 @@ namespace z80
         void _0x27() /* DAA          */ { uint8_t a = 0, c = (F & FLAG_C); if ((F & FLAG_H) || ((A & 0x0f) > 9)) a = 6; if (c || (A > 0x99)) a |= 0x60; if (A > 0x99) c = FLAG_C; if (F & FLAG_N) { SUB(a); } else { ADD(a); } F = (F & ~(FLAG_C | FLAG_P)) | c | parity[A]; Q = F; };
         void _0x28() /* JR Z,offset  */ { if (F & FLAG_Z) { JR(); } else { CONTEND(PC, 3); ++PC; } };
         void _0x29() /* ADD HL,HL    */ { REP_7(CONTEND_READ_NO_MREQ(IR, 1)); ADDW(HL, HL); };
-        void _0x2a() /* LD HL,(nnnn) */ { LDW_RRNN(L, H); };
+        void _0x2a() /* LD HL,(nnnn) */ LDW_RRNN(L, H);
         void _0x2b() /* DEC HL       */ { REP_2(CONTEND_READ_NO_MREQ(IR, 1)); --HL; };
         void _0x2c() /* INC L        */ { INC(L); };
         void _0x2d() /* DEC L        */ { DEC(L); };
@@ -171,38 +171,38 @@ namespace z80
         void _0x7c() /* LD A,H       */ { A = H; };
         void _0x7d() /* LD A,L       */ { A = L; };
         void _0x7e() /* LD A,(HL)    */ { A = memoryRead(HL); };
-        void _0x80() /* ADD A,B      */ { ADD(B); };
-        void _0x81() /* ADD A,C      */ { ADD(C); };
-        void _0x82() /* ADD A,D      */ { ADD(D); };
-        void _0x83() /* ADD A,E      */ { ADD(E); };
-        void _0x84() /* ADD A,H      */ { ADD(H); };
-        void _0x85() /* ADD A,L      */ { ADD(L); };
+        void _0x80() /* ADD A,B      */ ADD(B);
+        void _0x81() /* ADD A,C      */ ADD(C);
+        void _0x82() /* ADD A,D      */ ADD(D);
+        void _0x83() /* ADD A,E      */ ADD(E);
+        void _0x84() /* ADD A,H      */ ADD(H);
+        void _0x85() /* ADD A,L      */ ADD(L);
         void _0x86() /* ADD A,(HL)   */ { uint8_t v = memoryRead(HL); ADD(v); };
-        void _0x87() /* ADD A,A      */ { ADD(A); };
-        void _0x88() /* ADC A,B      */ { ADC(B); };
-        void _0x89() /* ADC A,C      */ { ADC(C); };
-        void _0x8a() /* ADC A,D      */ { ADC(D); };
-        void _0x8b() /* ADC A,E      */ { ADC(E); };
-        void _0x8c() /* ADC A,H      */ { ADC(H); };
-        void _0x8d() /* ADC A,L      */ { ADC(L); };
+        void _0x87() /* ADD A,A      */ ADD(A);
+        void _0x88() /* ADC A,B      */ ADC(B);
+        void _0x89() /* ADC A,C      */ ADC(C);
+        void _0x8a() /* ADC A,D      */ ADC(D);
+        void _0x8b() /* ADC A,E      */ ADC(E);
+        void _0x8c() /* ADC A,H      */ ADC(H);
+        void _0x8d() /* ADC A,L      */ ADC(L);
         void _0x8e() /* ADC A,(HL)   */ { uint8_t v = memoryRead(HL); ADC(v); };
-        void _0x8f() /* ADC A,A      */ { ADC(A); };
-        void _0x90() /* SUB A,B      */ { SUB(B); };
-        void _0x91() /* SUB A,C      */ { SUB(C); };
-        void _0x92() /* SUB A,D      */ { SUB(D); };
-        void _0x93() /* SUB A,E      */ { SUB(E); };
-        void _0x94() /* SUB A,H      */ { SUB(H); };
-        void _0x95() /* SUB A,L      */ { SUB(L); };
+        void _0x8f() /* ADC A,A      */ ADC(A);
+        void _0x90() /* SUB A,B      */ SUB(B);
+        void _0x91() /* SUB A,C      */ SUB(C);
+        void _0x92() /* SUB A,D      */ SUB(D);
+        void _0x93() /* SUB A,E      */ SUB(E);
+        void _0x94() /* SUB A,H      */ SUB(H);
+        void _0x95() /* SUB A,L      */ SUB(L);
         void _0x96() /* SUB A,(HL)   */ { uint8_t v = memoryRead(HL); SUB(v); };
-        void _0x97() /* SUB A,A      */ { SUB(A); };
-        void _0x98() /* SBC A,B      */ { SBC(B); };
-        void _0x99() /* SBC A,C      */ { SBC(C); };
-        void _0x9a() /* SBC A,D      */ { SBC(D); };
-        void _0x9b() /* SBC A,E      */ { SBC(E); };
-        void _0x9c() /* SBC A,H      */ { SBC(H); };
-        void _0x9d() /* SBC A,L      */ { SBC(L); };
+        void _0x97() /* SUB A,A      */ SUB(A);
+        void _0x98() /* SBC A,B      */ SBC(B);
+        void _0x99() /* SBC A,C      */ SBC(C);
+        void _0x9a() /* SBC A,D      */ SBC(D);
+        void _0x9b() /* SBC A,E      */ SBC(E);
+        void _0x9c() /* SBC A,H      */ SBC(H);
+        void _0x9d() /* SBC A,L      */ SBC(L);
         void _0x9e() /* SBC A,(HL)   */ { uint8_t v = memoryRead(HL); SBC(v); };
-        void _0x9f() /* SBC A,A      */ { SBC(A); };
+        void _0x9f() /* SBC A,A      */ SBC(A);
         void _0xa0() /* AND A,B      */ { AND(B); };
         void _0xa1() /* AND A,C      */ { AND(C); };
         void _0xa2() /* AND A,D      */ { AND(D); };
@@ -227,14 +227,14 @@ namespace z80
         void _0xb5() /* OR A,L       */ { OR(L); };
         void _0xb6() /* OR A,(HL)    */ { uint8_t v = memoryRead(HL); OR(v); };
         void _0xb7() /* OR A,A       */ { OR(A); };
-        void _0xb8() /* CP B         */ { CP(B); };
-        void _0xb9() /* CP C         */ { CP(C); };
-        void _0xba() /* CP D         */ { CP(D); };
-        void _0xbb() /* CP E         */ { CP(E); };
-        void _0xbc() /* CP H         */ { CP(H); };
-        void _0xbd() /* CP L         */ { CP(L); };
+        void _0xb8() /* CP B         */ CP(B);
+        void _0xb9() /* CP C         */ CP(C);
+        void _0xba() /* CP D         */ CP(D);
+        void _0xbb() /* CP E         */ CP(E);
+        void _0xbc() /* CP H         */ CP(H);
+        void _0xbd() /* CP L         */ CP(L);
         void _0xbe() /* CP (HL)      */ { uint8_t v = memoryRead(HL); CP(v); };
-        void _0xbf() /* CP A         */ { CP(A); };
+        void _0xbf() /* CP A         */ CP(A);
         void _0xc0() /* RET NZ       */ { CONTEND_READ_NO_MREQ(IR, 1); if (!(F & FLAG_Z)) { RET(); } };
         void _0xc1() /* POP BC       */ { POPW(C, B); };
         void _0xc2() /* JP NZ,nnnn   */ { MPL = memoryRead(PC++); MPH = memoryRead(PC); if (!(F & FLAG_Z)) { JP(); } else { ++PC; } };
@@ -316,22 +316,22 @@ namespace z80
         void _0xcb0d() /* RRC L      */ { RRC(L); };
         void _0xcb0e() /* RRC (HL)   */ { uint8_t t = memoryRead(HL); CONTEND_READ_NO_MREQ(HL, 1); RRC(t); memoryWrite(HL, t); };
         void _0xcb0f() /* RRC A      */ { RRC(A); };
-        void _0xcb10() /* RL B       */ { RL(B); };
-        void _0xcb11() /* RL C       */ { RL(C); };
-        void _0xcb12() /* RL D       */ { RL(D); };
-        void _0xcb13() /* RL E       */ { RL(E); };
-        void _0xcb14() /* RL H       */ { RL(H); };
-        void _0xcb15() /* RL L       */ { RL(L); };
+        void _0xcb10() /* RL B       */ RL(B);
+        void _0xcb11() /* RL C       */ RL(C);
+        void _0xcb12() /* RL D       */ RL(D);
+        void _0xcb13() /* RL E       */ RL(E);
+        void _0xcb14() /* RL H       */ RL(H);
+        void _0xcb15() /* RL L       */ RL(L);
         void _0xcb16() /* RL (HL)    */ { uint8_t t = memoryRead(HL); CONTEND_READ_NO_MREQ(HL, 1); RL(t); memoryWrite(HL, t); };
-        void _0xcb17() /* RL A       */ { RL(A); };
-        void _0xcb18() /* RR B       */ { RR(B); };
-        void _0xcb19() /* RR C       */ { RR(C); };
-        void _0xcb1a() /* RR D       */ { RR(D); };
-        void _0xcb1b() /* RR E       */ { RR(E); };
-        void _0xcb1c() /* RR H       */ { RR(H); };
-        void _0xcb1d() /* RR L       */ { RR(L); };
+        void _0xcb17() /* RL A       */ RL(A);
+        void _0xcb18() /* RR B       */ RR(B);
+        void _0xcb19() /* RR C       */ RR(C);
+        void _0xcb1a() /* RR D       */ RR(D);
+        void _0xcb1b() /* RR E       */ RR(E);
+        void _0xcb1c() /* RR H       */ RR(H);
+        void _0xcb1d() /* RR L       */ RR(L);
         void _0xcb1e() /* RR (HL)    */ { uint8_t t = memoryRead(HL); CONTEND_READ_NO_MREQ(HL, 1); RR(t); memoryWrite(HL, t); };
-        void _0xcb1f() /* RR A       */ { RR(A); };
+        void _0xcb1f() /* RR A       */ RR(A);
         void _0xcb20() /* SLA B      */ { SLA(B); };
         void _0xcb21() /* SLA C      */ { SLA(C); };
         void _0xcb22() /* SLA D      */ { SLA(D); };
@@ -562,13 +562,13 @@ namespace z80
         void _0xdd09() /* ADD IX,BC     */ { REP_7(CONTEND_READ_NO_MREQ(IR, 1)); ADDW(IX, BC); };
         void _0xdd19() /* ADD IX,DE     */ { REP_7(CONTEND_READ_NO_MREQ(IR, 1)); ADDW(IX, DE); };
         void _0xdd21() /* LD IX,nnnn    */ { IXL = memoryRead(PC++); IXH = memoryRead(PC++); };
-        void _0xdd22() /* LD (nnnn),IX  */ { LDW_NNRR(IXL, IXH); };
+        void _0xdd22() /* LD (nnnn),IX  */ LDW_NNRR(IXL, IXH);
         void _0xdd23() /* INC IX        */ { REP_2(CONTEND_READ_NO_MREQ(IR, 1)); ++IX; };
         void _0xdd24() /* INC IXH       */ { INC(IXH); };
         void _0xdd25() /* DEC IXH       */ { DEC(IXH); };
         void _0xdd26() /* LD IXH,nn     */ { IXH = memoryRead(PC++); };
         void _0xdd29() /* ADD IX,IX     */ { REP_7(CONTEND_READ_NO_MREQ(IR, 1)); ADDW(IX, IX); };
-        void _0xdd2a() /* LD IX,(nnnn)  */ { LDW_RRNN(IXL, IXH); };
+        void _0xdd2a() /* LD IX,(nnnn)  */ LDW_RRNN(IXL, IXH);
         void _0xdd2b() /* DEC IX        */ { REP_2(CONTEND_READ_NO_MREQ(IR, 1)); --IX;  };
         void _0xdd2c() /* INC IXL       */ { INC(IXL); };
         void _0xdd2d() /* DEC IXL       */ { DEC(IXL); };
@@ -593,7 +593,6 @@ namespace z80
         void _0xdd61() /* LD IXH,C      */ { IXH = C; };
         void _0xdd62() /* LD IXH,D      */ { IXH = D; };
         void _0xdd63() /* LD IXH,E      */ { IXH = E; };
-        void _0xdd64() /* LD IXH,IXH    */ { };
         void _0xdd65() /* LD IXH,IXL    */ { IXH = IXL; };
         void _0xdd66() /* LD H,(IX+dd)  */ { uint8_t o = memoryRead(PC); REP_5(CONTEND_READ_NO_MREQ(PC, 1)); ++PC; MP = IX + (int8_t) o; H = memoryRead(MP); };
         void _0xdd67() /* LD IXH,A      */ { IXH = A; };
@@ -602,7 +601,6 @@ namespace z80
         void _0xdd6a() /* LD IXL,D      */ { IXL = D; };
         void _0xdd6b() /* LD IXL,E      */ { IXL = E; };
         void _0xdd6c() /* LD IXL,IXH    */ { IXL = IXH; };
-        void _0xdd6d() /* LD IXL,IXL    */ { };
         void _0xdd6e() /* LD L,(IX+dd)  */ { uint8_t o = memoryRead(PC); REP_5(CONTEND_READ_NO_MREQ(PC, 1)); ++PC; MP = IX + (int8_t) o; L = memoryRead(MP); };
         void _0xdd6f() /* LD IXL,A      */ { IXL = A; };
         void _0xdd70() /* LD (IX+dd),B  */ { uint8_t o = memoryRead(PC); REP_5(CONTEND_READ_NO_MREQ(PC, 1)); ++PC; MP = IX + (int8_t) o; memoryWrite(MP, B); };
@@ -615,17 +613,17 @@ namespace z80
         void _0xdd7c() /* LD A,IXH      */ { A = IXH; };
         void _0xdd7d() /* LD A,IXL      */ { A = IXL; };
         void _0xdd7e() /* LD A,(IX+dd)  */ { uint8_t o = memoryRead(PC); REP_5(CONTEND_READ_NO_MREQ(PC, 1)); ++PC; MP = IX + (int8_t) o; A = memoryRead(MP); };
-        void _0xdd84() /* ADD A,IXH     */ { ADD(IXH); };
-        void _0xdd85() /* ADD A,IXL     */ { ADD(IXL); };
+        void _0xdd84() /* ADD A,IXH     */ ADD(IXH);
+        void _0xdd85() /* ADD A,IXL     */ ADD(IXL);;
         void _0xdd86() /* ADD A,(IX+dd) */ { uint8_t o = memoryRead(PC); REP_5(CONTEND_READ_NO_MREQ(PC, 1)); ++PC; MP = IX + (int8_t) o; uint8_t v = memoryRead(MP); ADD(v); };
-        void _0xdd8c() /* ADC A,IXH     */ { ADC(IXH); };
-        void _0xdd8d() /* ADC A,IXL     */ { ADC(IXL); };
+        void _0xdd8c() /* ADC A,IXH     */ ADC(IXH);
+        void _0xdd8d() /* ADC A,IXL     */ ADC(IXL);
         void _0xdd8e() /* ADC A,(IX+dd) */ { uint8_t o = memoryRead(PC); REP_5(CONTEND_READ_NO_MREQ(PC, 1)); ++PC; MP = IX + (int8_t) o; uint8_t v = memoryRead(MP); ADC(v); };
-        void _0xdd94() /* SUB A,IXH     */ { SUB(IXH); };
-        void _0xdd95() /* SUB A,IXL     */ { SUB(IXL); };
+        void _0xdd94() /* SUB A,IXH     */ SUB(IXH);
+        void _0xdd95() /* SUB A,IXL     */ SUB(IXL);
         void _0xdd96() /* SUB A,(IX+dd) */ { uint8_t o = memoryRead(PC); REP_5(CONTEND_READ_NO_MREQ(PC, 1)); ++PC; MP = IX + (int8_t) o; uint8_t v = memoryRead(MP); SUB(v); };
-        void _0xdd9c() /* SBC A,IXH     */ { SBC(IXH); };
-        void _0xdd9d() /* SBC A,IXL     */ { SBC(IXL); };
+        void _0xdd9c() /* SBC A,IXH     */ SBC(IXH);
+        void _0xdd9d() /* SBC A,IXL     */ SBC(IXL);
         void _0xdd9e() /* SBC A,(IX+dd) */ { uint8_t o = memoryRead(PC); REP_5(CONTEND_READ_NO_MREQ(PC, 1)); ++PC; MP = IX + (int8_t) o; uint8_t v = memoryRead(MP); SBC(v); };
         void _0xdda4() /* AND A,IXH     */ { AND(IXH); };
         void _0xdda5() /* AND A,IXL     */ { AND(IXL); };
@@ -636,8 +634,8 @@ namespace z80
         void _0xddb4() /* OR A,IXH      */ { OR(IXH); };
         void _0xddb5() /* OR A,IXL      */ { OR(IXL); };
         void _0xddb6() /* OR A,(IX+dd)  */ { uint8_t o = memoryRead(PC); REP_5(CONTEND_READ_NO_MREQ(PC, 1)); ++PC; MP = IX + (int8_t) o; uint8_t v = memoryRead(MP); OR(v); };
-        void _0xddbc() /* CP A,IXH      */ { CP(IXH); };
-        void _0xddbd() /* CP A,IXL      */ { CP(IXL); };
+        void _0xddbc() /* CP A,IXH      */ CP(IXH);
+        void _0xddbd() /* CP A,IXL      */ CP(IXL);
         void _0xddbe() /* CP A,(IX+dd)  */ { uint8_t o = memoryRead(PC); REP_5(CONTEND_READ_NO_MREQ(PC, 1)); ++PC; MP = IX + (int8_t) o; uint8_t v = memoryRead(MP); CP(v); };
         void _0xddcb()                     { CONTEND(PC, 3); MP = IX + (int8_t) memory::read(PC); ++PC; CONTEND(PC, 3); opCodeXXCB = memory::read(PC); REP_2(CONTEND_READ_NO_MREQ(PC, 1)); ++PC; opCodesXXCB[opCodeXXCB](); };
         void _0xdde1() /* POP IX        */ { POPW(IXL, IXH); };
@@ -649,13 +647,13 @@ namespace z80
         void _0xfd09() /* ADD IY,BC     */ { REP_7(CONTEND_READ_NO_MREQ(IR, 1)); ADDW(IY, BC); };
         void _0xfd19() /* ADD IY,DE     */ { REP_7(CONTEND_READ_NO_MREQ(IR, 1)); ADDW(IY, DE); };
         void _0xfd21() /* LD IY,nnnn    */ { IYL = memoryRead(PC++); IYH = memoryRead(PC++); };
-        void _0xfd22() /* LD (nnnn),IY  */ { LDW_NNRR(IYL, IYH); };
+        void _0xfd22() /* LD (nnnn),IY  */ LDW_NNRR(IYL, IYH);
         void _0xfd23() /* INC IY        */ { REP_2(CONTEND_READ_NO_MREQ(IR, 1)); ++IY; };
         void _0xfd24() /* INC IYH       */ { INC(IYH); };
         void _0xfd25() /* DEC IYH       */ { DEC(IYH); };
         void _0xfd26() /* LD IYH,nn     */ { IYH = memoryRead(PC++); };
         void _0xfd29() /* ADD IY,IY     */ { REP_7(CONTEND_READ_NO_MREQ(IR, 1)); ADDW(IY, IY); };
-        void _0xfd2a() /* LD IY,(nnnn)  */ { LDW_RRNN(IYL, IYH); };
+        void _0xfd2a() /* LD IY,(nnnn)  */ LDW_RRNN(IYL, IYH);
         void _0xfd2b() /* DEC IY        */ { REP_2(CONTEND_READ_NO_MREQ(IR, 1)); --IY;  };
         void _0xfd2c() /* INC IYL       */ { INC(IYL); };
         void _0xfd2d() /* DEC IYL       */ { DEC(IYL); };
@@ -680,7 +678,6 @@ namespace z80
         void _0xfd61() /* LD IYH,C      */ { IYH = C; };
         void _0xfd62() /* LD IYH,D      */ { IYH = D; };
         void _0xfd63() /* LD IYH,E      */ { IYH = E; };
-        void _0xfd64() /* LD IYH,IYH    */ { };
         void _0xfd65() /* LD IYH,IYL    */ { IYH = IYL; };
         void _0xfd66() /* LD H,(IY+dd)  */ { uint8_t o = memoryRead(PC); REP_5(CONTEND_READ_NO_MREQ(PC, 1)); ++PC; MP = IY + (int8_t) o; H = memoryRead(MP); };
         void _0xfd67() /* LD IYH,A      */ { IYH = A; };
@@ -689,7 +686,6 @@ namespace z80
         void _0xfd6a() /* LD IYL,D      */ { IYL = D; };
         void _0xfd6b() /* LD IYL,E      */ { IYL = E; };
         void _0xfd6c() /* LD IYL,IYH    */ { IYL = IYH; };
-        void _0xfd6d() /* LD IYL,IYL    */ { };
         void _0xfd6e() /* LD L,(IY+dd)  */ { uint8_t o = memoryRead(PC); REP_5(CONTEND_READ_NO_MREQ(PC, 1)); ++PC; MP = IY + (int8_t) o; L = memoryRead(MP); };
         void _0xfd6f() /* LD IYL,A      */ { IYL = A; };
         void _0xfd70() /* LD (IY+dd),B  */ { uint8_t o = memoryRead(PC); REP_5(CONTEND_READ_NO_MREQ(PC, 1)); ++PC; MP = IY + (int8_t) o; memoryWrite(MP, B); };
@@ -702,17 +698,17 @@ namespace z80
         void _0xfd7c() /* LD A,IYH      */ { A = IYH; };
         void _0xfd7d() /* LD A,IYL      */ { A = IYL; };
         void _0xfd7e() /* LD A,(IY+dd)  */ { uint8_t o = memoryRead(PC); REP_5(CONTEND_READ_NO_MREQ(PC, 1)); ++PC; MP = IY + (int8_t) o; A = memoryRead(MP); };
-        void _0xfd84() /* ADD A,IYH     */ { ADD(IYH); };
-        void _0xfd85() /* ADD A,IYL     */ { ADD(IYL); };
+        void _0xfd84() /* ADD A,IYH     */ ADD(IYH);
+        void _0xfd85() /* ADD A,IYL     */ ADD(IYL);
         void _0xfd86() /* ADD A,(IY+dd) */ { uint8_t o = memoryRead(PC); REP_5(CONTEND_READ_NO_MREQ(PC, 1)); ++PC; MP = IY + (int8_t) o; uint8_t v = memoryRead(MP); ADD(v); };
-        void _0xfd8c() /* ADC A,IYH     */ { ADC(IYH); };
-        void _0xfd8d() /* ADC A,IYL     */ { ADC(IYL); };
+        void _0xfd8c() /* ADC A,IYH     */ ADC(IYH);
+        void _0xfd8d() /* ADC A,IYL     */ ADC(IYL);
         void _0xfd8e() /* ADC A,(IY+dd) */ { uint8_t o = memoryRead(PC); REP_5(CONTEND_READ_NO_MREQ(PC, 1)); ++PC; MP = IY + (int8_t) o; uint8_t v = memoryRead(MP); ADC(v); };
-        void _0xfd94() /* SUB A,IYH     */ { SUB(IYH); };
-        void _0xfd95() /* SUB A,IYL     */ { SUB(IYL); };
+        void _0xfd94() /* SUB A,IYH     */ SUB(IYH);
+        void _0xfd95() /* SUB A,IYL     */ SUB(IYL);
         void _0xfd96() /* SUB A,(IY+dd) */ { uint8_t o = memoryRead(PC); REP_5(CONTEND_READ_NO_MREQ(PC, 1)); ++PC; MP = IY + (int8_t) o; uint8_t v = memoryRead(MP); SUB(v); };
-        void _0xfd9c() /* SBC A,IYH     */ { SBC(IYH); };
-        void _0xfd9d() /* SBC A,IYL     */ { SBC(IYL); };
+        void _0xfd9c() /* SBC A,IYH     */ SBC(IYH);
+        void _0xfd9d() /* SBC A,IYL     */ SBC(IYL);
         void _0xfd9e() /* SBC A,(IY+dd) */ { uint8_t o = memoryRead(PC); REP_5(CONTEND_READ_NO_MREQ(PC, 1)); ++PC; MP = IY + (int8_t) o; uint8_t v = memoryRead(MP); SBC(v); };
         void _0xfda4() /* AND A,IYH     */ { AND(IYH); };
         void _0xfda5() /* AND A,IYL     */ { AND(IYL); };
@@ -723,8 +719,8 @@ namespace z80
         void _0xfdb4() /* OR A,IYH      */ { OR(IYH); };
         void _0xfdb5() /* OR A,IYL      */ { OR(IYL); };
         void _0xfdb6() /* OR A,(IY+dd)  */ { uint8_t o = memoryRead(PC); REP_5(CONTEND_READ_NO_MREQ(PC, 1)); ++PC; MP = IY + (int8_t) o; uint8_t v = memoryRead(MP); OR(v); };
-        void _0xfdbc() /* CP A,IYH      */ { CP(IYH); };
-        void _0xfdbd() /* CP A,IYL      */ { CP(IYL); };
+        void _0xfdbc() /* CP A,IYH      */ CP(IYH);
+        void _0xfdbd() /* CP A,IYL      */ CP(IYL);
         void _0xfdbe() /* CP A,(IY+dd)  */ { uint8_t o = memoryRead(PC); REP_5(CONTEND_READ_NO_MREQ(PC, 1)); ++PC; MP = IY + (int8_t) o; uint8_t v = memoryRead(MP); CP(v); };
         void _0xfdcb()                     { CONTEND(PC, 3); MP = IY + (int8_t) memory::read(PC); ++PC; CONTEND(PC, 3); opCodeXXCB = memory::read(PC); REP_2(CONTEND_READ_NO_MREQ(PC, 1)); ++PC; opCodesXXCB[opCodeXXCB](); };
         void _0xfde1() /* POP IY        */ { POPW(IYL, IYH); };
@@ -934,50 +930,49 @@ namespace z80
         void _0xxxcbfe() /* SET 7,(REG+dd)      */ { uint8_t t = memoryRead(MP); CONTEND_READ_NO_MREQ(MP, 1); memoryWrite(MP, t | 0x80); };
         void _0xxxcbff() /* LD A,SET 7,(REG+dd) */ { A = memoryRead(MP) | 0x80; CONTEND_READ_NO_MREQ(MP, 1); memoryWrite(MP, A); };
 
-        void _NOPED_() /* NOP ED       */ { };
-        void _0xed40() /* IN B,(C)     */ { Z80_IN(B, BC); };
-        void _0xed41() /* OUT (C),B    */ { io::write(BC, B); MP = BC + 1; };
-        void _0xed42() /* SBC HL,BC    */ { REP_7(CONTEND_READ_NO_MREQ(IR, 1)); SBCW(BC); };
-        void _0xed43() /* LD (nnnn),BC */ { LDW_NNRR(C,B); };
+        void _0xed40() /* IN B,(C)      */ Z80_IN(B, BC);
+        void _0xed41() /* OUT (C),B     */ { io::write(BC, B); MP = BC + 1; };
+        void _0xed42() /* SBC HL,BC     */ { REP_7(CONTEND_READ_NO_MREQ(IR, 1)); SBCW(BC); };
+        void _0xed43() /* LD (nnnn),BC  */ LDW_NNRR(C,B);
         void _0xed7c() /* NEG           */ { uint8_t v = A; A = 0; SUB(v); };
         void _0xed7d() /* RETN          */ { IFF1=IFF2; RET(); };
         void _0xed6e() /* IM 0          */ { IM = 0; };
         void _0xed47() /* LD I,A        */ { CONTEND_READ_NO_MREQ(IR, 1); I = A; };
-        void _0xed48() /* IN C,(C)      */ { Z80_IN(C, BC); };
+        void _0xed48() /* IN C,(C)      */ Z80_IN(C, BC);
         void _0xed49() /* OUT (C),C     */ { io::write(BC, C); MP = BC + 1; };
         void _0xed4a() /* ADC HL,BC     */ { REP_7(CONTEND_READ_NO_MREQ(IR, 1)); ADCW(BC); };
-        void _0xed4b() /* LD BC,(nnnn)  */ { LDW_RRNN(C, B); };
+        void _0xed4b() /* LD BC,(nnnn)  */ LDW_RRNN(C, B);
         void _0xed4f() /* LD R,A        */ { CONTEND_READ_NO_MREQ(IR, 1); R = R7 = A; };
-        void _0xed50() /* IN D,(C)      */ { Z80_IN( D, BC ); };
+        void _0xed50() /* IN D,(C)      */ Z80_IN( D, BC );
         void _0xed51() /* OUT (C),D     */ { io::write(BC, D); MP = BC + 1; };
         void _0xed52() /* SBC HL,DE     */ { REP_7(CONTEND_READ_NO_MREQ(IR, 1)); SBCW(DE); };
-        void _0xed53() /* LD (nnnn),DE  */ { LDW_NNRR(E, D); };
+        void _0xed53() /* LD (nnnn),DE  */ LDW_NNRR(E, D);
         void _0xed76() /* IM 1          */ { IM = 1; };
         void _0xed57() /* LD A,I        */ { CONTEND_READ_NO_MREQ(IR, 1); A = I; F = (F & FLAG_C) | sz53[A] | (IFF2 ? FLAG_V : 0); Q = F; iff2Read = true; };
-        void _0xed58() /* IN E,(C)      */ { Z80_IN(E, BC); };
+        void _0xed58() /* IN E,(C)      */ Z80_IN(E, BC);
         void _0xed59() /* OUT (C),E     */ { io::write(BC, E); MP = BC + 1; };
         void _0xed5a() /* ADC HL,DE     */ { REP_7(CONTEND_READ_NO_MREQ(IR, 1)); ADCW(DE); };
-        void _0xed5b() /* LD DE,(nnnn)  */ { LDW_RRNN(E, D); };
+        void _0xed5b() /* LD DE,(nnnn)  */ LDW_RRNN(E, D);
         void _0xed7e() /* IM 2          */ { IM = 2; };
         void _0xed5f() /* LD A,R        */ { CONTEND_READ_NO_MREQ(IR, 1); A = (R & 0x7f) | (R7 & 0x80); F = (F & FLAG_C) | sz53[A] | (IFF2 ? FLAG_V : 0); Q = F; iff2Read = true; };
-        void _0xed60() /* IN H,(C)      */ { Z80_IN(H, BC); };
+        void _0xed60() /* IN H,(C)      */ Z80_IN(H, BC);
         void _0xed61() /* OUT (C),H     */ { io::write(BC, H); MP = BC + 1; };
         void _0xed62() /* SBC HL,HL     */ { REP_7(CONTEND_READ_NO_MREQ(IR, 1)); SBCW(HL); };
-        void _0xed63() /* LD (nnnn),HL  */ { LDW_NNRR(L, H); };
+        void _0xed63() /* LD (nnnn),HL  */ LDW_NNRR(L, H);
         void _0xed67() /* RRD           */ { uint8_t v = memoryRead(HL); REP_4(CONTEND_READ_NO_MREQ(HL, 1)); memoryWrite(HL, (A << 4) | (v >> 4)); A = (A & 0xf0) | (v & 0x0f); F = (F & FLAG_C) | sz53p[A]; Q = F; MP = HL + 1; };
-        void _0xed68() /* IN L,(C)      */ { Z80_IN(L, BC); };
+        void _0xed68() /* IN L,(C)      */ Z80_IN(L, BC);
         void _0xed69() /* OUT (C),L     */ { io::write(BC, L); MP = BC + 1; };
         void _0xed6a() /* ADC HL,HL     */ { REP_7(CONTEND_READ_NO_MREQ(IR, 1)); ADCW(HL); };
-        void _0xed6b() /* LD HL,(nnnn)  */ { LDW_RRNN(L, H); };
+        void _0xed6b() /* LD HL,(nnnn)  */ LDW_RRNN(L, H);
         void _0xed6f() /* RLD           */ { uint8_t v = memoryRead(HL); REP_4(CONTEND_READ_NO_MREQ(HL, 1)); memoryWrite(HL, (v << 4) | (A & 0x0f)); A = (A & 0xf0) | (v >> 4 ); F = (F & FLAG_C) | sz53p[A]; Q = F; MP = HL + 1; };
-        void _0xed70() /* IN F,(C)      */ { Z80_IN(F, BC); };
+        void _0xed70() /* IN F,(C)      */ Z80_IN(F, BC);
         void _0xed71() /* OUT (C),0     */ { io::write(BC, IS_CMOS ? 0xff : 0); MP = BC + 1; };
         void _0xed72() /* SBC HL,SP     */ { REP_7(CONTEND_READ_NO_MREQ(IR, 1)); SBCW(SP); };
-        void _0xed73() /* LD (nnnn),SP  */ { LDW_NNRR(SPL, SPH); };
-        void _0xed78() /* IN A,(C)      */ { Z80_IN(A, BC); };
+        void _0xed73() /* LD (nnnn),SP  */ LDW_NNRR(SPL, SPH);
+        void _0xed78() /* IN A,(C)      */ Z80_IN(A, BC);
         void _0xed79() /* OUT (C),A     */ { io::write(BC, A); MP = BC + 1; };
         void _0xed7a() /* ADC HL,SP     */ { REP_7(CONTEND_READ_NO_MREQ(IR, 1)); ADCW(SP); };
-        void _0xed7b() /* LD SP,(nnnn)  */ { LDW_RRNN(SPL, SPH); };
+        void _0xed7b() /* LD SP,(nnnn)  */ LDW_RRNN(SPL, SPH);
         void _0xeda0() /* LDI           */ { uint8_t v = memoryRead(HL); BC--; memoryWrite(DE, v); REP_2(CONTEND_WRITE_NO_MREQ(DE, 1)); ++DE; ++HL; v += A; F = (F & (FLAG_C | FLAG_Z | FLAG_S)) | (BC ? FLAG_V : 0) | (v & FLAG_3) | ((v & 0x02) ? FLAG_5 : 0); Q = F; };;
         void _0xeda1() /* CPI           */ { uint8_t v = memoryRead(HL), t = A - v, l = ((A & 0x08) >> 3) | ((v & 0x08) >> 2) | ((t & 0x08) >> 1); REP_5(CONTEND_READ_NO_MREQ(HL, 1)); ++HL; --BC; F = (F & FLAG_C) | (BC ? (FLAG_V | FLAG_N) : FLAG_N) | halfcarrySub[l] | (t ? 0 : FLAG_Z) | (t & FLAG_S); if (F & FLAG_H) t--; F |= (t & FLAG_3) | ((t & 0x02) ? FLAG_5 : 0); Q = F; ++MP; };
         void _0xeda2() /* INI           */ { uint8_t t1, t2; CONTEND_READ_NO_MREQ(IR, 1); t1 = io::read(BC); memoryWrite(HL, t1); MP = BC + 1; --B; ++HL; t2 = t1 + C + 1; F = ((t1 & 0x80) ? FLAG_N : 0) | ((t2 < t1) ? FLAG_H | FLAG_C : 0) | ( parity[(t2 & 0x07) ^ B] ? FLAG_P : 0) | sz53[B]; Q = F; };
@@ -1043,7 +1038,7 @@ namespace z80
             _RETRY_, _RETRY_, _RETRY_, _RETRY_, _0xdd34, _0xdd35, _0xdd36, _RETRY_, _RETRY_, _0xdd39, _RETRY_, _RETRY_, _RETRY_, _RETRY_, _RETRY_, _RETRY_,
             _RETRY_, _RETRY_, _RETRY_, _RETRY_, _0xdd44, _0xdd45, _0xdd46, _RETRY_, _RETRY_, _RETRY_, _RETRY_, _RETRY_, _0xdd4c, _0xdd4d, _0xdd4e, _RETRY_,
             _RETRY_, _RETRY_, _RETRY_, _RETRY_, _0xdd54, _0xdd55, _0xdd56, _RETRY_, _RETRY_, _RETRY_, _RETRY_, _RETRY_, _0xdd5c, _0xdd5d, _0xdd5e, _RETRY_,
-            _0xdd60, _0xdd61, _0xdd62, _0xdd63, _0xdd64, _0xdd65, _0xdd66, _0xdd67, _0xdd68, _0xdd69, _0xdd6a, _0xdd6b, _0xdd6c, _0xdd6d, _0xdd6e, _0xdd6f,
+            _0xdd60, _0xdd61, _0xdd62, _0xdd63,   _NOP_, _0xdd65, _0xdd66, _0xdd67, _0xdd68, _0xdd69, _0xdd6a, _0xdd6b, _0xdd6c,   _NOP_, _0xdd6e, _0xdd6f,
             _0xdd70, _0xdd71, _0xdd72, _0xdd73, _0xdd74, _0xdd75, _RETRY_, _0xdd77, _RETRY_, _RETRY_, _RETRY_, _RETRY_, _0xdd7c, _0xdd7d, _0xdd7e, _RETRY_,
             _RETRY_, _RETRY_, _RETRY_, _RETRY_, _0xdd84, _0xdd85, _0xdd86, _RETRY_, _RETRY_, _RETRY_, _RETRY_, _RETRY_, _0xdd8c, _0xdd8d, _0xdd8e, _RETRY_,
             _RETRY_, _RETRY_, _RETRY_, _RETRY_, _0xdd94, _0xdd95, _0xdd96, _RETRY_, _RETRY_, _RETRY_, _RETRY_, _RETRY_, _0xdd9c, _0xdd9d, _0xdd9e, _RETRY_,
@@ -1063,7 +1058,7 @@ namespace z80
             _RETRY_, _RETRY_, _RETRY_, _RETRY_, _0xfd34, _0xfd35, _0xfd36, _RETRY_, _RETRY_, _0xfd39, _RETRY_, _RETRY_, _RETRY_, _RETRY_, _RETRY_, _RETRY_,
             _RETRY_, _RETRY_, _RETRY_, _RETRY_, _0xfd44, _0xfd45, _0xfd46, _RETRY_, _RETRY_, _RETRY_, _RETRY_, _RETRY_, _0xfd4c, _0xfd4d, _0xfd4e, _RETRY_,
             _RETRY_, _RETRY_, _RETRY_, _RETRY_, _0xfd54, _0xfd55, _0xfd56, _RETRY_, _RETRY_, _RETRY_, _RETRY_, _RETRY_, _0xfd5c, _0xfd5d, _0xfd5e, _RETRY_,
-            _0xfd60, _0xfd61, _0xfd62, _0xfd63, _0xfd64, _0xfd65, _0xfd66, _0xfd67, _0xfd68, _0xfd69, _0xfd6a, _0xfd6b, _0xfd6c, _0xfd6d, _0xfd6e, _0xfd6f,
+            _0xfd60, _0xfd61, _0xfd62, _0xfd63,   _NOP_, _0xfd65, _0xfd66, _0xfd67, _0xfd68, _0xfd69, _0xfd6a, _0xfd6b, _0xfd6c,   _NOP_, _0xfd6e, _0xfd6f,
             _0xfd70, _0xfd71, _0xfd72, _0xfd73, _0xfd74, _0xfd75, _RETRY_, _0xfd77, _RETRY_, _RETRY_, _RETRY_, _RETRY_, _0xfd7c, _0xfd7d, _0xfd7e, _RETRY_,
             _RETRY_, _RETRY_, _RETRY_, _RETRY_, _0xfd84, _0xfd85, _0xfd86, _RETRY_, _RETRY_, _RETRY_, _RETRY_, _RETRY_, _0xfd8c, _0xfd8d, _0xfd8e, _RETRY_,
             _RETRY_, _RETRY_, _RETRY_, _RETRY_, _0xfd94, _0xfd95, _0xfd96, _RETRY_, _RETRY_, _RETRY_, _RETRY_, _RETRY_, _0xfd9c, _0xfd9d, _0xfd9e, _RETRY_,
@@ -1077,22 +1072,22 @@ namespace z80
 
         void(*opCodesED[0x100])() =
         {
-            _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_,
-            _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_,
-            _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_,
-            _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_,
+              _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,
+              _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,
+              _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,
+              _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,
             _0xed40, _0xed41, _0xed42, _0xed43, _0xed7c, _0xed7d, _0xed6e, _0xed47, _0xed48, _0xed49, _0xed4a, _0xed4b, _0xed7c, _0xed7d, _0xed6e, _0xed4f,
             _0xed50, _0xed51, _0xed52, _0xed53, _0xed7c, _0xed7d, _0xed76, _0xed57, _0xed58, _0xed59, _0xed5a, _0xed5b, _0xed7c, _0xed7d, _0xed7e, _0xed5f,
             _0xed60, _0xed61, _0xed62, _0xed63, _0xed7c, _0xed7d, _0xed6e, _0xed67, _0xed68, _0xed69, _0xed6a, _0xed6b, _0xed7c, _0xed7d, _0xed6e, _0xed6f,
-            _0xed70, _0xed71, _0xed72, _0xed73, _0xed7c, _0xed7d, _0xed76, _NOPED_, _0xed78, _0xed79, _0xed7a, _0xed7b, _0xed7c, _0xed7d, _0xed7e, _NOPED_,
-            _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_,
-            _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_,
-            _0xeda0, _0xeda1, _0xeda2, _0xeda3, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _0xeda8, _0xeda9, _0xedaa, _0xedab, _NOPED_, _NOPED_, _NOPED_, _NOPED_,
-            _0xedb0, _0xedb1, _0xedb2, _0xedb3, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _0xedb8, _0xedb9, _0xedba, _0xedbb, _NOPED_, _NOPED_, _NOPED_, _NOPED_,
-            _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_,
-            _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_,
-            _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_,
-            _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_, _NOPED_
+            _0xed70, _0xed71, _0xed72, _0xed73, _0xed7c, _0xed7d, _0xed76,   _NOP_, _0xed78, _0xed79, _0xed7a, _0xed7b, _0xed7c, _0xed7d, _0xed7e,   _NOP_,
+              _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,
+              _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,
+            _0xeda0, _0xeda1, _0xeda2, _0xeda3,   _NOP_,   _NOP_,   _NOP_,   _NOP_, _0xeda8, _0xeda9, _0xedaa, _0xedab,   _NOP_,   _NOP_,   _NOP_,   _NOP_,
+            _0xedb0, _0xedb1, _0xedb2, _0xedb3,   _NOP_,   _NOP_,   _NOP_,   _NOP_, _0xedb8, _0xedb9, _0xedba, _0xedbb,   _NOP_,   _NOP_,   _NOP_,   _NOP_,
+              _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,
+              _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,
+              _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,
+              _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_,   _NOP_
         };
 
         void(*opCodesXXCB[0x100])() =
