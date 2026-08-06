@@ -15,6 +15,11 @@
 
 namespace display
 {
+	uint32_t* displayBuffer = nullptr;
+    bool frameReady = false;
+    std::mutex frameReadyMutex;
+    std::condition_variable frameReadyConditionVariable;
+
 	namespace
 	{
 		bool viewportChanged = true;
@@ -95,6 +100,7 @@ namespace display
 			ImGui_ImplWin32_InitForOpenGL(win_app::hWnd);
 			ImGui_ImplOpenGL3_Init();
 
+			// Initialize UI
 	        widgets_window::init();
 		}
 
@@ -224,15 +230,15 @@ namespace display
 
 			ImGui_ImplOpenGL3_Shutdown();
             ImGui_ImplWin32_Shutdown();
+
+			glDeleteTextures(1, &texture);
+			glDeleteBuffers(1, &EBO);
+			glDeleteBuffers(1, &VBO);
+			glDeleteVertexArrays(1, &VAO);
 			
 			shader::cleanUp();
 		}
 	}
-
-	uint32_t* displayBuffer;
-	bool frameReady = false;
-	std::mutex frameReadyMutex;
-	std::condition_variable frameReadyConditionVariable;
 
 	void startRenderThread()
 	{

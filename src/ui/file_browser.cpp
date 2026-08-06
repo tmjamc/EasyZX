@@ -106,8 +106,6 @@ namespace file_browser
                     root.c_str(),
                     volumeName, MAX_PATH,
                     nullptr, nullptr, nullptr, nullptr, MAX_PATH
-                    // &serialNumber, &maxCompLen, &fsFlags,
-                    // fsName, MAX_PATH
                 );
 
                 if (ok)
@@ -123,6 +121,34 @@ namespace file_browser
             folderEntries.emplace_back(paths::getFolder(FOLDERID_Pictures), std::filesystem::path(paths::getFolder(FOLDERID_Pictures)).filename().string());
             folderEntries.emplace_back(paths::getFolder(FOLDERID_Music), std::filesystem::path(paths::getFolder(FOLDERID_Music)).filename().string());
             folderEntries.emplace_back(paths::getFolder(FOLDERID_Videos), std::filesystem::path(paths::getFolder(FOLDERID_Videos)).filename().string());
+        }
+
+        void updateRecentEntries(std::filesystem::path pathToAdd = "")
+        {
+            if (!pathToAdd.empty())
+            {
+                bool found = false;
+                std::string path = pathToAdd.parent_path().string();
+                for (RecentEntry &entry : recentEntries)
+                {
+                    if (path.compare(entry.path) == 0)
+                    {
+                        found = true;
+                        ++entry.count;
+                        break;
+                    }
+                }
+
+                if (!found)
+                {
+                    recentEntries.emplace_back(1, path);
+                }
+            }
+
+            std::ranges::sort(recentEntries, [](const RecentEntry &entry1, const RecentEntry &entry2)
+            {
+                return entry1.count < entry2.count;
+            });
         }
 
         void updateEntries()
@@ -245,6 +271,16 @@ namespace file_browser
             std::string value = currentPath.string();
             settings::loadString(value, paths, "current_path");
             currentPath = value;
+            
+            const auto &recent = ini["recent"];
+            recentEntries.clear();
+            int index = 0;
+            // std::string value;
+            while ((value = recent.get(std::format("w{:02d}", index++))) != "")
+            {
+                const int c = value.find_first_of(',');
+                recentEntries.emplace_back(std::stoi(value.substr(0, c)), value.substr(c + 1));
+            }
         }
 
         void save()
@@ -269,6 +305,13 @@ namespace file_browser
             ini["paths"].set(
                 {{"current_path", currentPath.string()}});
 
+            auto &recent = ini["recent"];
+            int index = 0;
+            for (const RecentEntry &entry : recentEntries)
+            {
+                recent.set(std::format("w{:02d}", index++), std::format("{},{}", entry.count, entry.path));
+            }
+
             file.generate(ini, true);
         }
 
@@ -279,6 +322,7 @@ namespace file_browser
             if (std::filesystem::exists(filePath))
             {
                 fileSelectedCallBack(filePath.string());
+                updateRecentEntries(filePath);
                 opened = false;
             }
         }
@@ -299,7 +343,6 @@ namespace file_browser
     void open(std::vector<ExtensionFilter> filter, std::function<void(const std::string&)> callBack)
     {
         load();
-        // currentPath = path;
         extensionFilters = filter;
         fileSelectedCallBack = callBack;
         selectedExtensionFilterIndex = 0;
@@ -308,6 +351,7 @@ namespace file_browser
         memset(fileName, 0, FILE_NAME_LENGTH);
 
         updateVolumeEntries();
+        updateRecentEntries();
     }
 
     void render()
@@ -417,7 +461,44 @@ namespace file_browser
                 ImGui::EndTable();
             }
 
-            // TODO: Recent
+            // Recent
+            if (ImGui::BeginTable("###recent", 1, ImGuiTableFlags_BordersOuter | ImGuiTableFlags_RowBg))
+            {
+                ImGui::TableSetupColumn("Recent", ImGuiTableColumnFlags_WidthStretch);
+                ImGui::TableSetupScrollFreeze(0, 1);
+                ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, { 0.0f, 3.5f });
+                ImGui::TableHeadersRow();
+                ImGui::PopStyleVar();
+
+                int rowIndex = 0;
+                for (const RecentEntry &entry : recentEntries)
+                {
+                    ImGui::PushID(rowIndex++);
+
+                    ImGui::TableNextRow(ImGuiTableRowFlags_None, 24.0f);
+                    ImGui::TableSetColumnIndex(0);
+
+                    ImGui::ZXIcon(ImGui::ZXIconId::FOLDER);
+                    auto fileName = std::filesystem::path(entry.path).filename();
+                    if (fileName.empty())
+                    {
+                        fileName = std::filesystem::path(entry.path).remove_filename().filename();
+                    }
+                    ImGui::TextUnformatted(fileName.string().c_str());
+                    ImGui::SameLine();
+                    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 2.0f);
+
+                    if (ImGui::Selectable("", false, ImGuiSelectableFlags_SpanAllColumns, ImVec2(0.0f, 14.0f)))
+                    {
+                        currentPath = entry.path;
+                        updateRequest = true;
+                    }
+
+                    ImGui::PopID();
+                }
+
+                ImGui::EndTable();
+            }
 
             ImGui::EndChild();
 
