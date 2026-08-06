@@ -694,8 +694,8 @@ namespace ImGui
 
         constexpr float SPECTRUM_BAR_HEIGHT = 30.0f;
         constexpr float SPECTRUM_BAR_WIDTH = 25.0f;
-        constexpr int ZX_ICONS_COLUMNS = 4;
-        constexpr int ZX_ICONS_ROWS = 4;
+        constexpr int ZX_ICONS_COLUMNS = 8;
+        constexpr int ZX_ICONS_ROWS = 8;
         constexpr float ZX_ICON_WIDTH = 1.0f / (float)ZX_ICONS_COLUMNS;
         constexpr float ZX_ICON_HEIGHT = 1.0f / (float)ZX_ICONS_ROWS;
 
@@ -720,6 +720,35 @@ namespace ImGui
             const bool isMouseHovering = IsWindowContentHoverable(window) && (ImTriangleContainsPoint(a, b, d, p) || ImTriangleContainsPoint(b, c, d, p));
             drawList->AddQuadFilled(a, b, c, d, isMouseHovering ? colHover : col);
             windowPos.x -= SPECTRUM_BAR_WIDTH - 0.5f;
+        }
+    
+        void loadIconsTexture()
+        {
+            if (iconsTexture)
+            {
+                return;
+            }
+
+            HMODULE hModule = GetModuleHandle(NULL);
+            HRSRC hRes = FindResource(hModule, MAKEINTRESOURCE(IDR_ICONS), TEXT("PNG"));
+            HGLOBAL hMem = LoadResource(hModule, hRes);
+            LPVOID pRes = LockResource(hMem);
+            DWORD size = SizeofResource(hModule, hRes);
+            int channels;
+            unsigned char* iconsImageData = stbi_load_from_memory((const stbi_uc*)pRes, size, &iconsTextureWidth, &iconsTextureHeight, &channels, 4);
+
+            glGenTextures(1, &iconsTexture);
+            glBindTexture(GL_TEXTURE_2D, iconsTexture);
+
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+            glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, iconsTextureWidth, iconsTextureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, iconsImageData);
+            stbi_image_free(iconsImageData);
         }
     }
 
@@ -859,29 +888,7 @@ namespace ImGui
 
     void ZXIcon(ZXIconId id)
     {
-        if (!iconsTexture)
-        {
-            HMODULE hModule = GetModuleHandle(NULL);
-            HRSRC hRes = FindResource(hModule, MAKEINTRESOURCE(IDR_ICONS), TEXT("PNG"));
-            HGLOBAL hMem = LoadResource(hModule, hRes);
-            LPVOID pRes = LockResource(hMem);
-            DWORD size = SizeofResource(hModule, hRes);
-            int channels;
-            unsigned char* iconsImageData = stbi_load_from_memory((const stbi_uc*)pRes, size, &iconsTextureWidth, &iconsTextureHeight, &channels, 4);
-
-            glGenTextures(1, &iconsTexture);
-            glBindTexture(GL_TEXTURE_2D, iconsTexture);
-
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-            glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, iconsTextureWidth, iconsTextureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, iconsImageData);
-            stbi_image_free(iconsImageData);
-        }
+        loadIconsTexture();
 
         const float x = id % ZX_ICONS_COLUMNS;
         const float y = id / ZX_ICONS_COLUMNS;
@@ -889,6 +896,17 @@ namespace ImGui
         ImGui::Image(iconsTexture, ImVec2(16.0, 16.0), ImVec2(x * ZX_ICON_WIDTH, y * ZX_ICON_HEIGHT), ImVec2((x + 1) * ZX_ICON_WIDTH, (y + 1) * ZX_ICON_HEIGHT));
         ImGui::SameLine();
         ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPosX() - 5.0f, ImGui::GetCursorPosY() - 1.0f));
+    }
+
+    bool ZXButtonIcon(ZXIconId id, const char* name)
+    {
+        loadIconsTexture();
+
+        const float x = id % ZX_ICONS_COLUMNS;
+        const float y = id / ZX_ICONS_COLUMNS;
+        
+        // ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 1.0f);
+        return ImGui::ImageButton(name, iconsTexture, ImVec2(16.0, 16.0), ImVec2(x * ZX_ICON_WIDTH, y * ZX_ICON_HEIGHT), ImVec2((x + 1) * ZX_ICON_WIDTH, (y + 1) * ZX_ICON_HEIGHT));
     }
 
     bool ZXCollapsingHeader(const char* name, bool &collapsed)

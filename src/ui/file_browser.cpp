@@ -173,6 +173,11 @@ namespace file_browser
                     {
                         iconId = ImGui::ZXIconId::TAPE;
                     }
+
+                    if (extension == ".trd"|| extension == ".scl")
+                    {
+                        iconId = ImGui::ZXIconId::DISK;
+                    }
                 }
 
                 entries.emplace_back(directoryEntry, extension, iconId);
@@ -318,7 +323,7 @@ namespace file_browser
         {
             std::filesystem::path filePath = std::filesystem::path(currentPath).append(fileName);
 
-            if (std::filesystem::exists(filePath))
+            if (filePath.has_filename() && std::filesystem::exists(filePath))
             {
                 fileSelectedCallBack(filePath.string());
                 updateRecentEntries(filePath);
@@ -409,7 +414,7 @@ namespace file_browser
                     ImGui::TableNextRow(ImGuiTableRowFlags_None, 24.0f);
                     ImGui::TableSetColumnIndex(0);
 
-                    ImGui::ZXIcon(ImGui::ZXIconId::FOLDER);
+                    ImGui::ZXIcon(volumeEntry.type == DRIVE_REMOVABLE ? ImGui::ZXIconId::USB : ImGui::ZXIconId::HDD);
                     ImGui::TextUnformatted(volumeEntry.name.c_str());
                     ImGui::SameLine();
                     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 2.0f);
@@ -461,7 +466,7 @@ namespace file_browser
             }
 
             // Recent
-            if (ImGui::BeginTable("###recent", 1, ImGuiTableFlags_BordersOuter | ImGuiTableFlags_RowBg, ImVec2(0.0f, -1.0f)))
+            if (ImGui::BeginTable("###recent", 1, ImGuiTableFlags_BordersOuter | ImGuiTableFlags_RowBg, ImVec2(0.0f, -0.000001f)))
             {
                 ImGui::TableSetupColumn("Recent", ImGuiTableColumnFlags_WidthStretch);
                 ImGui::TableSetupScrollFreeze(0, 1);
@@ -530,21 +535,25 @@ namespace file_browser
             ImGui::BeginChild("###right_pane", ImVec2(0, panesHeight), ImGuiChildFlags_None);
 
             ImGui::AlignTextToFramePadding();
-
-            if (ImGui::Button("Up"))
+            if (ImGui::ZXButtonIcon(ImGui::ZXIconId::UP, "###up"))
             {
                 currentPath = currentPath.parent_path();
                 updateRequest = true;
             }
-            ImGui::SameLine();
-            
-            ImGui::AlignTextToFramePadding();
 
+            ImGui::SameLine();
+            ImGui::AlignTextToFramePadding();
+            if (ImGui::ZXButtonIcon(ImGui::ZXIconId::REFRESH, "###refresh"))
+            {
+                updateRequest = true;
+            }
+
+            ImGui::SameLine();
+            ImGui::AlignTextToFramePadding();
             ImGui::Dummy(ImVec2(0.0f, 0.0f));
-            ImGui::SameLine();
-
-            ImGui::AlignTextToFramePadding();
             
+            ImGui::SameLine();
+            ImGui::AlignTextToFramePadding();            
             ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, { 0.0f, 0.0f });
             std::string partialPath{};
             for (const auto& part : currentPath)
