@@ -275,7 +275,6 @@ namespace file_browser
             const auto &recent = ini["recent"];
             recentEntries.clear();
             int index = 0;
-            // std::string value;
             while ((value = recent.get(std::format("w{:02d}", index++))) != "")
             {
                 const int c = value.find_first_of(',');
@@ -462,7 +461,7 @@ namespace file_browser
             }
 
             // Recent
-            if (ImGui::BeginTable("###recent", 1, ImGuiTableFlags_BordersOuter | ImGuiTableFlags_RowBg))
+            if (ImGui::BeginTable("###recent", 1, ImGuiTableFlags_BordersOuter | ImGuiTableFlags_RowBg, ImVec2(0.0f, -1.0f)))
             {
                 ImGui::TableSetupColumn("Recent", ImGuiTableColumnFlags_WidthStretch);
                 ImGui::TableSetupScrollFreeze(0, 1);
