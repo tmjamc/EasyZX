@@ -1,4 +1,4 @@
-#include "zx_theme.h"
+#include "ui.h"
 #include "main.h"
 #include "model_selection.h"
 #include "settings.h"
@@ -17,7 +17,7 @@ namespace widgets
             selectedModel = main::currentModel;
         }
 
-        ImGui::ZXLabel("Model:");
+        ui::Label("Model:");
 
         ImGui::SameLine();
         ImGui::SetNextItemWidth(-1.0f);

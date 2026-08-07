@@ -1,7 +1,7 @@
 #include <format>
 #include <filesystem>
 
-#include "zx_theme.h"
+#include "ui.h"
 #include "disk_manager.h"
 #include "wd_1793.h"
 #include "file_browser.h"
@@ -28,7 +28,7 @@ namespace widgets
         {
             const bool empty = wd_1793::disks[index] == nullptr;
 
-            ImGui::ZXLabel(std::format("Unit {}", index).c_str(), 50.0f);
+            ui::Label(std::format("Unit {}", index).c_str(), 50.0f);
 
             ImGui::SameLine();
 

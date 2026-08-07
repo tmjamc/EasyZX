@@ -1,12 +1,14 @@
 #include <windows.h>
 
 #include "imgui_internal.h"
-#include "zx_theme.h"
+#include "ui.h"
 #include "stb_image.h"
 #include "glad/gl.h"
 #include "resources/resources.h"
+#include "widgets_window.h"
+#include "file_browser.h"
 
-namespace ImGui
+namespace ui
 {
     namespace
     {
@@ -694,10 +696,10 @@ namespace ImGui
 
         constexpr float SPECTRUM_BAR_HEIGHT = 30.0f;
         constexpr float SPECTRUM_BAR_WIDTH = 25.0f;
-        constexpr int ZX_ICONS_COLUMNS = 8;
-        constexpr int ZX_ICONS_ROWS = 8;
-        constexpr float ZX_ICON_WIDTH = 1.0f / (float)ZX_ICONS_COLUMNS;
-        constexpr float ZX_ICON_HEIGHT = 1.0f / (float)ZX_ICONS_ROWS;
+        constexpr int ICONS_COLUMNS = 8;
+        constexpr int ICONS_ROWS = 8;
+        constexpr float ICON_WIDTH = 1.0f / (float)ICONS_COLUMNS;
+        constexpr float ICON_HEIGHT = 1.0f / (float)ICONS_ROWS;
 
         ImVec2 windowPos;
         ImVec2 windowSize;
@@ -717,7 +719,7 @@ namespace ImGui
             const ImVec2 p = ImGui::GetMousePos();
             ImGuiContext& g = *GImGui;
             ImGuiWindow* window = g.CurrentWindow;
-            const bool isMouseHovering = IsWindowContentHoverable(window) && (ImTriangleContainsPoint(a, b, d, p) || ImTriangleContainsPoint(b, c, d, p));
+            const bool isMouseHovering = ImGui::IsWindowContentHoverable(window) && (ImTriangleContainsPoint(a, b, d, p) || ImTriangleContainsPoint(b, c, d, p));
             drawList->AddQuadFilled(a, b, c, d, isMouseHovering ? colHover : col);
             windowPos.x -= SPECTRUM_BAR_WIDTH - 0.5f;
         }
@@ -752,7 +754,7 @@ namespace ImGui
         }
     }
 
-    void ZXTheme()
+    void init()
     {
         ImGuiStyle& style = ImGui::GetStyle();
         ImVec4* colors = style.Colors;
@@ -845,9 +847,12 @@ namespace ImGui
         cfg.OversampleH = 2.0f;
         ImFont* font = io.Fonts->AddFontFromMemoryCompressedTTF(segoe_ui_variable_compressed_data, segoe_ui_variable_compressed_size, 0.0f, &cfg);
         io.FontDefault = font;
+        
+        // Initialize UI
+        widgets_window::init();
     }
 
-    void ZXThemeCleanUp()
+    void cleanUp()
     {
         if (iconsTexture)
         {
@@ -855,7 +860,13 @@ namespace ImGui
         }
     }
 
-    bool ZXBegin(const char* name, ImGuiWindowFlags flags)
+    void render()
+    {
+        widgets_window::render();
+        file_browser::render();
+    }
+
+    bool Begin(const char* name, ImGuiWindowFlags flags)
     {
         const bool result = ImGui::Begin(name, nullptr, flags);
 
@@ -878,7 +889,7 @@ namespace ImGui
         return result;
     }
 
-    void ZXLabel(const char* name, float width)
+    void Label(const char* name, float width)
     {
         ImGui::AlignTextToFramePadding();
         ImGui::SetNextItemWidth(width);
@@ -886,30 +897,30 @@ namespace ImGui
         ImGui::LabelText("", name);
     }
 
-    void ZXIcon(ZXIconId id)
+    void Icon(IconId id)
     {
         loadIconsTexture();
 
-        const float x = id % ZX_ICONS_COLUMNS;
-        const float y = id / ZX_ICONS_COLUMNS;
+        const float x = id % ICONS_COLUMNS;
+        const float y = id / ICONS_COLUMNS;
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 1.0f);
-        ImGui::Image(iconsTexture, ImVec2(16.0, 16.0), ImVec2(x * ZX_ICON_WIDTH, y * ZX_ICON_HEIGHT), ImVec2((x + 1) * ZX_ICON_WIDTH, (y + 1) * ZX_ICON_HEIGHT));
+        ImGui::Image(iconsTexture, ImVec2(16.0, 16.0), ImVec2(x * ICON_WIDTH, y * ICON_HEIGHT), ImVec2((x + 1) * ICON_WIDTH, (y + 1) * ICON_HEIGHT));
         ImGui::SameLine();
         ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPosX() - 5.0f, ImGui::GetCursorPosY() - 1.0f));
     }
 
-    bool ZXButtonIcon(ZXIconId id, const char* name)
+    bool ButtonIcon(IconId id, const char* name)
     {
         loadIconsTexture();
 
-        const float x = id % ZX_ICONS_COLUMNS;
-        const float y = id / ZX_ICONS_COLUMNS;
+        const float x = id % ICONS_COLUMNS;
+        const float y = id / ICONS_COLUMNS;
         
         // ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 1.0f);
-        return ImGui::ImageButton(name, iconsTexture, ImVec2(16.0, 16.0), ImVec2(x * ZX_ICON_WIDTH, y * ZX_ICON_HEIGHT), ImVec2((x + 1) * ZX_ICON_WIDTH, (y + 1) * ZX_ICON_HEIGHT));
+        return ImGui::ImageButton(name, iconsTexture, ImVec2(16.0, 16.0), ImVec2(x * ICON_WIDTH, y * ICON_HEIGHT), ImVec2((x + 1) * ICON_WIDTH, (y + 1) * ICON_HEIGHT));
     }
 
-    bool ZXCollapsingHeader(const char* name, bool &collapsed)
+    bool CollapsingHeader(const char* name, bool &collapsed)
     {
         ImVec2 posMin = ImGui::GetCursorScreenPos();
         posMin.x -= 20.0f;
@@ -917,7 +928,7 @@ namespace ImGui
         
         ImGuiContext& g = *GImGui;
         ImGuiWindow* window = g.CurrentWindow;
-        const bool isMouseHovering = IsWindowContentHoverable(window) && IsMouseHoveringRect(posMin, posMax);
+        const bool isMouseHovering = ImGui::IsWindowContentHoverable(window) && ImGui::IsMouseHoveringRect(posMin, posMax);
         drawList = ImGui::GetWindowDrawList();
         drawList->AddRectFilled(posMin, posMax, isMouseHovering ? ImGui::GetColorU32(ImGuiCol_TitleBgActive) : ImGui::GetColorU32(ImGuiCol_TitleBg));
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 6.0f);

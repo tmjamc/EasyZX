@@ -2,7 +2,7 @@
 
 #include "tape_manager.h"
 #include "tape.h"
-#include "zx_theme.h"
+#include "ui.h"
 #include "settings.h"
 #include "file_browser.h"
 
@@ -25,12 +25,12 @@ namespace widgets
         const float width = ImGui::GetContentRegionAvail().x - 131.0f;
         if (empty)
         {
-            ImGui::ZXLabel("No tape", width);
+            ui::Label("No tape", width);
         }
         else
         {
             std::filesystem::path tapePath(tape::fileName);
-            ImGui::ZXLabel(tapePath.filename().generic_string().c_str(), width);
+            ui::Label(tapePath.filename().generic_string().c_str(), width);
         }
 
         ImGui::SameLine();
@@ -48,7 +48,7 @@ namespace widgets
             empty = true;
         }
 
-        ImGui::ZXLabel("Current block:");
+        ui::Label("Current block:");
 
         ImGui::SameLine();
         ImGui::SetNextItemWidth(-1.0f);
@@ -83,7 +83,7 @@ namespace widgets
 
         ImGui::EndDisabled();
 
-        ImGui::ZXLabel("Auto play / stop:");
+        ui::Label("Auto play / stop:");
 
         ImGui::SameLine();
         ImGui::Checkbox("", &settings::current.tapeAutoStartStop);

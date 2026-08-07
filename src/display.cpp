@@ -2,16 +2,15 @@
 #include <thread>
 
 #include "glad/gl.h"
+#include "imgui_impl_win32.h"
+#include "imgui_impl_opengl3.h"
 #include "display.h"
 #include "win_app.h"
 #include "settings.h"
 #include "main.h"
 #include "shader.h"
 #include "resources/resources.h"
-#include "imgui_impl_win32.h"
-#include "imgui_impl_opengl3.h"
-#include "widgets_window.h"
-#include "file_browser.h"
+#include "ui.h"
 
 namespace display
 {
@@ -19,6 +18,7 @@ namespace display
     bool frameReady = false;
     std::mutex frameReadyMutex;
     std::condition_variable frameReadyConditionVariable;
+    float mainWindowOffsetPercentage = 50.0f;
 
 	namespace
 	{
@@ -99,9 +99,6 @@ namespace display
 			// Initialize ImGui Platform and Renderer backends
 			ImGui_ImplWin32_InitForOpenGL(win_app::hWnd);
 			ImGui_ImplOpenGL3_Init();
-
-			// Initialize UI
-	        widgets_window::init();
 		}
 
 		void run()
@@ -181,7 +178,7 @@ namespace display
 					// Fit the image vertically and center it horizontally.
 					calcHeight = height;
 					calcWidth = (height * normalizedDisplayBufferWidth) / normalizedDisplayBufferHeight;
-					calcX = (width - calcWidth) / 2.0f;
+					calcX = mainWindowOffsetPercentage * 0.02f * (width - calcWidth) / 2.0f;
 					calcY = 0.0f;
 				}
 				else
@@ -190,7 +187,7 @@ namespace display
 					// Fit the image horizontally and center it vertically.
 					calcHeight = (width * normalizedDisplayBufferHeight) / normalizedDisplayBufferWidth;
 					calcWidth = width;
-					calcY = (height - calcHeight) / 2.0f;
+					calcY = mainWindowOffsetPercentage * 0.02f * (height - calcHeight) / 2.0f;
 					calcX = 0.0f;
 				}
 
@@ -217,8 +214,7 @@ namespace display
 				ImGui::NewFrame();
 
 				// Render UI
-				widgets_window::render();
-				file_browser::render();
+                ui::render();
 
 				// Render ImGui
 				ImGui::Render();

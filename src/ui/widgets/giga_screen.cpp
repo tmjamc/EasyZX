@@ -1,4 +1,4 @@
-#include "zx_theme.h"
+#include "ui.h"
 #include "settings.h"
 #include "giga_screen.h"
 #include "ula.h"
@@ -12,7 +12,7 @@ namespace widgets
 
     void renderGigaScreen()
     {
-        ImGui::ZXLabel("Giga screen:");
+        ui::Label("Giga screen:");
 
         ImGui::SameLine();
 

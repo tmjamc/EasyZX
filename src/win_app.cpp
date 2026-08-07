@@ -1,5 +1,4 @@
 #include <iostream>
-#include <tchar.h>
 
 #include "glad/gl.h"
 #include "glad/wgl.h"
@@ -12,7 +11,7 @@
 #include "paths.h"
 #include "settings.h"
 #include "main.h"
-#include "zx_theme.h"
+#include "ui.h"
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -25,8 +24,8 @@ namespace win_app
 
     namespace
     {
-        constexpr wchar_t WINDOW_CLASSNAME[] = L"EasyZXClass";
-        constexpr wchar_t WINDOW_TITLE[] = L"EasyZX";
+        constexpr const char* WINDOW_CLASSNAME = "EasyZXClass";
+        constexpr const char* WINDOW_TITLE = "EasyZX";
         constexpr int MIN_WINDOW_WIDTH = 400;
         constexpr int MIN_WINDOW_HEIGHT = 260;
 
@@ -104,7 +103,7 @@ namespace win_app
         {
             info("Registering main window class");
 
-            WNDCLASSEXW wcex{};
+            WNDCLASSEX wcex{};
             wcex.cbSize = sizeof(wcex);
             wcex.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
             wcex.lpfnWndProc = WndProc;
@@ -112,7 +111,7 @@ namespace win_app
             wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
             wcex.lpszClassName = WINDOW_CLASSNAME;
 
-            if (RegisterClassExW(&wcex) == 0)
+            if (RegisterClassEx(&wcex) == 0)
             {
                 const DWORD err = GetLastError();
                 if (err != ERROR_CLASS_ALREADY_EXISTS)
@@ -130,7 +129,7 @@ namespace win_app
         {
             info("Creating main window instance");
 
-            hWnd = CreateWindowW(
+            hWnd = CreateWindow(
                 WINDOW_CLASSNAME,
                 WINDOW_TITLE,
                 WS_OVERLAPPEDWINDOW,
@@ -159,7 +158,7 @@ namespace win_app
             if (imguiContext != nullptr)
             {
                 ImGui::SetCurrentContext(imguiContext);
-                ImGui::ZXThemeCleanUp();
+                ui::cleanUp();
                 ImGui::DestroyContext(imguiContext);
                 imguiContext = nullptr;
             }
@@ -195,7 +194,7 @@ namespace win_app
 
             if (windowClassRegistered && hInst != nullptr)
             {
-                UnregisterClassW(WINDOW_CLASSNAME, hInst);
+                UnregisterClass(WINDOW_CLASSNAME, hInst);
                 windowClassRegistered = false;
             }
         }
@@ -292,7 +291,7 @@ namespace win_app
             io.ConfigFlags &= ~ImGuiConfigFlags_NavEnableKeyboard;
             io.IniFilename = nullptr;
 
-            ImGui::ZXTheme();
+            ui::init();
         }
 
         bool enableConsole()

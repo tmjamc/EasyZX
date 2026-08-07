@@ -34,7 +34,7 @@ WIN32
     src/shader.cpp
     src/audio.cpp
     src/paths.cpp
-    src/ui/zx_theme.cpp
+    src/ui/ui.cpp
     src/ui/file_browser.cpp
     src/ui/widgets_window.cpp
     src/ui/widgets/model_selection.cpp

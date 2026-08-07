@@ -1,7 +1,7 @@
 #include <string>
 #include <vector>
 
-#include "zx_theme.h"
+#include "ui.h"
 #include "widgets_window.h"
 #include "ini.h"
 #include "frame_time.h"
@@ -109,7 +109,7 @@ namespace widgets_window
                 //     break;
 
                 case Type::GROUP:
-                    if (ImGui::ZXCollapsingHeader(widget.name.c_str(), widget.collapsed))
+                    if (ui::CollapsingHeader(widget.name.c_str(), widget.collapsed))
                     {
                         renderWidgets(&(widget.children));
                     }
@@ -144,7 +144,7 @@ namespace widgets_window
         {
             ImGui::SetNextWindowSize(ImVec2(window.x, window.y), ImGuiCond_Once);
             ImGui::SetNextWindowSize(ImVec2(window.width, window.height), ImGuiCond_Once);
-            if (ImGui::ZXBegin(window.title.c_str(), ImGuiWindowFlags_NoCollapse))
+            if (ui::Begin(window.title.c_str(), ImGuiWindowFlags_NoCollapse))
             {
                 renderWidgets(&(window.widgets));
             }

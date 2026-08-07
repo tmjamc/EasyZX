@@ -4,7 +4,7 @@
 #include <filesystem>
 #include <ranges>
 
-#include "zx_theme.h"
+#include "ui.h"
 #include "file_browser.h"
 #include "paths.h"
 #include "ini.h"
@@ -26,7 +26,7 @@ namespace file_browser
         {
             std::filesystem::directory_entry directoryEntry;
             std::string extension;
-            ImGui::ZXIconId iconId;
+            ui::IconId iconId;
         };
         std::vector<FileEntry> entries;
         std::vector<FileEntry> filteredAndSortedEntries;
@@ -159,10 +159,10 @@ namespace file_browser
             for (const std::filesystem::directory_entry &directoryEntry : std::filesystem::directory_iterator(currentPath))
             {
                 std::string extension{};
-                ImGui::ZXIconId iconId = ImGui::ZXIconId::DEFAULT;
+                ui::IconId iconId = ui::IconId::DEFAULT;
                 if (directoryEntry.is_directory())
                 {
-                    iconId = ImGui::ZXIconId::FOLDER;
+                    iconId = ui::IconId::FOLDER;
                 }
                 else
                 {
@@ -171,12 +171,12 @@ namespace file_browser
 
                     if (extension == ".tap"|| extension == ".tzx")
                     {
-                        iconId = ImGui::ZXIconId::TAPE;
+                        iconId = ui::IconId::TAPE;
                     }
 
                     if (extension == ".trd"|| extension == ".scl")
                     {
-                        iconId = ImGui::ZXIconId::DISK;
+                        iconId = ui::IconId::DISK;
                     }
                 }
 
@@ -414,7 +414,7 @@ namespace file_browser
                     ImGui::TableNextRow(ImGuiTableRowFlags_None, 24.0f);
                     ImGui::TableSetColumnIndex(0);
 
-                    ImGui::ZXIcon(volumeEntry.type == DRIVE_REMOVABLE ? ImGui::ZXIconId::USB : ImGui::ZXIconId::HDD);
+                    ui::Icon(volumeEntry.type == DRIVE_REMOVABLE ? ui::IconId::USB : ui::IconId::HDD);
                     ImGui::TextUnformatted(volumeEntry.name.c_str());
                     ImGui::SameLine();
                     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 2.0f);
@@ -448,7 +448,7 @@ namespace file_browser
                     ImGui::TableNextRow(ImGuiTableRowFlags_None, 24.0f);
                     ImGui::TableSetColumnIndex(0);
 
-                    ImGui::ZXIcon(ImGui::ZXIconId::FOLDER);
+                    ui::Icon(ui::IconId::FOLDER);
                     ImGui::TextUnformatted(folderEntry.name.c_str());
                     ImGui::SameLine();
                     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 2.0f);
@@ -482,7 +482,7 @@ namespace file_browser
                     ImGui::TableNextRow(ImGuiTableRowFlags_None, 24.0f);
                     ImGui::TableSetColumnIndex(0);
 
-                    ImGui::ZXIcon(ImGui::ZXIconId::FOLDER);
+                    ui::Icon(ui::IconId::FOLDER);
                     auto fileName = std::filesystem::path(entry.path).filename();
                     if (fileName.empty())
                     {
@@ -535,7 +535,7 @@ namespace file_browser
             ImGui::BeginChild("###right_pane", ImVec2(0, panesHeight), ImGuiChildFlags_None);
 
             ImGui::AlignTextToFramePadding();
-            if (ImGui::ZXButtonIcon(ImGui::ZXIconId::UP, "###up"))
+            if (ui::ButtonIcon(ui::IconId::UP, "###up"))
             {
                 currentPath = currentPath.parent_path();
                 updateRequest = true;
@@ -543,7 +543,7 @@ namespace file_browser
 
             ImGui::SameLine();
             ImGui::AlignTextToFramePadding();
-            if (ImGui::ZXButtonIcon(ImGui::ZXIconId::REFRESH, "###refresh"))
+            if (ui::ButtonIcon(ui::IconId::REFRESH, "###refresh"))
             {
                 updateRequest = true;
             }
@@ -624,7 +624,7 @@ namespace file_browser
                     ImGui::TableNextRow(ImGuiTableRowFlags_None, 24.0f);
 
                     ImGui::TableSetColumnIndex(0);
-                    ImGui::ZXIcon(filteredAndSortedEntries[rowIndex].iconId);
+                    ui::Icon(filteredAndSortedEntries[rowIndex].iconId);
                     ImGui::TextUnformatted(filteredAndSortedEntries[rowIndex].directoryEntry.path().filename().string().c_str());
                     ImGui::SameLine();
                     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 2.0f);

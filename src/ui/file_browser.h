@@ -2,6 +2,7 @@
 
 #include <unordered_set>
 #include <functional>
+#include <string>
 
 namespace file_browser
 {
